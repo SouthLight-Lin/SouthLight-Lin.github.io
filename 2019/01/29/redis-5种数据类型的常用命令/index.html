@@ -100,8 +100,10 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/11.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/12.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/13.png">
-<meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/14.png">
-<meta property="og:updated_time" content="2019-01-29T06:39:22.329Z">
+<meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/20190202102221283.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/20190202105536167.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/20190202111635653.png">
+<meta property="og:updated_time" content="2019-02-02T03:16:38.838Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redis 5种数据类型的常用命令">
 <meta name="twitter:description" content="String字符串可以支持三种类型： 1. 字符串（byte 或者  string） 2. 整数 3. 浮点数    命令 用例和描述     INCR INCR key-name —— 将键存储的值加1   DECR DECR  key-name —— 键存储的值减1   INCRBY INCRBY key-name amount  —— 键存储的值加上整数amount   DECRBY DEC">
@@ -402,7 +404,7 @@
 </tbody>
 </table>
 <p>看下一些操作：<br><img src="/2019/01/29/redis-5种数据类型的常用命令/1.png" alt="常规操作"></p>
-<h3 id="Redis处理子串和二进制位的命令"><a href="#Redis处理子串和二进制位的命令" class="headerlink" title="Redis处理子串和二进制位的命令"></a>Redis处理子串和二进制位的命令</h3><table>
+<h2 id="Redis处理子串和二进制位的命令"><a href="#Redis处理子串和二进制位的命令" class="headerlink" title="Redis处理子串和二进制位的命令"></a>Redis处理子串和二进制位的命令</h2><table>
 <thead>
 <tr>
 <th>命令</th>
@@ -448,7 +450,7 @@
 <h1 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h1><p>列表的操作可以在两端进行<br>| 命令  | 用例和描述 |<br>| — | — |<br>| RPUSH | RPUSH key-name value [value … ] —— 将一个或者多个值推入列表的右端 |<br>| LPUSH | LPUSH key-name value [value …] —— 将一个或者多个值推入列表的左端 |<br>| RPOP | RPOP key-name —— 移除并返回列表的最右端的元素 |<br>| LPOP | LPOP key-name —— 移除并返回列表的最左端的元素 |<br>| LINDEX | LINDE key-name —— 返回列表中偏移量为offset（可以理解为下标） 的元素 |<br>| LRANGE | LRANGE key-name start end —— 返回列表从start 偏移量到end偏移量范围内的所有元素（包括start和end） |<br>| LTRIM | LTRIM key-name start end —— 对列表进行修剪，只保留从start偏移量到end偏移量范围内的元素（包括start和end） |</p>
 <p><img src="/2019/01/29/redis-5种数据类型的常用命令/4.png" alt="常规操作"><br><img src="/2019/01/29/redis-5种数据类型的常用命令/5.png" alt="常规操作"><br><img src="/2019/01/29/redis-5种数据类型的常用命令/6.png" alt="常规操作"></p>
 <p>Redis的列表List有Block（阻塞）的功能，下面是一些阻塞命令</p>
-<h3 id="列表阻塞命令"><a href="#列表阻塞命令" class="headerlink" title="列表阻塞命令"></a>列表阻塞命令</h3><table>
+<h2 id="列表阻塞命令"><a href="#列表阻塞命令" class="headerlink" title="列表阻塞命令"></a>列表阻塞命令</h2><table>
 <thead>
 <tr>
 <th>命令</th>
@@ -475,7 +477,7 @@
 </tbody>
 </table>
 <p><img src="/2019/01/29/redis-5种数据类型的常用命令/7.png" alt="常规操作"></p>
-<h1 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h1><h4 id="插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"><a href="#插入命令、移除命令、将元素从一个集合移动到另一个集合的命令" class="headerlink" title="插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"></a>插入命令、移除命令、将元素从一个集合移动到另一个集合的命令</h4><table>
+<h1 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h1><h2 id="插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"><a href="#插入命令、移除命令、将元素从一个集合移动到另一个集合的命令" class="headerlink" title="插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"></a>插入命令、移除命令、将元素从一个集合移动到另一个集合的命令</h2><table>
 <thead>
 <tr>
 <th>命令</th>
@@ -519,7 +521,7 @@
 </tbody>
 </table>
 <p><img src="/2019/01/29/redis-5种数据类型的常用命令/8.png" alt="常规操作"></p>
-<h4 id="对多个集合执行交集运算、并集运算和差集运算的命令"><a href="#对多个集合执行交集运算、并集运算和差集运算的命令" class="headerlink" title="对多个集合执行交集运算、并集运算和差集运算的命令"></a>对多个集合执行交集运算、并集运算和差集运算的命令</h4><p>集合真正牛逼的地方，在于对组合和关联多个集合<br>| 命令 | 用例和描述 |<br>| — | — |<br>| SDIFF | SDIFF key-name [key-name … ]——返回那些存在于第一个集合，但不存在于其他集合中的元素（数学上的差集运算） |<br>| SDIFFSTORE | SDIFFSTORE dest-key key-name [ key-name … ]——将那些存在于第一个集合（key-name）但并不存在于其他集合中的元素（数学上的差集运算）存储到dest-key集合中 |<br>| SINTER | SINTER key-name [key-name … ] —— 返回那些同时存在于所有集合的元素（数学上的交集运算） |<br>| SUNION |SUNION key-name [key-name … ] —— 返回那些至少存在于一个集合中的元素（数学上的并集运算） |<br>| SUNIONSTORE | SUNIIONSTORE dest-key key-name [key-name … ] —— 返回那些至少存在于一个集合中的元素（数学上的并集运算）并存储到dest-key集合中 |</p>
+<h2 id="对多个集合执行交集运算、并集运算和差集运算的命令"><a href="#对多个集合执行交集运算、并集运算和差集运算的命令" class="headerlink" title="对多个集合执行交集运算、并集运算和差集运算的命令"></a>对多个集合执行交集运算、并集运算和差集运算的命令</h2><p>集合真正牛逼的地方，在于对组合和关联多个集合<br>| 命令 | 用例和描述 |<br>| — | — |<br>| SDIFF | SDIFF key-name [key-name … ]——返回那些存在于第一个集合，但不存在于其他集合中的元素（数学上的差集运算） |<br>| SDIFFSTORE | SDIFFSTORE dest-key key-name [ key-name … ]——将那些存在于第一个集合（key-name）但并不存在于其他集合中的元素（数学上的差集运算）存储到dest-key集合中 |<br>| SINTER | SINTER key-name [key-name … ] —— 返回那些同时存在于所有集合的元素（数学上的交集运算） |<br>| SUNION |SUNION key-name [key-name … ] —— 返回那些至少存在于一个集合中的元素（数学上的并集运算） |<br>| SUNIONSTORE | SUNIIONSTORE dest-key key-name [key-name … ] —— 返回那些至少存在于一个集合中的元素（数学上的并集运算）并存储到dest-key集合中 |</p>
 <h1 id="Hash-散列"><a href="#Hash-散列" class="headerlink" title="Hash 散列"></a>Hash 散列</h1><p>可以把一条散列数据看成是数据库的一行</p>
 <table>
 <thead>
@@ -548,7 +550,7 @@
 </tbody>
 </table>
 <p><img src="/2019/01/29/redis-5种数据类型的常用命令/9.png" alt="常规操作"><br><img src="/2019/01/29/redis-5种数据类型的常用命令/10.png" alt="常规操作"></p>
-<h3 id="Redis散列的更高级特性"><a href="#Redis散列的更高级特性" class="headerlink" title="Redis散列的更高级特性"></a>Redis散列的更高级特性</h3><table>
+<h2 id="Redis散列的更高级特性"><a href="#Redis散列的更高级特性" class="headerlink" title="Redis散列的更高级特性"></a>Redis散列的更高级特性</h2><table>
 <thead>
 <tr>
 <th>命令</th>
@@ -587,7 +589,7 @@
 <li>注意 ： ZADD 是分值在前，键在后</li>
 </ul>
 <p><img src="/2019/01/29/redis-5种数据类型的常用命令/11.png" alt="常规操作"></p>
-<h3 id="有序集合的高级命令"><a href="#有序集合的高级命令" class="headerlink" title="有序集合的高级命令"></a>有序集合的高级命令</h3><table>
+<h2 id="有序集合的高级命令"><a href="#有序集合的高级命令" class="headerlink" title="有序集合的高级命令"></a>有序集合的高级命令</h2><table>
 <thead>
 <tr>
 <th>命令</th>
@@ -633,7 +635,63 @@
 <ul>
 <li>注：AGGREGATE 后可以注明运算规则，如min表示选取最小值，max选取最大值，sum做和运算<br><img src="/2019/01/29/redis-5种数据类型的常用命令/13.png" alt="常规操作"></li>
 </ul>
-<p><img src="/2019/01/29/redis-5种数据类型的常用命令/14.png" alt="常规操作"></p>
+<h1 id="Sort命令"><a href="#Sort命令" class="headerlink" title="Sort命令"></a>Sort命令</h1><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用例和描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SORT</td>
+<td>SORT source-key [BY pattern] [LIMIT offset count] [GET pattern [GET pattern …]] [ASC</td>
+<td>DESC] [ALPHA dest-key] —— 根据给定的选项，对输入列表、集合或者有序集合进行排序，然后返回或者存储排序的效果</td>
+</tr>
+</tbody>
+</table>
+<p>默认升序排序<br><img src="/2019/01/29/redis-5种数据类型的常用命令/20190202102221283.png" alt=""><br>最后两条命令，<br>1 将散列的域filed用作权重，也就是把sort-input的排列按照对应的field排序<br>2 排序方式同上，只是输出数据输出的是外部数据，也就是输出权重</p>
+<h1 id="Redis事务的基本用法"><a href="#Redis事务的基本用法" class="headerlink" title="Redis事务的基本用法"></a>Redis事务的基本用法</h1><p>Redis的基本事务（basic transaction）：我们需要向Redis发送多个命令，而且希望Redis能够完整的执行的我们的命令，不被其他事情打断，我们称之为事务，这种事务可以让一个客户端在不被其他客户端打断的情况下执行多个命令。需要用到multi命令和exec命令，被multi和exec命令包裹的所有命令，会一个接着一个执行，保证命令的有序性。也就是说，被multi和exec包裹的命令，就是我们的事务<br>过程：<br>当Redis从一个客户端那里接收到multi命令时，Redis会将这个客户端之后的所有命令放入到一个队列中，知道这个客户端发送exec命令，Redis就会在不被打断的情况下，一个接一个地执行存储在队列里面的命令。<br><img src="/2019/01/29/redis-5种数据类型的常用命令/20190202105536167.png" alt=""><br>而且Redis事务还会配合WATCH、UNWATCH、DISCARD另外这三个命令，等学到再说</p>
+<h1 id="键的过期时间"><a href="#键的过期时间" class="headerlink" title="键的过期时间"></a>键的过期时间</h1><p>expire命令相信大家很熟悉，对某个键设置过期时间（秒），但是对于集合、列表、散列和有序集合这样的容器（container）来说，键过期命令只能为整个键设置过期时时间，不能设置键里面的单个元素设置过期时间（为了解决这个问题，我们可以自己为某个元素设置 <strong>存储时间戳的有序集合</strong> 来实现对单个元素的过期操作。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>实例和描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PERSIST</td>
+<td>PERSIST key-name —— 移除键的过期时间</td>
+</tr>
+<tr>
+<td>TTL</td>
+<td>TTL key-name —— 查看给定键距离过期时间还有多少秒</td>
+</tr>
+<tr>
+<td>EXPIRE</td>
+<td>EXPIRE key-name seconds —— 让给定键在指定的描述之后过期</td>
+</tr>
+<tr>
+<td>EXPIREAT</td>
+<td>EXPIREAT key-name timestamp —— 将给定键的过期时间设置为给定的UNIX时间戳</td>
+</tr>
+<tr>
+<td>PTTL</td>
+<td>PTTL key-name —— 查看给定键距离过期时间还有多少毫秒，这个命令在Redis2.6或以上版本可用</td>
+</tr>
+<tr>
+<td>PEXPIRE</td>
+<td>PEXPIRE key-name milliseconds —— 让给定键在指定的毫秒数之后过期，这个命令在Redis2.6或者以上版本可用</td>
+</tr>
+<tr>
+<td>PEXPIREAT</td>
+<td>PERPIREAT key-name timestamp-milliseconds —— 将一个毫秒级精度的UNIX时间戳设置为给定键的过期时间，这个命令在Redis2.6或者以上版本可用</td>
+</tr>
+</tbody>
+</table>
+<p><img src="/2019/01/29/redis-5种数据类型的常用命令/20190202111635653.png" alt=""></p>
 <ul>
 <li>注：教程出自《Redis实战》</li>
 <li>如果有知识上的探讨，欢迎发送邮件<a href="mailto:1171347956@qq.com" target="_blank" rel="noopener">1171347956@qq.com</a></li>
@@ -812,7 +870,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#String"><span class="nav-number">1.</span> <span class="nav-text">String</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis处理子串和二进制位的命令"><span class="nav-number">1.0.1.</span> <span class="nav-text">Redis处理子串和二进制位的命令</span></a></li></ol></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#列表"><span class="nav-number">2.</span> <span class="nav-text">列表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#列表阻塞命令"><span class="nav-number">2.0.1.</span> <span class="nav-text">列表阻塞命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集合"><span class="nav-number">3.</span> <span class="nav-text">集合</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"><span class="nav-number">3.0.0.1.</span> <span class="nav-text">插入命令、移除命令、将元素从一个集合移动到另一个集合的命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对多个集合执行交集运算、并集运算和差集运算的命令"><span class="nav-number">3.0.0.2.</span> <span class="nav-text">对多个集合执行交集运算、并集运算和差集运算的命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hash-散列"><span class="nav-number">4.</span> <span class="nav-text">Hash 散列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis散列的更高级特性"><span class="nav-number">4.0.1.</span> <span class="nav-text">Redis散列的更高级特性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#有序集合SortSet"><span class="nav-number">5.</span> <span class="nav-text">有序集合SortSet</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#有序集合的高级命令"><span class="nav-number">5.0.1.</span> <span class="nav-text">有序集合的高级命令</span></a></li></ol></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#String"><span class="nav-number">1.</span> <span class="nav-text">String</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis处理子串和二进制位的命令"><span class="nav-number">1.1.</span> <span class="nav-text">Redis处理子串和二进制位的命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#列表"><span class="nav-number">2.</span> <span class="nav-text">列表</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#列表阻塞命令"><span class="nav-number">2.1.</span> <span class="nav-text">列表阻塞命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集合"><span class="nav-number">3.</span> <span class="nav-text">集合</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"><span class="nav-number">3.1.</span> <span class="nav-text">插入命令、移除命令、将元素从一个集合移动到另一个集合的命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对多个集合执行交集运算、并集运算和差集运算的命令"><span class="nav-number">3.2.</span> <span class="nav-text">对多个集合执行交集运算、并集运算和差集运算的命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hash-散列"><span class="nav-number">4.</span> <span class="nav-text">Hash 散列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis散列的更高级特性"><span class="nav-number">4.1.</span> <span class="nav-text">Redis散列的更高级特性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#有序集合SortSet"><span class="nav-number">5.</span> <span class="nav-text">有序集合SortSet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#有序集合的高级命令"><span class="nav-number">5.1.</span> <span class="nav-text">有序集合的高级命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sort命令"><span class="nav-number">6.</span> <span class="nav-text">Sort命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis事务的基本用法"><span class="nav-number">7.</span> <span class="nav-text">Redis事务的基本用法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#键的过期时间"><span class="nav-number">8.</span> <span class="nav-text">键的过期时间</span></a></li></ol></div>
             
 
           </div>
