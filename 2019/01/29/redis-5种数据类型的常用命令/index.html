@@ -79,13 +79,13 @@
 
 
 
-<meta name="description" content="String字符串可以支持三种类型： 1. 字符串（byte 或者  string） 2. 整数 3. 浮点数    命令 用例和描述     INCR INCR key-name —— 将键存储的值加1   DECR DECR  key-name —— 键存储的值减1   INCRBY INCRBY key-name amount  —— 键存储的值加上整数amount   DECRBY DEC">
+<meta name="description" content="Redis简介Redis的优势： * 速度快，性能高，每秒可以执行约100,000个Set以及100,000个Get操作 * 丰富的数据结构 * 原子性，因为所有Redis操作都是原子性的，所以多个客户端会并发访问Redis服务器，获取相同的更新值 * 丰富的特性，Redis的使用非常灵活，有很多适应场景，比如缓存、消息队列（Redis支持发布/订阅)等 String字符串可以支持三种类型： 1.">
 <meta name="keywords" content="redis">
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis 5种数据类型的常用命令">
 <meta property="og:url" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/index.html">
 <meta property="og:site_name" content="SouthLight&#39;s Blog">
-<meta property="og:description" content="String字符串可以支持三种类型： 1. 字符串（byte 或者  string） 2. 整数 3. 浮点数    命令 用例和描述     INCR INCR key-name —— 将键存储的值加1   DECR DECR  key-name —— 键存储的值减1   INCRBY INCRBY key-name amount  —— 键存储的值加上整数amount   DECRBY DEC">
+<meta property="og:description" content="Redis简介Redis的优势： * 速度快，性能高，每秒可以执行约100,000个Set以及100,000个Get操作 * 丰富的数据结构 * 原子性，因为所有Redis操作都是原子性的，所以多个客户端会并发访问Redis服务器，获取相同的更新值 * 丰富的特性，Redis的使用非常灵活，有很多适应场景，比如缓存、消息队列（Redis支持发布/订阅)等 String字符串可以支持三种类型： 1.">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/1.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/2.png">
@@ -103,10 +103,10 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/20190202102221283.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/20190202105536167.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/20190202111635653.png">
-<meta property="og:updated_time" content="2019-02-02T03:16:38.838Z">
+<meta property="og:updated_time" content="2019-02-04T09:09:05.357Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redis 5种数据类型的常用命令">
-<meta name="twitter:description" content="String字符串可以支持三种类型： 1. 字符串（byte 或者  string） 2. 整数 3. 浮点数    命令 用例和描述     INCR INCR key-name —— 将键存储的值加1   DECR DECR  key-name —— 键存储的值减1   INCRBY INCRBY key-name amount  —— 键存储的值加上整数amount   DECRBY DEC">
+<meta name="twitter:description" content="Redis简介Redis的优势： * 速度快，性能高，每秒可以执行约100,000个Set以及100,000个Get操作 * 丰富的数据结构 * 原子性，因为所有Redis操作都是原子性的，所以多个客户端会并发访问Redis服务器，获取相同的更新值 * 丰富的特性，Redis的使用非常灵活，有很多适应场景，比如缓存、消息队列（Redis支持发布/订阅)等 String字符串可以支持三种类型： 1.">
 <meta name="twitter:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/1.png">
 
 
@@ -369,7 +369,12 @@
       
 
       
-        <h1 id="String"><a href="#String" class="headerlink" title="String"></a>String</h1><p>字符串可以支持三种类型：</p>
+        <h1 id="Redis简介"><a href="#Redis简介" class="headerlink" title="Redis简介"></a>Redis简介</h1><p>Redis的优势：</p>
+<pre><code>* 速度快，性能高，每秒可以执行约100,000个Set以及100,000个Get操作
+* 丰富的数据结构
+* 原子性，因为所有Redis操作都是原子性的，所以多个客户端会并发访问Redis服务器，获取相同的更新值
+* 丰富的特性，Redis的使用非常灵活，有很多适应场景，比如缓存、消息队列（Redis支持发布/订阅)等
+</code></pre><h1 id="String"><a href="#String" class="headerlink" title="String"></a>String</h1><p>字符串可以支持三种类型：</p>
 <pre><code>1. 字符串（byte 或者  string）
 2. 整数
 3. 浮点数
@@ -815,7 +820,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -870,7 +875,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#String"><span class="nav-number">1.</span> <span class="nav-text">String</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis处理子串和二进制位的命令"><span class="nav-number">1.1.</span> <span class="nav-text">Redis处理子串和二进制位的命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#列表"><span class="nav-number">2.</span> <span class="nav-text">列表</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#列表阻塞命令"><span class="nav-number">2.1.</span> <span class="nav-text">列表阻塞命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集合"><span class="nav-number">3.</span> <span class="nav-text">集合</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"><span class="nav-number">3.1.</span> <span class="nav-text">插入命令、移除命令、将元素从一个集合移动到另一个集合的命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对多个集合执行交集运算、并集运算和差集运算的命令"><span class="nav-number">3.2.</span> <span class="nav-text">对多个集合执行交集运算、并集运算和差集运算的命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hash-散列"><span class="nav-number">4.</span> <span class="nav-text">Hash 散列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis散列的更高级特性"><span class="nav-number">4.1.</span> <span class="nav-text">Redis散列的更高级特性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#有序集合SortSet"><span class="nav-number">5.</span> <span class="nav-text">有序集合SortSet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#有序集合的高级命令"><span class="nav-number">5.1.</span> <span class="nav-text">有序集合的高级命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sort命令"><span class="nav-number">6.</span> <span class="nav-text">Sort命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis事务的基本用法"><span class="nav-number">7.</span> <span class="nav-text">Redis事务的基本用法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#键的过期时间"><span class="nav-number">8.</span> <span class="nav-text">键的过期时间</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis简介"><span class="nav-number">1.</span> <span class="nav-text">Redis简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#String"><span class="nav-number">2.</span> <span class="nav-text">String</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis处理子串和二进制位的命令"><span class="nav-number">2.1.</span> <span class="nav-text">Redis处理子串和二进制位的命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#列表"><span class="nav-number">3.</span> <span class="nav-text">列表</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#列表阻塞命令"><span class="nav-number">3.1.</span> <span class="nav-text">列表阻塞命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集合"><span class="nav-number">4.</span> <span class="nav-text">集合</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"><span class="nav-number">4.1.</span> <span class="nav-text">插入命令、移除命令、将元素从一个集合移动到另一个集合的命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对多个集合执行交集运算、并集运算和差集运算的命令"><span class="nav-number">4.2.</span> <span class="nav-text">对多个集合执行交集运算、并集运算和差集运算的命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hash-散列"><span class="nav-number">5.</span> <span class="nav-text">Hash 散列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis散列的更高级特性"><span class="nav-number">5.1.</span> <span class="nav-text">Redis散列的更高级特性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#有序集合SortSet"><span class="nav-number">6.</span> <span class="nav-text">有序集合SortSet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#有序集合的高级命令"><span class="nav-number">6.1.</span> <span class="nav-text">有序集合的高级命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sort命令"><span class="nav-number">7.</span> <span class="nav-text">Sort命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis事务的基本用法"><span class="nav-number">8.</span> <span class="nav-text">Redis事务的基本用法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#键的过期时间"><span class="nav-number">9.</span> <span class="nav-text">键的过期时间</span></a></li></ol></div>
             
 
           </div>
