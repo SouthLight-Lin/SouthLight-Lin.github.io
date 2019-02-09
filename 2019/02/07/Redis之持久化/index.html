@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="SouthLight&#39;s Blog">
 <meta property="og:description" content="为什么需要持久化Redis的所有数据是存储在内存里面的，Redis的持久化，为了防止机器忽然的宕机、断电使Redis内存中的数据来不及存储在硬盘而导致数据的丢失 哪些持久化方法Redis有两种持久化机制 快照  AOF  快照 snopashotting跟名字一样，就是将内存中的数据全部备份到硬盘的一个文件中，我们可以在redis.conf文件中设置12345save 60 1000  # 当60">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-07T08:48:16.742Z">
+<meta property="og:updated_time" content="2019-02-07T09:28:52.202Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis之持久化">
 <meta name="twitter:description" content="为什么需要持久化Redis的所有数据是存储在内存里面的，Redis的持久化，为了防止机器忽然的宕机、断电使Redis内存中的数据来不及存储在硬盘而导致数据的丢失 哪些持久化方法Redis有两种持久化机制 快照  AOF  快照 snopashotting跟名字一样，就是将内存中的数据全部备份到硬盘的一个文件中，我们可以在redis.conf文件中设置12345save 60 1000  # 当60">
@@ -363,7 +363,7 @@
 <h2 id="appendfsync同步频率"><a href="#appendfsync同步频率" class="headerlink" title="appendfsync同步频率"></a>appendfsync同步频率</h2><p>上面配置的第二句，设置了多久将缓存中的文件写入到硬盘。AOF是先写入硬盘的缓存的，然后才从缓存写入硬盘，所以如果发生宕机，会发生AOF数据丢失的风险，所以设置同步频率很重要，设置同步频率是调用Linux的glibc的fsync(int id)函数，只要Redis调用了该函数就能保证aof日志不丢失，因为会强制系统写入，还发生阻塞了其他请求<br>三种同步频率：</p>
 <ul>
 <li>always：每个Redis写命令都要同步到硬盘，这严重降低了Redis的速度，不建议</li>
-<li>everysec：每秒执行一次同步，将一秒内的请求命令写入硬盘，推荐使用</li>
+<li>everysec：每秒执行一次同步，将一秒内的请求命令写入硬盘，推荐使用，就算是发送故障，丢失的数据也能控制在1秒内</li>
 <li>no：让系统自己决定何时进行同步</li>
 </ul>
 <h2 id="重写AOF（AOF瘦身）"><a href="#重写AOF（AOF瘦身）" class="headerlink" title="重写AOF（AOF瘦身）"></a>重写AOF（AOF瘦身）</h2><p>随着系统的运行，AOF日志文件的体积会不断增大，这时可以通过重写AOF来减小AOF的体积。<br>用户可以发送BGREWRITEAOF命令，该命令会移除AOF文件中冗余的命令来重写（rewrite）AOF，BGREWRITEAOF跟BGSAVE很相似，也是开启一个子进程后台运行<br>除了手动开启BGREWRITEAOF，还可以通过配置redis.conf来开启，也就是上面最后两条配置<br>auto-aof-rewrite-percentage 100 #AOF的体积比上一次文件重写之后的体积大了一倍（100%）<br>auto-aof-rewrite-min-size 64mb # AOF文件的体积大于64MB<br>当上面这两个条件满足时，就会开启BGREWRITEAOF</p>
@@ -407,6 +407,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/02/09/SpringMVC是怎么跟着Tomcat启动的/" rel="prev" title="SpringMVC是怎么跟着Tomcat启动的">
+                SpringMVC是怎么跟着Tomcat启动的 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -483,7 +487,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -494,7 +498,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -505,7 +509,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
