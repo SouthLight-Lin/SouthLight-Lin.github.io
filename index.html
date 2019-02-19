@@ -259,6 +259,172 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/19/Spring-Bean的生命周期/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/02/19/Spring-Bean的生命周期/" itemprop="url">Spring-Bean的生命周期</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-19T23:45:22+08:00">
+                2019-02-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>我们的对象在Spring中是用Bean来描述的，创建一个Bean的过程是怎么样的，创建的Bean最后存放在哪里？这篇博客给你答案</p>
+<h1 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h1><p>我们需要有一个Spring的运行环境，先声明一个UserDAO的Bean，再从容器中获取<br>UserDAO.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.dao;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">@Component</span><br><span class="line">public class UserDAO  &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Spring的配置类AppConfig.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.config;</span><br><span class="line">import org.springframework.context.annotation.ComponentScan;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line">@Configuration</span><br><span class="line">@ComponentScan(&quot;com.lnw&quot;)</span><br><span class="line">public class AppConfig &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>启动测试<br>Boot.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.test;</span><br><span class="line">import com.lnw.config.AppConfig;</span><br><span class="line">import com.lnw.dao.UserDAO;</span><br><span class="line">import org.springframework.context.annotation.AnnotationConfigApplicationContext;</span><br><span class="line">public class Boot &#123;</span><br><span class="line">	private int a = 1;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext();</span><br><span class="line">		// 把我们的AppConfig类注册到BDM中去</span><br><span class="line">		ac.register(AppConfig.class);</span><br><span class="line">		// refresh是整个Spring中最核心的代码</span><br><span class="line">		ac.refresh();</span><br><span class="line">		System.out.println(ac.getBean(UserDAO.class).hashCode());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这样一来就可从容器中获取UserDAO的Bean并输出hashCode</p>
+<h1 id="Bean创建的前身BeanDefinition"><a href="#Bean创建的前身BeanDefinition" class="headerlink" title="Bean创建的前身BeanDefinition"></a>Bean创建的前身BeanDefinition</h1><p>上面的三段代码，AppConfig配置类中加了@ComponentScan注解，里面指定的扫描的包路径，所以我们的UserDAO类就会被扫描进去。但是扫描出来的类，放进Spring就会被定义成BeanDefinition<br>什么是BeanDefinition？<br>简单的说就是创建Bean的原料。如果把Bean比作一道菜的话，那么BeanDefinition就是做这道菜的所有原料。也就是说，BeanDefinition定义了创建Bean的所有东西，包括类型，参数，作用域等等（下面把BeanDefinition简称为BD）<br>我们直接看代码<br>org.springframework.context.annotation.ClassPathBeanDefinitionScanner#doScan会扫描我们指定包下所有加了注解的类，然后把类封装成BeanDefinition注册到BeanDefinitionMap中（BeanDefinitionMap是一个存放BeanDefinition的Map，它在BeanFactory中，以下简称BDM）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">protected Set&lt;BeanDefinitionHolder&gt; doScan(String... basePackages) &#123;</span><br><span class="line">		Assert.notEmpty(basePackages, &quot;At least one base package must be specified&quot;);</span><br><span class="line">        // 声明一个集合来存储BeanDefinition</span><br><span class="line">		Set&lt;BeanDefinitionHolder&gt; beanDefinitions = new LinkedHashSet&lt;&gt;();</span><br><span class="line">		for (String basePackage : basePackages) &#123;</span><br><span class="line">			// 扫描basePackage路径下的java文件</span><br><span class="line">			// 并把它转成BeanDefinition</span><br><span class="line">			Set&lt;BeanDefinition&gt; candidates = findCandidateComponents(basePackage);</span><br><span class="line">			for (BeanDefinition candidate : candidates) &#123;</span><br><span class="line">				// 解析Scope属性</span><br><span class="line">				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);</span><br><span class="line">				candidate.setScope(scopeMetadata.getScopeName());</span><br><span class="line">				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);</span><br><span class="line">				if (candidate instanceof AbstractBeanDefinition) &#123;</span><br><span class="line">					// 如果这个类时AbstractBeanDefinition的子类</span><br><span class="line">					// 则为它设置默认属性 比如lazy，init destory</span><br><span class="line">					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);</span><br><span class="line">				&#125;</span><br><span class="line">				if (candidate instanceof AnnotatedBeanDefinition) &#123;</span><br><span class="line">					// 检查并处理常用的注解</span><br><span class="line">					// 这里的处理是把常用的注解的值设置到AnnotationBeanDefinition当中</span><br><span class="line">					// 也就是加了注解的类</span><br><span class="line">					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);</span><br><span class="line">				&#125;</span><br><span class="line">				if (checkCandidate(beanName, candidate)) &#123;</span><br><span class="line">					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);</span><br><span class="line">					definitionHolder =</span><br><span class="line">							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);</span><br><span class="line">					beanDefinitions.add(definitionHolder);</span><br><span class="line">					// 扫描完以后，注册BeanDefinition</span><br><span class="line">					registerBeanDefinition(definitionHolder, this.registry);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return beanDefinitions;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们来看下registerBeanDefinition方法，里面只是简单的使用一个BDR（注册BD的工具）<br>org.springframework.context.annotation.ClassPathBeanDefinitionScanner#registerBeanDefinition<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">protected void registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) &#123;</span><br><span class="line">		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, registry);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>org.springframework.beans.factory.support.BeanDefinitionReaderUtils#registerBeanDefinition<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public static void registerBeanDefinition(</span><br><span class="line">			BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)</span><br><span class="line">			throws BeanDefinitionStoreException &#123;</span><br><span class="line">		// Register bean definition under primary name.</span><br><span class="line">		String beanName = definitionHolder.getBeanName();</span><br><span class="line">		// 将BD注册</span><br><span class="line">		registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());</span><br><span class="line">		// Register aliases for bean name, if any.</span><br><span class="line">		String[] aliases = definitionHolder.getAliases();</span><br><span class="line">		if (aliases != null) &#123;</span><br><span class="line">			for (String alias : aliases) &#123;</span><br><span class="line">				registry.registerAlias(beanName, alias);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个BD注册工具会将BD注册到BDM中，目前这个BDM存储在DefaultListableBeanFactory中，这个类中有一个属性，专门用来存储BD的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">	 * 这个Map很重要很重要</span><br><span class="line">	 * Bean的定义的所有数据都存放在这里，也就是说这个Map中存放生产Bean的原料</span><br><span class="line">	 * @author SouthLight-Lin</span><br><span class="line">	 */</span><br><span class="line">	/** Map of bean definition objects, keyed by bean name. */</span><br><span class="line">	private final Map&lt;String, BeanDefinition&gt; beanDefinitionMap = new ConcurrentHashMap&lt;&gt;(256);</span><br></pre></td></tr></table></figure></p>
+<p>org.springframework.beans.factory.support.DefaultListableBeanFactory#registerBeanDefinition方法中的代码很长，但是关键的代码就是把BD添加put进去Map中<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">this.beanDefinitionMap.put(beanName, beanDefinition);</span><br></pre></td></tr></table></figure></p>
+<p>接下来，当Spring需要创建Bean时，就从这个BDM中获取BD原料来创建Bean</p>
+<h1 id="Bean的声明周期"><a href="#Bean的声明周期" class="headerlink" title="Bean的声明周期"></a>Bean的声明周期</h1><p>上面写了那么多，是为了解释BeanDefinition的作用，接下来完整的还原当我们调用getBean时，Bean的声明周期是怎么样的</p>
+<h2 id="1、Spring会将扫描出来的类封装成BeanDefinition，为后面的Bean的创建做准备"><a href="#1、Spring会将扫描出来的类封装成BeanDefinition，为后面的Bean的创建做准备" class="headerlink" title="1、Spring会将扫描出来的类封装成BeanDefinition，为后面的Bean的创建做准备"></a>1、Spring会将扫描出来的类封装成BeanDefinition，为后面的Bean的创建做准备</h2><p>这是创建Bean的第一步，上面已经讲过</p>
+<h2 id="2、先简单的实例化一个对象"><a href="#2、先简单的实例化一个对象" class="headerlink" title="2、先简单的实例化一个对象"></a>2、先简单的实例化一个对象</h2><p>Spring会先从容器中getBean，如果这个Bean不存在，就尝试创建一个Bean出来<br>Spring会从BeanDefinition中通过反射先new出一个对象，然后再对这个对象进行加工使它成为Bean<br>在org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if (instanceWrapper == null) &#123;</span><br><span class="line">			// 创建一个对象实例（此时还不是Bean，只是一个普通的对象）</span><br><span class="line">			instanceWrapper = createBeanInstance(beanName, mbd, args);</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="3、Spring根据Bean的定义填充所有属性，比如它的属性里面有List，String参数，或者有依赖对象，就进行依赖注入"><a href="#3、Spring根据Bean的定义填充所有属性，比如它的属性里面有List，String参数，或者有依赖对象，就进行依赖注入" class="headerlink" title="3、Spring根据Bean的定义填充所有属性，比如它的属性里面有List，String参数，或者有依赖对象，就进行依赖注入"></a>3、Spring根据Bean的定义填充所有属性，比如它的属性里面有List，String参数，或者有依赖对象，就进行依赖注入</h2><p>在org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#populateBean方法中<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// Initialize the bean instance.</span><br><span class="line">		// 将对象复制给exposedObject，然后下面就对这个对象进行初始化，使它成为Bean</span><br><span class="line">		Object exposedObject = bean;</span><br><span class="line">		try &#123;</span><br><span class="line">			// Bean属性的初始化，包括依赖注入</span><br><span class="line">			populateBean(beanName, mbd, instanceWrapper);</span><br><span class="line">			// 如果实现了InitializingBean，就执行接口里的afterProperty方法进行初始化</span><br><span class="line">			// 还执行了Aware接口</span><br><span class="line">			// 还执行了BeanPostProcessor的Bean处理器</span><br><span class="line">			exposedObject = initializeBean(beanName, exposedObject, mbd);</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure></p>
+<p>populateBean就是对Bean的参数进行设置，包括依赖注入</p>
+<h2 id="4、Bean初始化工作的开始，首先进行Aware接口的执行"><a href="#4、Bean初始化工作的开始，首先进行Aware接口的执行" class="headerlink" title="4、Bean初始化工作的开始，首先进行Aware接口的执行"></a>4、Bean初始化工作的开始，首先进行Aware接口的执行</h2><p>xxxAware接口是为了使Bean可以获取Spring内部的资源而出现的，比如你可以通过让Bean实现BeanNameAware将Bean容器中的名称设置给Bean自己知道，或者实现BeanFactoryAware将整个容器设置给Bean<br>比如上面的UserDAO实现了BeanNameAware接口<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.dao;</span><br><span class="line">import org.springframework.beans.factory.BeanNameAware;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">@Component</span><br><span class="line">public class UserDAO implements BeanNameAware, BeanPostProcessor, InitializingBean, DisposableBean &#123;</span><br><span class="line">	public String beanName;</span><br><span class="line">	@Override</span><br><span class="line">	public void setBeanName(String name) &#123;</span><br><span class="line">		beanName = name;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这样就可以将beanName传进来给Bean使用<br>在第三步的代码中，initializaBean就包括执行Aware接口<br>initializaBean方法里面包含Bean的声明周期的四个步骤，分别是Aware接口的执行，BeanPostProcessor的前置处理，初始化方法的执行，BeanPostProcessor的后置处理<br>先贴上代码，再具体说明<br>org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#initializeBean(java.lang.String, java.lang.Object, org.springframework.beans.factory.support.RootBeanDefinition)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">protected Object initializeBean(final String beanName, final Object bean, @Nullable RootBeanDefinition mbd) &#123;</span><br><span class="line">		if (System.getSecurityManager() != null) &#123;</span><br><span class="line">			AccessController.doPrivileged((PrivilegedAction&lt;Object&gt;) () -&gt; &#123;</span><br><span class="line">				invokeAwareMethods(beanName, bean);</span><br><span class="line">				return null;</span><br><span class="line">			&#125;, getAccessControlContext());</span><br><span class="line">		&#125;</span><br><span class="line">		else &#123;</span><br><span class="line">			// 如果实现了xxxAware接口，执行接口的Set方法</span><br><span class="line">			invokeAwareMethods(beanName, bean);</span><br><span class="line">		&#125;</span><br><span class="line">		Object wrappedBean = bean;</span><br><span class="line">		if (mbd == null || !mbd.isSynthetic()) &#123;</span><br><span class="line">			// 执行BeanPostProcessor的前置处理</span><br><span class="line">			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		try &#123;</span><br><span class="line">			// 执行Bean的初始化方法，比如实现了InitializingBean</span><br><span class="line">			invokeInitMethods(beanName, wrappedBean, mbd);</span><br><span class="line">		&#125;</span><br><span class="line">		catch (Throwable ex) &#123;</span><br><span class="line">			throw new BeanCreationException(</span><br><span class="line">					(mbd != null ? mbd.getResourceDescription() : null),</span><br><span class="line">					beanName, &quot;Invocation of init method failed&quot;, ex);</span><br><span class="line">		&#125;</span><br><span class="line">		if (mbd == null || !mbd.isSynthetic()) &#123;</span><br><span class="line">			// 执行BeanPostProcess的后置处理</span><br><span class="line">			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);</span><br><span class="line">		&#125;</span><br><span class="line">		return wrappedBean;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="5、BeanPostProcessor的前置处理"><a href="#5、BeanPostProcessor的前置处理" class="headerlink" title="5、BeanPostProcessor的前置处理"></a>5、BeanPostProcessor的前置处理</h2><p>什么是BeanPostProcessor？BeanPostProcessor就是处理Bean的一个工具，它能在创建Bean的过程之中，对Bean进行处理。只要实现了BeanPostProcessor方法，实现它的前置处理方法（postProcessBeforeInitialization）和后置处理方法（postProcessAfterInitialization），就能在所有Bean的创建过程中对Bean做一些操作<br>就是调用applyBeanPostProcessorsBeforeInitialization方法开始对Bean进行BeanPostProcessor的前置处理<br>org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#applyBeanPostProcessorsBeforeInitialization<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)</span><br><span class="line">			throws BeansException &#123;</span><br><span class="line">		Object result = existingBean;</span><br><span class="line">		// 循环执行所有BeanPostProcessor</span><br><span class="line">		for (BeanPostProcessor processor : getBeanPostProcessors()) &#123;</span><br><span class="line">			Object current = processor.postProcessBeforeInitialization(result, beanName);</span><br><span class="line">			if (current == null) &#123;</span><br><span class="line">				return result;</span><br><span class="line">			&#125;</span><br><span class="line">			result = current;</span><br><span class="line">		&#125;</span><br><span class="line">		return result;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过循环所有的BeanPostProcessor对Bean进行处理，Spring内置的BeanPostProcessor有<br><img src="/2019/02/19/Spring-Bean的生命周期/20190220010050881.png" alt=""></p>
+<h2 id="6、Bean的初始化方法的执行"><a href="#6、Bean的初始化方法的执行" class="headerlink" title="6、Bean的初始化方法的执行"></a>6、Bean的初始化方法的执行</h2><p>Bean的初始化方法就是Bean刚生成时执行的方法，可以实现InitializingBean来执行初始化方法<br>在invokeInitMethods方法中</p>
+<h2 id="7、BeanPostProcessor的后置处理"><a href="#7、BeanPostProcessor的后置处理" class="headerlink" title="7、BeanPostProcessor的后置处理"></a>7、BeanPostProcessor的后置处理</h2><p>同第五步差不多，当执行完初始化方法之后，就执行BeanPostProcessor的后置处理postProcessAfterInitialization，也是循环调用所有的BeanPostProcessor处理Bean<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)</span><br><span class="line">			throws BeansException &#123;</span><br><span class="line">		Object result = existingBean;</span><br><span class="line">		// 循环执行所有BeanPostProcessor</span><br><span class="line">		for (BeanPostProcessor processor : getBeanPostProcessors()) &#123;</span><br><span class="line">			Object current = processor.postProcessAfterInitialization(result, beanName);</span><br><span class="line">			if (current == null) &#123;</span><br><span class="line">				return result;</span><br><span class="line">			&#125;</span><br><span class="line">			result = current;</span><br><span class="line">		&#125;</span><br><span class="line">		return result;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<p>一张图解释5、6、7步骤<br><img src="/2019/02/19/Spring-Bean的生命周期/20190220010805720.png" alt=""></p>
+<h2 id="8、将创建的Bean放进Spring的IOC容器"><a href="#8、将创建的Bean放进Spring的IOC容器" class="headerlink" title="8、将创建的Bean放进Spring的IOC容器"></a>8、将创建的Bean放进Spring的IOC容器</h2><h2 id="9、最后销毁Bean时，如果Bean实现了DisposableBean，它将调用destroy（）方法"><a href="#9、最后销毁Bean时，如果Bean实现了DisposableBean，它将调用destroy（）方法" class="headerlink" title="9、最后销毁Bean时，如果Bean实现了DisposableBean，它将调用destroy（）方法"></a>9、最后销毁Bean时，如果Bean实现了DisposableBean，它将调用destroy（）方法</h2><p>初始化Bean方法的两种方法：<br>    1、注解@PostConstruct（@PreDestroy这个注解是销毁Bean时执行）<br>    2、实现InitializingBean 接口</p>
+<p>第二种方法比第一种方法先执行，因为@PostConstruct的实现是CommonAnnotationBeanPostProcessor，它是BeanPostProcessor的实现，是一个Bean的处理器，会先调用postBeanPostProcessorBeforeInitialization，在调用InitializingBean接口的方法</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/16/Spring-Mybatis把接口变成Bean的秘密/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1662,168 +1828,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/31/Java基础之Error、Exception/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/01/31/Java基础之Error、Exception/" itemprop="url">Java基础之Error、Exception</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-31T22:30:48+08:00">
-                2019-01-31
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>只要是程序，就会有错误跟异常，Java程序也不例外！<br>那什么是错误，什么是异常？Java异常又可分为哪两类？</p>
-<h1 id="Error"><a href="#Error" class="headerlink" title="Error"></a>Error</h1><h2 id="VirtualMachineError（虚拟机错误）"><a href="#VirtualMachineError（虚拟机错误）" class="headerlink" title="VirtualMachineError（虚拟机错误）"></a>VirtualMachineError（虚拟机错误）</h2><p>错误一般是程序在正常条件下，是系统内部的错误或者资源耗尽的错误！常见的错误主要有两种，内存溢出和栈溢出！</p>
-<ul>
-<li>OutOfMemoryError（内存溢出）：一般是虚拟机分配的内存不能容下程序所需的数据，或者new 出的对象太多太多了（主要是堆内存或者方法区内存的不足）</li>
-<li>StackOverFlowError（栈溢出）：常见的就是递归循环没有出口，导致虚拟机栈记录太多东西导致溢出</li>
-</ul>
-<h2 id="AWTError"><a href="#AWTError" class="headerlink" title="AWTError"></a>AWTError</h2><p>一般是调用AWT包下的类，使用操作系统的资源时出现的错误</p>
-<h1 id="Exception"><a href="#Exception" class="headerlink" title="Exception"></a>Exception</h1><h2 id="RuntimeExcept（运行时异常，非检查异常）"><a href="#RuntimeExcept（运行时异常，非检查异常）" class="headerlink" title="RuntimeExcept（运行时异常，非检查异常）"></a>RuntimeExcept（运行时异常，非检查异常）</h2><p>这种异常在我们的程序中是最常见的：</p>
-<ol>
-<li>NullPointException（空指针异常）</li>
-<li>IndexOutOfBoundsException （数组下表越界）</li>
-<li>ClassCastException （强转类型是异常）</li>
-<li>ClassNotFoundException （找不到指定类）</li>
-<li>ArithmeticException （算数运算异常 如除0）</li>
-<li>NumberFormatException （String类型装数字类型异常）<br>…<h2 id="IOException-（其他异常，也叫做检查异常，必须处理的异常）"><a href="#IOException-（其他异常，也叫做检查异常，必须处理的异常）" class="headerlink" title="IOException （其他异常，也叫做检查异常，必须处理的异常）"></a>IOException （其他异常，也叫做检查异常，必须处理的异常）</h2></li>
-<li>FileNotFoundException （文件未找到异常）</li>
-<li>EOFException （文件已经结束异常）</li>
-<li>SQLException （SQL异常）</li>
-</ol>
-<h1 id="关于检查异常跟非异常"><a href="#关于检查异常跟非异常" class="headerlink" title="关于检查异常跟非异常"></a>关于检查异常跟非异常</h1><p>非检查异常（unchecked exception）： 包括RuntimeException和Error类的异常，对于运行时的异常，编译器不要求程序员强制捕获异常处理或者抛出异常声明<br>检查异常（checked exception） ： 编译器强制要求程序员对异常进行捕获，比如常见的IOException和SQLException！！</p>
-<h1 id="总结图："><a href="#总结图：" class="headerlink" title="总结图："></a>总结图：</h1><p>最后给一张大图完整的说明Exception和Error：<br><img src="/2019/01/31/Java基础之Error、Exception/20190131104704989.png" alt=""></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1874,7 +1878,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
