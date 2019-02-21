@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="其他,">
+  <meta name="keywords" content="java,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
-<meta name="keywords" content="其他">
+<meta name="description" content="在牛客网上刷题时，一直做错类的加载时初始化这些题，不懂静态方法什么时候执行，初始化代码块什么时候执行，构造方法什么执行，今天在这里谨记，下次要是再做错，我…. 题型一1234567891011121314151617class A&amp;#123;	static &amp;#123;		System.out.println(&amp;quot;静态代码块&amp;quot;);	&amp;#125;	public A()&amp;#123;">
+<meta name="keywords" content="java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://yoursite.com/2019/01/27/hello-world/index.html">
+<meta property="og:title" content="类的加载时候的初始化顺序">
+<meta property="og:url" content="http://yoursite.com/2019/02/21/类的加载时候的初始化顺序/index.html">
 <meta property="og:site_name" content="SouthLight&#39;s Blog">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="在牛客网上刷题时，一直做错类的加载时初始化这些题，不懂静态方法什么时候执行，初始化代码块什么时候执行，构造方法什么执行，今天在这里谨记，下次要是再做错，我…. 题型一1234567891011121314151617class A&amp;#123;	static &amp;#123;		System.out.println(&amp;quot;静态代码块&amp;quot;);	&amp;#125;	public A()&amp;#123;">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-28T04:04:38.734Z">
+<meta property="og:updated_time" content="2019-02-21T13:51:11.166Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="twitter:title" content="类的加载时候的初始化顺序">
+<meta name="twitter:description" content="在牛客网上刷题时，一直做错类的加载时初始化这些题，不懂静态方法什么时候执行，初始化代码块什么时候执行，构造方法什么执行，今天在这里谨记，下次要是再做错，我…. 题型一1234567891011121314151617class A&amp;#123;	static &amp;#123;		System.out.println(&amp;quot;静态代码块&amp;quot;);	&amp;#125;	public A()&amp;#123;">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/01/27/hello-world/">
+  <link rel="canonical" href="http://yoursite.com/2019/02/21/类的加载时候的初始化顺序/">
 
 
 
 
 
-  <title>Hello World | SouthLight's Blog</title>
+  <title>类的加载时候的初始化顺序 | SouthLight's Blog</title>
   
 
 
@@ -263,7 +263,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/27/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/21/类的加载时候的初始化顺序/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -280,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Hello World</h1>
+          <h1 class="post-title" itemprop="name headline">类的加载时候的初始化顺序</h1>
         
 
         <div class="post-meta">
@@ -292,8 +292,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-27T23:32:45+08:00">
-                2019-01-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-21T21:23:21+08:00">
+                2019-02-21
               </time>
             
 
@@ -315,8 +315,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/其他/" itemprop="url" rel="index">
-                    <span itemprop="name">其他</span>
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
                   </a>
                 </span>
 
@@ -352,15 +352,12 @@
       
 
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <p>在牛客网上刷题时，一直做错类的加载时初始化这些题，不懂静态方法什么时候执行，初始化代码块什么时候执行，构造方法什么执行，今天在这里谨记，下次要是再做错，我….</p>
+<h1 id="题型一"><a href="#题型一" class="headerlink" title="题型一"></a>题型一</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class A&#123;</span><br><span class="line"></span><br><span class="line">	static &#123;</span><br><span class="line">		System.out.println(&quot;静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public A()&#123;</span><br><span class="line">		System.out.println(&quot;构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">        System.out.println(&quot;A的静态main方法&quot;);</span><br><span class="line">		new A();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出执行顺序，执行结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">静态代码块</span><br><span class="line">A的静态main方法</span><br><span class="line">初始化块</span><br><span class="line">构造方法</span><br></pre></td></tr></table></figure></p>
+<h1 id="题型二"><a href="#题型二" class="headerlink" title="题型二"></a>题型二</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">class A&#123;</span><br><span class="line"></span><br><span class="line">	static &#123;</span><br><span class="line">		System.out.println(&quot;父类静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public A()&#123;</span><br><span class="line">		System.out.println(&quot;父类构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;父类初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">public class B extends A&#123;</span><br><span class="line">	static&#123;</span><br><span class="line">		System.out.println(&quot;子类静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public B()&#123;</span><br><span class="line">		System.out.println(&quot;子类构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;子类初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public static void main(String[] args)&#123;</span><br><span class="line">		new B();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出执行过程，结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">父类静态代码块</span><br><span class="line">子类静态代码块</span><br><span class="line">父类初始化块</span><br><span class="line">父类构造方法</span><br><span class="line">子类初始化块</span><br><span class="line">子类构造方法</span><br></pre></td></tr></table></figure></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>对于题型一，谨记：静态的修饰变量（static）总是先于构造方法和普通代码块执行。static中又有static静态变量，static静态初始化块，static静态方法，里面静态方法是最后执行的，所以题型一中先执行静态代码块再执行静态方法。（原因：用static修饰的地方在编译器编译时就已经开始执行）<br>对于题型二，谨记：<strong> 先执行父类的静态代码块，然后执行子类的静态代码块 </strong> ，因为在编译时就开始执行。接着调用main方法，里面开始new B，所以 <strong> 执行父类的普通初始化块-&gt;父类的构造方法快-&gt;最后执行子类的普通初始化块-&gt;子类的构造块 </strong> </p>
 
       
     </div>
@@ -378,7 +375,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/其他/" rel="tag"># 其他</a>
+            <a href="/tags/java/" rel="tag"># java</a>
           
         </div>
       
@@ -391,15 +388,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2019/02/19/Spring-Bean的生命周期/" rel="next" title="Spring-Bean的生命周期">
+                <i class="fa fa-chevron-left"></i> Spring-Bean的生命周期
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/01/28/Markdown语法/" rel="prev" title="Markdown语法">
-                Markdown语法 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -531,7 +528,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#题型一"><span class="nav-number">1.</span> <span class="nav-text">题型一</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#题型二"><span class="nav-number">2.</span> <span class="nav-text">题型二</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
