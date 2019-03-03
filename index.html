@@ -259,6 +259,126 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/03/liguosheng/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/03/liguosheng/" itemprop="url">liguosheng</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-03T09:24:39+08:00">
+                2019-03-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>AAAAA</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/25/一段String代码引发的思考/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -365,7 +485,7 @@
 <h2 id="intern（）方法的作用"><a href="#intern（）方法的作用" class="headerlink" title="intern（）方法的作用"></a>intern（）方法的作用</h2><p>简单的讲，intern方法就是<strong> 向常量池里面添加数据 </strong> ，前提是<strong> 该数据还不在常量池里面 </strong> ，然后返回一个String对象<br>  JDK1.6里面，intern方法向字符串常量池里面添加的是对象，也就是比如s1.intern（s1是String对象，值为1），如果常量池里面还没有”1”这个对象，就会将”1”这个对象添加到常量池里面。如果常量池里面已经有”1”这个对象了，则返回<strong> 常量池里面的对象 </strong> 。<br>  JDK1.7里面，如果常量池里面有”1”这个对象，做法跟1.6时一样，返回<strong> 常量池里面的对象 </strong> ，但是，如果常量池里面没有该值的对象，则添加的是<strong> 对s1在堆中的对象的引用 </strong> （说得有点绕口，说白了就是添加在堆中的对象）。<br>  我们看下代码就知道了<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String s1 = new String(&quot;1&quot;);</span><br><span class="line">String s2 = s1.intern();</span><br><span class="line">System.out.println(s1 == s2); // false</span><br><span class="line"></span><br><span class="line">String s3 = &quot;1&quot;;</span><br><span class="line">System.out.println(s2 == s3); // true</span><br></pre></td></tr></table></figure></p>
 <p>  执行s1.intern返回的是常量池里面的对象，因为上一句代码已经创建了两个对象，一个在堆里面，一个在常量池里面。所以intern方法会发现常量池里面已经有”1”这个对象了，则返回该对象。s3也是常量池里面的”1”对象，所以一个输出false，一个输出true.</p>
 <h2 id="继续分析"><a href="#继续分析" class="headerlink" title="继续分析"></a>继续分析</h2><p>  我们前面说到intern方法只是检查常量池里面有没有该值，有则返回（返回的是常量池里面的对象），没有则添加（JDK1.6和1.7的添加规则不同）。接下来String s2=”1”；因为s2是字面量，也就是显示声明，而且常量池里面已经有”1”这个对象了。所以答案就很明显了，s1是在堆里面的”1”对象，s2是在字符串常量池里面的”1”对象，所以两者是不会相等的，结果为false。</p>
-<h2 id="继续分析第二段代码"><a href="#继续分析第二段代码" class="headerlink" title="继续分析第二段代码"></a>继续分析第二段代码</h2><p>  String s3 = new String(“2”) + new String(“2”);这里虽然也是创建了两个对象，一个是”22”的堆对象，一个是”2”的常量池对象，注意：没有”22”常量池对象。<br>  接下来调用intern方法，因为字符串常量池还没有”22”这个对象，所以重点来了，如果是JDK1.7，添加的是<strong> 堆里面”22”这个对象的引用（说白了就是堆里面”22”这个对象），所以常量池里面的”22”这个对象会指向堆里面”22”这个对象。所以下一句代码String s4=”22”，貌似是常量池里面的”22”对象，但是因为此时常量池的”22”对象已经指向了堆里面的”22”对象，所以说s4也是堆里面的对象。所以输出结果为true。<br>  但是如果是JDK1.6，在调用intern方法的时候，因为常量池的”22”这个对象还不存在，所以就添加了”22”这个常量池对象，注意：</strong> 是常量池对象 ** ，所以下一句的String s4=”22”就是常量池对象了，结果就输出了false。</p>
+<h2 id="继续分析第二段代码"><a href="#继续分析第二段代码" class="headerlink" title="继续分析第二段代码"></a>继续分析第二段代码</h2><p>  String s3 = new String(“2”) + new String(“2”);这里虽然也是创建了两个对象，一个是”22”的堆对象，一个是”2”的常量池对象，注意：没有”22”常量池对象。<br>  接下来调用intern方法，因为字符串常量池还没有”22”这个对象，所以重点来了，如果是JDK1.7，添加的是<strong> 堆里面”22”这个对象的引用（说白了就是堆里面”22”这个对象）</strong> ，所以常量池里面的”22”这个对象会指向堆里面”22”这个对象。所以下一句代码String s4=”22”，貌似是常量池里面的”22”对象，但是因为此时常量池的”22”对象已经指向了堆里面的”22”对象，所以说s4也是堆里面的对象。所以输出结果为true。<br>  但是如果是JDK1.6，在调用intern方法的时候，因为常量池的”22”这个对象还不存在，所以就添加了”22”这个常量池对象，注意：<strong> 是常量池对象 </strong> ，所以下一句的String s4=”22”就是常量池对象了，结果就输出了false。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>说了那么多，其实就一句——常量池对象跟堆里面的对象时不一样的（只是简单理解，不要当真）<br>贴出总代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.stringpool;</span><br><span class="line"></span><br><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        /**</span><br><span class="line">         * 第一条代码一运行，会创建两个对象。</span><br><span class="line">         * 一个对象是常量池 &quot;1&quot;的对象，存储在字符串常量池中</span><br><span class="line">         * 另一个对象是 String 对象s1</span><br><span class="line">         * 这里s1因为是new出来的，所以s1是堆里面的String对象</span><br><span class="line">         */</span><br><span class="line">        String s1 = new String(&quot;1&quot;);</span><br><span class="line">        /**</span><br><span class="line">         * 调用intern方法，如果&quot;1&quot;不在字符串常量池中，则将s1对象的引用（内存中的地址）添加到字符串常量池中</span><br><span class="line">         * JDK1.7以上就是添加对象的引用，但是1.7以下是直接将&quot;1&quot;添加到常量池</span><br><span class="line">         * 但是如果存在这个&quot;1&quot;值的对象，则返回该对象</span><br><span class="line">         * 返回的常量池里面的对象</span><br><span class="line">         */</span><br><span class="line">        String s5 = s1.intern();</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s5是返回常量池里面的&quot;1&quot;对象</span><br><span class="line">         * s1是堆里面的对象</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s1 == s5);  // false</span><br><span class="line">        /**</span><br><span class="line">         * 第三条代码运行时，因为上面第一条代码已经将&quot;1&quot;放进了字符串常量池了</span><br><span class="line">         * 所以s2是字符创常量池里面的&quot;1&quot;对象</span><br><span class="line">         */</span><br><span class="line">        String s2 = &quot;1&quot;;</span><br><span class="line">        /**</span><br><span class="line">         * 因为s1是堆里面String对象，s2是字符串常量池&quot;1&quot;的对象，所以为false</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s1==s2);   // false</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s5是返回常量池里面的&quot;1&quot;对象</span><br><span class="line">         * s2也是常量池里面&quot;1&quot;的对象</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s5 == s2); // true</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 这里的s3显然是&quot;22&quot;，但是，&quot;22&quot;还没有进入字符串常量</span><br><span class="line">         * 也就是说，目前字符串常量里面只有&quot;2&quot;这个对象</span><br><span class="line">         * 但是，堆中有&quot;22&quot;这个对象</span><br><span class="line">         * s3就是指向&quot;22&quot;这个堆中的对象的引用</span><br><span class="line">         */</span><br><span class="line">        String  s3 = new String(&quot;2&quot;) + new String(&quot;2&quot;);</span><br><span class="line">        /**</span><br><span class="line">         * 因为&quot;22&quot;还没有进入字符串常量，所以把s3这个对象对应的在堆中&quot;22&quot;这个对象的引用推入字符串常量池</span><br><span class="line">         * 也就是说字符串常量池的&quot;22&quot;会指向堆里面&quot;22&quot;这个对象</span><br><span class="line">         * 如果值已经存在，则返回常量池里面值&quot;22&quot;的对象</span><br><span class="line">         */</span><br><span class="line">        String s6 = s3.intern();</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s6和s3都是堆里面&quot;22&quot;这个对象的引用，所以为true</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s6 == s3);  // true</span><br><span class="line">        /**</span><br><span class="line">         * 因为上面的intern方法已经将&quot;22&quot;这个对象的引用放进字符创常量池</span><br><span class="line">         * 所以s4指向的堆里面&quot;22&quot;这个对象</span><br><span class="line">         */</span><br><span class="line">        String s4 = &quot;22&quot;;</span><br><span class="line">        /**</span><br><span class="line">         * 因为s4和s3引用的都是堆里面的对象，所以为true</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s3 == s4);  // true</span><br><span class="line"></span><br><span class="line">        System.out.println(s6 == s4);  // true</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 
           
@@ -1329,6 +1449,9 @@
         
           
             <h1 id="SpringMVC的本质"><a href="#SpringMVC的本质" class="headerlink" title="SpringMVC的本质"></a>SpringMVC的本质</h1><p>SpringMVC本质只是一个Servlet，Servlet的运行需要Servlet容器，常见的容器有Tomcat跟Jetty。Servlet的运行会调用一次init()跟一次destory()方法，用于初始化Servlet跟销毁Servlet。SpringMVC利用init()方法创建WebApplication的运行环境。（此时的WebApplication只是ServletWebApplicationContext，存储Controller、ViewResolver、HandlerMapping等）<br>所以SpringMVC的运行需要Servlet-api，而Servlet如Tomcat或者Jetty容器已经依赖了Servlet-api（如果是开发时使用插件形式，比如使用Tomcat插件，就需要手动引入）</p>
+<h1 id="SpringMVC的前身——Servlet"><a href="#SpringMVC的前身——Servlet" class="headerlink" title="SpringMVC的前身——Servlet"></a>SpringMVC的前身——Servlet</h1><p>*注：下面关于Servlet来自一篇推文：<a href="https://mp.weixin.qq.com/s__biz=MzA4MjIyNTY0MQ==&amp;mid=2647739557&amp;idx=1&amp;sn=ffd844a61c842fdc6551a2e9d4dbaab9&amp;key=3ced8d6e9f21461a1452cf26cf0e495b3ba44084c1c66b8e318a5039b4502e115714558bdf8f1a95094fbe9bf322e08b5d5f62b091a46fa4293fa17528a4a855794f08c29486fd6fac84f294b5c19a34&amp;ascene=1&amp;uin=MTEyMjk5MTQyMw%3D%3D&amp;devicetype=Windows+10&amp;version=62060728&amp;lang=zh_CN&amp;pass_ticket=TONBS%2FY8dLqbPKMCi6vH0pFR1i222o7yZyVAlvO7Ve6%2BzCA0TO5GtC6Q69c5hJqf" target="_blank" rel="noopener">https://mp.weixin.qq.com/s__biz=MzA4MjIyNTY0MQ==&amp;mid=2647739557&amp;idx=1&amp;sn=ffd844a61c842fdc6551a2e9d4dbaab9&amp;key=3ced8d6e9f21461a1452cf26cf0e495b3ba44084c1c66b8e318a5039b4502e115714558bdf8f1a95094fbe9bf322e08b5d5f62b091a46fa4293fa17528a4a855794f08c29486fd6fac84f294b5c19a34&amp;ascene=1&amp;uin=MTEyMjk5MTQyMw%3D%3D&amp;devicetype=Windows+10&amp;version=62060728&amp;lang=zh_CN&amp;pass_ticket=TONBS%2FY8dLqbPKMCi6vH0pFR1i222o7yZyVAlvO7Ve6%2BzCA0TO5GtC6Q69c5hJqf</a></p>
+<p>SpringMVC之前，就是Servlet。Spring MVC 是基于 Servlet 实现的。所以要分析 Spring MVC，首先应追根溯源，弄懂 Servlet。Servlet 是 J2EE 规范之一，在遵守该规范的前提下，我们可将 Web 应用部署在 Servlet 容器下。这样做的好处是什么呢？我觉得可使开发者聚焦业务逻辑，而不用去关心 HTTP 协议方面的事情。比如，普通的 HTTP 请求就是一段有格式的文本，服务器需要去解析这段文本才能知道用户请求的内容是什么。如果我们为了写一个 Web 应用，还要去解析 HTTP 协议相关的内容，那会增加很多工作量。</p>
+<p>如果我们写的 Web 应用不大，不夸张的说，项目中对 HTTP 提供支持的代码会比业务代码还要多，这岂不是得不偿失。当然，在现实中，有现成的框架可用，并不需要自己造轮子。如果我们基于 Servlet 规范实现 Web 应用的话，HTTP 协议的处理过程就不需要我们参与了。这些工作交给 Servlet 容器就行了，我们只需要关心业务逻辑怎么实现即可。<br>Servlet的具体就是交给Servlet接口、ServletConfig、GenericServlet、HttpServlet这些类中实现，等有时间再详解。</p>
 <h1 id="运行SpringMVC的前期准备"><a href="#运行SpringMVC的前期准备" class="headerlink" title="运行SpringMVC的前期准备"></a>运行SpringMVC的前期准备</h1><p>SpringMVC要运行需要Servlet，这里我们使用Tomcat插件作为Servlet容器，先引入Servlet的api,虽然Servlet-api在Tomcat插件呢中已经存在，但是SpringMVC在编译时需要Servlet-api的存在，不然编译不通过<br>哦对，在这之前需要引入Spring的包有context,web,webmvc 下面会说这几个包的作用<br>完整的pom.xml如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line"></span><br><span class="line">&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;</span><br><span class="line">    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;</span><br><span class="line"></span><br><span class="line">    &lt;groupId&gt;com.demo&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;lnw-spring-mvc&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;</span><br><span class="line">    &lt;packaging&gt;war&lt;/packaging&gt;</span><br><span class="line"></span><br><span class="line">    &lt;name&gt;lnw-spring-mvc Maven Webapp&lt;/name&gt;</span><br><span class="line">    &lt;!-- FIXME change it to the project&apos;s website --&gt;</span><br><span class="line">    &lt;url&gt;http://www.example.com&lt;/url&gt;</span><br><span class="line"></span><br><span class="line">    &lt;properties&gt;</span><br><span class="line">        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;</span><br><span class="line">        &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;</span><br><span class="line">        &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;</span><br><span class="line">    &lt;/properties&gt;</span><br><span class="line"></span><br><span class="line">    &lt;dependencies&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-context&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;5.0.8.RELEASE&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">		&lt;!--引入Servlet-api，然后scope设置为provided，表示编译时存在，运行时可去除</span><br><span class="line">		因为Tomcat中已经有Servlet-api了，运行时使用Tomcat里面的Servelt-Api就可以了--&gt;</span><br><span class="line">        &lt;!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api --&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;javax.servlet&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;javax.servlet-api&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;3.1.0&lt;/version&gt;</span><br><span class="line">            &lt;scope&gt;provided&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-web&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;5.0.8.RELEASE&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-webmvc&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;5.0.8.RELEASE&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">    &lt;/dependencies&gt;</span><br><span class="line"></span><br><span class="line">    &lt;build&gt;</span><br><span class="line">        &lt;finalName&gt;lnw-spring-mvc&lt;/finalName&gt;</span><br><span class="line">        &lt;pluginManagement&gt;&lt;!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) --&gt;</span><br><span class="line">            &lt;plugins&gt;</span><br><span class="line">				&lt;!--添加Tomcat插件，设置路径和端口--&gt;</span><br><span class="line">                &lt;plugin&gt;</span><br><span class="line">                    &lt;groupId&gt;org.apache.tomcat.maven&lt;/groupId&gt;</span><br><span class="line">                    &lt;artifactId&gt;tomcat7-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">                    &lt;version&gt;2.2&lt;/version&gt;</span><br><span class="line">                    &lt;configuration&gt;</span><br><span class="line">                        &lt;port&gt;8080&lt;/port&gt;</span><br><span class="line">                        &lt;path&gt;/&lt;/path&gt;</span><br><span class="line">                    &lt;/configuration&gt;</span><br><span class="line">                &lt;/plugin&gt;</span><br><span class="line"></span><br><span class="line">            &lt;/plugins&gt;</span><br><span class="line">        &lt;/pluginManagement&gt;</span><br><span class="line"></span><br><span class="line">    &lt;/build&gt;</span><br><span class="line">&lt;/project&gt;</span><br></pre></td></tr></table></figure></p>
 <p><strong> 引入的Servlet-api需要设置scope为provide表示编译时存在，运行时去除 </strong><br>Servlet容器跟依赖包都有了，接下来就是要让SpringMVC整合到Tomcat中<br>以前都是在web.xml配置，因为你Tomcat启动时会读取web.xml中的配置来启动加载SpringMVC的DispatcherServlet，但我这里想用java-config来配置，因为java-config配置更加直观一点（个人观点）<br>我们用一个MyWebApplicationInitializer类表示一个web.xml配置，用AppConfig类来配置Spring<br>我的理解是MyWebApplicationInitializer可以让Tomcat发现SpringMVC的存在并注册DispatcherServlet，AppConfig可以配置Spring的容器以及其他Spring属性</p>
 <p>MyWebApplicationInitializer.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">package com.demo.config;</span><br><span class="line">import org.springframework.web.WebApplicationInitializer;</span><br><span class="line">import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;</span><br><span class="line">import org.springframework.web.servlet.DispatcherServlet;</span><br><span class="line">import javax.servlet.ServletContext;</span><br><span class="line">import javax.servlet.ServletRegistration;</span><br><span class="line">public class MyWebApplicationInitializer implements WebApplicationInitializer &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void onStartup(ServletContext servletCxt) &#123;</span><br><span class="line">        System.out.println(&quot;------init------&quot;);</span><br><span class="line">        // Load Spring web application configuration</span><br><span class="line">        AnnotationConfigWebApplicationContext ac = new AnnotationConfigWebApplicationContext();</span><br><span class="line">        // 注册Spring的配置类</span><br><span class="line">        ac.register(AppConfig.class);</span><br><span class="line">        // ac.refresh();</span><br><span class="line">        // Create and register the DispatcherServlet</span><br><span class="line">        DispatcherServlet servlet = new DispatcherServlet(ac);</span><br><span class="line">        ServletRegistration.Dynamic registration = servletCxt.addServlet(&quot;app&quot;, servlet);</span><br><span class="line">        registration.setLoadOnStartup(1);</span><br><span class="line">        registration.addMapping(&quot;/&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
@@ -1715,163 +1838,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/07/Redis之持久化/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/07/Redis之持久化/" itemprop="url">Redis之持久化</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-07T16:47:06+08:00">
-                2019-02-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="为什么需要持久化"><a href="#为什么需要持久化" class="headerlink" title="为什么需要持久化"></a>为什么需要持久化</h1><p>Redis的所有数据是存储在内存里面的，Redis的持久化，为了防止机器忽然的宕机、断电使Redis内存中的数据来不及存储在硬盘而导致数据的丢失</p>
-<h1 id="哪些持久化方法"><a href="#哪些持久化方法" class="headerlink" title="哪些持久化方法"></a>哪些持久化方法</h1><p>Redis有两种持久化机制<br><strong> 快照 </strong><br><strong> AOF </strong></p>
-<h1 id="快照-snopashotting"><a href="#快照-snopashotting" class="headerlink" title="快照 snopashotting"></a>快照 snopashotting</h1><p>跟名字一样，就是将内存中的数据全部备份到硬盘的一个文件中，我们可以在redis.conf文件中设置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">save 60 1000  # 当60秒内写入1000个请求时，触发BGSAVE</span><br><span class="line">stop-write-on-bgsave-error  no   # 当创建快照文件失败后是否继续执行写命令</span><br><span class="line">rdbcomparession yes      # 是否对快照文件进行压缩</span><br><span class="line">dbfilename dump.rdb     # 备份数据的文件</span><br><span class="line">dir ./                          # 存储的路径</span><br></pre></td></tr></table></figure></p>
-<h2 id="创建快照的方法"><a href="#创建快照的方法" class="headerlink" title="创建快照的方法"></a>创建快照的方法</h2><p>1、 客户端发送BGSAVE命令来创建一个快照，Redis会调用fork创建一个子进程，子进程负责快照备份并写入硬盘，父进程继续处理客户端的请求<br>2、客户端发送SAVE指令，这时Redis只会进行快照的备份，在快照完成之前，不会再响应任何其他命令<br>3、如果用户在redis.conf中设置了SAVE配置（也就是上面那段代码），比如save 60 1000  从Redis最近一次创建快照之后算起，当60秒内有1000次写入，就会自动触发BGSAVE命令。当设置了多个SAVE配置，只要有一个满足就会执行BGSAVE<br>4、当Redis通过SHUTDOWN命令接收到关闭服务器或者接受到标准的TEMP信号时，会执行一个SAVE命令<br>5、当Redis服务器连接另一个Redis服务器，并向对方发送SYNC命令来开始一个复制操作时，如果主服务器没有执行BGSAVE操作，就会自己执行BGSAVE操作</p>
-<p>注意：快照会丢失数据的，因为在创建快照的时候，如果有指令写入，此时数据是不会被备份的，因为Redis是使用系统的COW（Copy On Write）</p>
-<h2 id="Fork"><a href="#Fork" class="headerlink" title="Fork"></a>Fork</h2><p>上面说当Redis执行BGSAVE命令时，会调用系统glibc的函数fork产生一个子进程，来完成快照的创建，而父进程继续处理请求<br>当子进程创建出来的时候，它不会修改内存中的数据结构，只会对数据进行遍历读取然后序列化到硬盘，如果此时父进程有请求指令处理时，Redis就会调用系统的COW（Copy on Write ）机制来进行数据段页面的分离。页面是内存中存储的一种形式，当一个页面中的数据在父进程中被修改时，父进程就会把该页面复制出来，然后在该页面里面操作数据，此时子进程快照备份的是没有被修改的页面，所以父进程在创建快照期间的所有操作是不会被备份的</p>
-<h1 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h1><p>AOF（append-only file）只追加文件，它存储的是命令不是数据，也就是说，Redis会将成功执行的命令写入到一个文件中，然后把该文件的命令从头到尾在另一台Redis服务器运行一遍，就能恢复原来的数据<br>AOF配置可以通过设置redis.conf来配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">appendonly  no                       # 是否开启AOF持久化</span><br><span class="line">appendfysnc  everysec              # 多久将写入内容同步到硬盘</span><br><span class="line">no-appendsync-on-rewrite  no    # 在对AOF进行同步的时候是否执行同步操作</span><br><span class="line">appendfilename &quot;appendonly.aof&quot;  # 存储AOF的文件</span><br><span class="line"># 下面两条命令可以配置自动执行AOF重写</span><br><span class="line">auto-aof-rewrite-percentage 100  # AOF的体积比上一次文件重写之后的体积大了一倍（100%）</span><br><span class="line">auto-aof-rewrite-min-size 64mb  #  AOF文件的体积大于64MB</span><br></pre></td></tr></table></figure></p>
-<p>上面第三条配置，是配置是否开启文件同步，文件同步是强制Redis将缓存区里的数据（AOF数据会先写入缓存）马上写入硬盘，此时会阻塞客户端的请求</p>
-<h2 id="appendfsync同步频率"><a href="#appendfsync同步频率" class="headerlink" title="appendfsync同步频率"></a>appendfsync同步频率</h2><p>上面配置的第二句，设置了多久将缓存中的文件写入到硬盘。AOF是先写入硬盘的缓存的，然后才从缓存写入硬盘，所以如果发生宕机，会发生AOF数据丢失的风险，所以设置同步频率很重要，设置同步频率是调用Linux的glibc的fsync(int id)函数，只要Redis调用了该函数就能保证aof日志不丢失，因为会强制系统写入，还发生阻塞了其他请求<br>三种同步频率：</p>
-<ul>
-<li>always：每个Redis写命令都要同步到硬盘，这严重降低了Redis的速度，不建议</li>
-<li>everysec：每秒执行一次同步，将一秒内的请求命令写入硬盘，推荐使用，就算是发送故障，丢失的数据也能控制在1秒内</li>
-<li>no：让系统自己决定何时进行同步</li>
-</ul>
-<h2 id="重写AOF（AOF瘦身）"><a href="#重写AOF（AOF瘦身）" class="headerlink" title="重写AOF（AOF瘦身）"></a>重写AOF（AOF瘦身）</h2><p>随着系统的运行，AOF日志文件的体积会不断增大，这时可以通过重写AOF来减小AOF的体积。<br>用户可以发送BGREWRITEAOF命令，该命令会移除AOF文件中冗余的命令来重写（rewrite）AOF，BGREWRITEAOF跟BGSAVE很相似，也是开启一个子进程后台运行<br>除了手动开启BGREWRITEAOF，还可以通过配置redis.conf来开启，也就是上面最后两条配置<br>auto-aof-rewrite-percentage 100 #AOF的体积比上一次文件重写之后的体积大了一倍（100%）<br>auto-aof-rewrite-min-size 64mb # AOF文件的体积大于64MB<br>当上面这两个条件满足时，就会开启BGREWRITEAOF</p>
-<h1 id="快照跟AOF的比较"><a href="#快照跟AOF的比较" class="headerlink" title="快照跟AOF的比较"></a>快照跟AOF的比较</h1><p>AOF恢复数据的速度远不如快照，当时快照会发生数据丢失，两者各有各的优点<br>在Redis4.0后，引入了混合持久化，也就是快照跟AOF并存，当需要Redis持久化时，先进行快照备份，在快照备份期间，所有的写命令都将写入AOF<br>当需要重启或者恢复数据时，先进行快照恢复，等快照恢复进行完了就进行AOF恢复，完美解决！</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1922,7 +1888,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-count">20</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
