@@ -259,6 +259,160 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/08/Spring循环依赖的解决方法/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/08/Spring循环依赖的解决方法/" itemprop="url">Spring循环依赖的解决方法</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-08T20:42:53+08:00">
+                2019-03-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>Spring的循环依赖是什么？就是两个Bean之间互相依赖，比如A的Bean中依赖B，B的Bean依赖A<br>TeatA.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.dao;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">@Component</span><br><span class="line">public class TestA &#123;</span><br><span class="line">	public TestB testB;</span><br><span class="line">	@Autowired</span><br><span class="line">	public void setTestB(TestB testB) &#123;</span><br><span class="line">		this.testB = testB;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>TestB.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.dao;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">@Component</span><br><span class="line">public class TestB &#123;</span><br><span class="line">	public TestA testA;</span><br><span class="line"></span><br><span class="line">	@Autowired</span><br><span class="line">	public void setTestA(TestA testA)&#123;</span><br><span class="line">		this.testA = testA;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>此时如果运行Spring，是不会报错的，证明Spring可以自己解决循环依赖，那Spring是怎么解决的呢</p>
+<h1 id="解密"><a href="#解密" class="headerlink" title="解密"></a>解密</h1><p>这里需要大家了解下Spring的Bean的声明周期，不清楚的可以看这篇<a href="https://southlight-lin.github.io/2019/02/19/Spring-Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" target="_blank" rel="noopener">Spring-Bean的生命周期</a>博客<br>长话短说，先说下Spring的解决办法，如果Spring发现一个Bean（当前Bean为A）存在循环依赖时，此时就会为当前Bean封装一个ObjectFactory，放进一个类似IOC容器的HashMap中 <strong> singletonFactories </strong> ，放进之后，继续创建Bean  A，当到了Bean的生命周期的populateBean的属性解析的时候，发现依赖Bean B，就去创建Bean B；在创建Bean  B的时候发现B存在循环依赖，就把当前B封装成一个ObjectFactory放进 <strong> singletonFactories </strong> （注意，此时Map中已经有两个ObjectFactory）</p>
+<h2 id="Spring获取单例Bean的流程"><a href="#Spring获取单例Bean的流程" class="headerlink" title="Spring获取单例Bean的流程"></a>Spring获取单例Bean的流程</h2><p>这里有必要讲一下Spring获取单例Bean的流程，在getSingleton方法中<br>org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#getSingleton(java.lang.String, boolean)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">protected Object getSingleton(String beanName, boolean allowEarlyReference) &#123;</span><br><span class="line">		// 先尝试从IOC容器中获取Bean</span><br><span class="line">		Object singletonObject = this.singletonObjects.get(beanName);</span><br><span class="line">		// 如果获取不到Bean，并且解析出当前Bean存在循环依赖</span><br><span class="line">		if (singletonObject == null &amp;&amp; isSingletonCurrentlyInCreation(beanName)) &#123;</span><br><span class="line">			synchronized (this.singletonObjects) &#123;</span><br><span class="line">				// 尝试从earlySingletonObjects中获取Bean</span><br><span class="line">				// earlySingletonObjects跟singletonFactories是相辅相成的</span><br><span class="line">				// singletonFactories中存放ObjectFactory，ObjectFactory可以返回一个实例</span><br><span class="line">				// earlySingletonObjects可以存放ObjectFactory返回的实例</span><br><span class="line">				singletonObject = this.earlySingletonObjects.get(beanName);</span><br><span class="line">				// 如果不在earlySingletonObjects中</span><br><span class="line">				if (singletonObject == null &amp;&amp; allowEarlyReference) &#123;</span><br><span class="line">					ObjectFactory&lt;?&gt; singletonFactory = this.singletonFactories.get(beanName);</span><br><span class="line">					// 判断是否有ObjectFactory，如果有，就通过ObjectFactory创建</span><br><span class="line">					if (singletonFactory != null) &#123;</span><br><span class="line">						singletonObject = singletonFactory.getObject();</span><br><span class="line">						// 将实例存放进earlySingletonObjects</span><br><span class="line">						this.earlySingletonObjects.put(beanName, singletonObject);</span><br><span class="line">						// 将ObjectFactory移除</span><br><span class="line">						this.singletonFactories.remove(beanName);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return singletonObject;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<p>注释已经写明白了，先从IOC容器中获取，如果没有就判断是否有循环依赖，有循环依赖则从singletonFactories和earlySingletonObjects获取</p>
+<h2 id="继续"><a href="#继续" class="headerlink" title="继续"></a>继续</h2><p>我们继续讲解上面的流程，我们讲到在创建B的Bean时发现循环依赖，就把B封装成ObjectFactory并放进singletonFactories，然后在Bean生命周期的populateBean的方法解析属性时发现存在依赖A的Bean，此时又要走创建Bean A的流程，但是走到org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#getSingleton这个方法时（也就是上面Spring的源代码），会从singletonFactories获取A的ObjectFactory，由ObjectFactory创建对象，并且赋值给B的Bean，此时B的Bean是指向A的实例（尽管A的Bean还没有创建，但是实例，也就是对象已经存在），这样一来B的Bean就会创建完成，需要添加进IOC容器<br>org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#addSingleton<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">protected void addSingleton(String beanName, Object singletonObject) &#123;</span><br><span class="line">		synchronized (this.singletonObjects) &#123;</span><br><span class="line">			this.singletonObjects.put(beanName, singletonObject);</span><br><span class="line">			this.singletonFactories.remove(beanName);</span><br><span class="line">			this.earlySingletonObjects.remove(beanName);</span><br><span class="line">			this.registeredSingletons.add(beanName);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<p>添加进IOC容器前需要擦除earlySingletonObjects和singletonFactories有关B的所有信息<br>这样的话，B的Bean已经创建完成了，回退到解析A的属性时，此时A需依赖Bean  B，以为Bean B已经创建，所以直接将Bean B赋给A的属性，就这样循环依赖解决了。</p>
+<h2 id="再重复一次"><a href="#再重复一次" class="headerlink" title="再重复一次"></a>再重复一次</h2><p>当Spring创建TestA时，在doCreate方法中，有这么一段代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">		 * 这个判断很重要，Spring依靠这个判断解决循环依赖，检测循环依赖</span><br><span class="line">		 * 是这样的，当发现有依赖循环时，比如A依赖B，B依赖A，此时获取A的Bean</span><br><span class="line">		 * Spring发现依赖循环，并且B的Bean还没有被创建，先创建A的ObjectFactory，然后添加进singletonFactories</span><br><span class="line">		 * 在下面的populateBean方法，将属性的依赖B创建</span><br><span class="line">		 */</span><br><span class="line">		// Eagerly cache singletons to be able to resolve circular references</span><br><span class="line">		// even when triggered by lifecycle interfaces like BeanFactoryAware.</span><br><span class="line">        		// 这里有三个条件需要判断：1、是否为代理；2、是否允许允许循环依赖；3、是否对应的Bean正在创建</span><br><span class="line">		boolean earlySingletonExposure = (mbd.isSingleton() &amp;&amp; this.allowCircularReferences &amp;&amp;</span><br><span class="line">				isSingletonCurrentlyInCreation(beanName));</span><br><span class="line">		if (earlySingletonExposure) &#123;</span><br><span class="line">			if (logger.isTraceEnabled()) &#123;</span><br><span class="line">				logger.trace(&quot;Eagerly caching bean &apos;&quot; + beanName +</span><br><span class="line">						&quot;&apos; to allow for resolving potential circular references&quot;);</span><br><span class="line">			&#125;</span><br><span class="line">			// 为避免后期循环依赖，可以在Bean初始化完成前将创建实例的ObjectFactory加入工厂</span><br><span class="line">			// 在Lambda表达式中，我们熟知的AOP的advice就是在这里动态织入的</span><br><span class="line">            // addSingletonFactory方法就是将ObjectFactory放进singletonFactories中</span><br><span class="line">			addSingletonFactory(beanName, () -&gt; getEarlyBeanReference(beanName, mbd, bean) );</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在创建Bean的时候会判断这个Bean是否存在循环依赖，此时TestA会判断出存在循环依赖。就会执行<strong> addSingletonFactory </strong><br>org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#addSingletonFactory<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">protected void addSingletonFactory(String beanName, ObjectFactory&lt;?&gt; singletonFactory) &#123;</span><br><span class="line">		Assert.notNull(singletonFactory, &quot;Singleton factory must not be null&quot;);</span><br><span class="line">		synchronized (this.singletonObjects) &#123;</span><br><span class="line">			if (!this.singletonObjects.containsKey(beanName)) &#123;</span><br><span class="line">				this.singletonFactories.put(beanName, singletonFactory);</span><br><span class="line">				this.earlySingletonObjects.remove(beanName);</span><br><span class="line">				this.registeredSingletons.add(beanName);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<p>也就是为A封装一个ObjectFactory并添加进singletonFactories，为了给下面循环依赖的B使用<br>接下来解析A的属性时发现依赖B的Bean，因为B的Bean还没被创建，所以需要创建B，所以又走了一遍上面的流程。当解析B的属性时发现依赖A的Bean，因为A的Bean还没有，所以先获取A的Bean，所以会执行这段代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">protected Object getSingleton(String beanName, boolean allowEarlyReference) &#123;</span><br><span class="line">		// 先尝试从IOC容器中获取Bean</span><br><span class="line">		Object singletonObject = this.singletonObjects.get(beanName);</span><br><span class="line">		// 如果获取不到Bean，并且解析出当前Bean存在循环依赖</span><br><span class="line">		if (singletonObject == null &amp;&amp; isSingletonCurrentlyInCreation(beanName)) &#123;</span><br><span class="line">			synchronized (this.singletonObjects) &#123;</span><br><span class="line">				// 尝试从earlySingletonObjects中获取Bean</span><br><span class="line">				// earlySingletonObjects跟singletonFactories是相辅相成的</span><br><span class="line">				// singletonFactories中存放ObjectFactory，ObjectFactory可以返回一个实例</span><br><span class="line">				// earlySingletonObjects可以存放ObjectFactory返回的实例</span><br><span class="line">				singletonObject = this.earlySingletonObjects.get(beanName);</span><br><span class="line">				// 如果不在earlySingletonObjects中</span><br><span class="line">				if (singletonObject == null &amp;&amp; allowEarlyReference) &#123;</span><br><span class="line">					ObjectFactory&lt;?&gt; singletonFactory = this.singletonFactories.get(beanName);</span><br><span class="line">					// 判断是否有ObjectFactory，如果有，就通过ObjectFactory创建</span><br><span class="line">					if (singletonFactory != null) &#123;</span><br><span class="line">						singletonObject = singletonFactory.getObject();</span><br><span class="line">						// 将实例存放进earlySingletonObjects</span><br><span class="line">						this.earlySingletonObjects.put(beanName, singletonObject);</span><br><span class="line">						// 将ObjectFactory移除</span><br><span class="line">						this.singletonFactories.remove(beanName);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return singletonObject;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
+<p>因为singletoeFactories中有两个ObjectFactory分别是A和B的，所以使用A的ObjectFactory提供的实例为B中的A赋值，当B创建完后又将B的Bean赋值给A中的B，这样A的Bean也就创建完成了。<br>*注意：循环依赖只运行单例，原型直接抛出异常</p>
+<h1 id="画图理解"><a href="#画图理解" class="headerlink" title="画图理解"></a>画图理解</h1><p><img src="/2019/03/08/Spring循环依赖的解决方法/20190308102208466.png" alt=""></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/03/为什么SpringBoot可以不用配置文件/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1725,166 +1879,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/09/SpringMVC是怎么跟着Tomcat启动的/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/09/SpringMVC是怎么跟着Tomcat启动的/" itemprop="url">SpringMVC是怎么跟着Tomcat启动的</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-09T23:19:12+08:00">
-                2019-02-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/SpringMVC/" itemprop="url" rel="index">
-                    <span itemprop="name">SpringMVC</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我们通过官方文档使用SpringMVC，用Tomcat来跑时，需要配置下面这段代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.config;</span><br><span class="line"></span><br><span class="line">import org.springframework.web.SpringServletContainerInitializer;</span><br><span class="line">import org.springframework.web.WebApplicationInitializer;</span><br><span class="line">import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;</span><br><span class="line">import org.springframework.web.servlet.DispatcherServlet;</span><br><span class="line"></span><br><span class="line">import javax.servlet.ServletContainerInitializer;</span><br><span class="line">import javax.servlet.ServletContext;</span><br><span class="line">import javax.servlet.ServletException;</span><br><span class="line">import javax.servlet.ServletRegistration;</span><br><span class="line">import javax.servlet.annotation.HandlesTypes;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 为什么实现了WebApplicationInitializer就可以被Tomcat所管理？</span><br><span class="line"> * 先看一个注解和一个类</span><br><span class="line"> * @see HandlesTypes</span><br><span class="line"> * @see ServletContainerInitializer</span><br><span class="line"> * 这两个一般成对出现的</span><br><span class="line"> * 在Tomcat启动的时候，会自动去寻找所有实现该接口的类</span><br><span class="line"> * 找到这个类后，里面唯一的实现方法需要一个Set参数</span><br><span class="line"> * 这些参数Tomcat会帮你去找，参数的类型是@HandlesTypes里面的value值</span><br><span class="line"> * Spring在org.springframework.web.SpringServletContainerInitializer中引用该注解并实现ServletContainerInitializer</span><br><span class="line"> * value值就是WebApplicationInitializer</span><br><span class="line"> * @see SpringServletContainerInitializer</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">public class MyWebApplicationInitializer implements WebApplicationInitializer &#123;</span><br><span class="line"></span><br><span class="line">	@Override</span><br><span class="line">	public void onStartup(ServletContext servletContext) throws ServletException &#123;</span><br><span class="line">		System.out.println(&quot;----init  my ServletContext----&quot;);</span><br><span class="line">		// Load Spring web application configuration</span><br><span class="line">		AnnotationConfigWebApplicationContext ac = new AnnotationConfigWebApplicationContext();</span><br><span class="line">		ac.register(AppConfig.class);</span><br><span class="line">		// ac.refresh();</span><br><span class="line"></span><br><span class="line">		// Create and register the DispatcherServlet</span><br><span class="line">		DispatcherServlet servlet = new DispatcherServlet(ac);</span><br><span class="line">		ServletRegistration.Dynamic registration = servletContext.addServlet(&quot;app&quot;, servlet);</span><br><span class="line">		registration.setLoadOnStartup(1);</span><br><span class="line">		registration.addMapping(&quot;/*&quot;);</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>AppConfig.class<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.config;</span><br><span class="line"></span><br><span class="line">import org.springframework.context.annotation.ComponentScan;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line">import org.springframework.web.servlet.config.annotation.EnableWebMvc;</span><br><span class="line"></span><br><span class="line">@Configuration</span><br><span class="line">@ComponentScan(&quot;com.lnw&quot;)</span><br><span class="line">@EnableWebMvc</span><br><span class="line">public class AppConfig &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这样，当我们整合Tomcat来跑时（一般都是Tomcat插件），就会执行onStartup方法来启动SpringMVC</p>
-<h1 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h1><p>我们看下我们实现的接口WebApplicationInitializr<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">package org.springframework.web;</span><br><span class="line">import javax.servlet.ServletContext;</span><br><span class="line">import javax.servlet.ServletException;</span><br><span class="line">public interface WebApplicationInitializer &#123;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * Configure the given &#123;@link ServletContext&#125; with any servlets, filters, listeners</span><br><span class="line">	 * context-params and attributes necessary for initializing this web application. See</span><br><span class="line">	 * examples &#123;@linkplain WebApplicationInitializer above&#125;.</span><br><span class="line">	 * @param servletContext the &#123;@code ServletContext&#125; to initialize</span><br><span class="line">	 * @throws ServletException if any call against the given &#123;@code ServletContext&#125;</span><br><span class="line">	 * throws a &#123;@code ServletException&#125;</span><br><span class="line">	 */</span><br><span class="line">	void onStartup(ServletContext servletContext) throws ServletException;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>发现它还是Spring的东西，如果要随着Tomcat启动执行的话，那也得是Servlet或者Tomcat里面的东西吧</p>
-<p>我们查看另一个SpringMVC里面的类SpringServletContainerInitializer<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">package org.springframework.web;</span><br><span class="line">import java.lang.reflect.Modifier;</span><br><span class="line">import java.util.LinkedList;</span><br><span class="line">import java.util.List;</span><br><span class="line">import java.util.ServiceLoader;</span><br><span class="line">import java.util.Set;</span><br><span class="line">import javax.servlet.ServletContainerInitializer;</span><br><span class="line">import javax.servlet.ServletContext;</span><br><span class="line">import javax.servlet.ServletException;</span><br><span class="line">import javax.servlet.annotation.HandlesTypes;</span><br><span class="line"></span><br><span class="line">import org.springframework.core.annotation.AnnotationAwareOrderComparator;</span><br><span class="line">import org.springframework.lang.Nullable;</span><br><span class="line">import org.springframework.util.ReflectionUtils;</span><br><span class="line"></span><br><span class="line">@HandlesTypes(WebApplicationInitializer.class)</span><br><span class="line">public class SpringServletContainerInitializer implements ServletContainerInitializer &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void onStartup(@Nullable Set&lt;Class&lt;?&gt;&gt; webAppInitializerClasses, ServletContext servletContext)</span><br><span class="line">			throws ServletException &#123;</span><br><span class="line"></span><br><span class="line">		List&lt;WebApplicationInitializer&gt; initializers = new LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">		if (webAppInitializerClasses != null) &#123;</span><br><span class="line">			for (Class&lt;?&gt; waiClass : webAppInitializerClasses) &#123;</span><br><span class="line">				// Be defensive: Some servlet containers provide us with invalid classes,</span><br><span class="line">				// no matter what @HandlesTypes says...</span><br><span class="line">				if (!waiClass.isInterface() &amp;&amp; !Modifier.isAbstract(waiClass.getModifiers()) &amp;&amp;</span><br><span class="line">						WebApplicationInitializer.class.isAssignableFrom(waiClass)) &#123;</span><br><span class="line">					try &#123;</span><br><span class="line">						initializers.add((WebApplicationInitializer)</span><br><span class="line">								ReflectionUtils.accessibleConstructor(waiClass).newInstance());</span><br><span class="line">					&#125;</span><br><span class="line">					catch (Throwable ex) &#123;</span><br><span class="line">						throw new ServletException(&quot;Failed to instantiate WebApplicationInitializer class&quot;, ex);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		if (initializers.isEmpty()) &#123;</span><br><span class="line">			servletContext.log(&quot;No Spring WebApplicationInitializer types detected on classpath&quot;);</span><br><span class="line">			return;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		servletContext.log(initializers.size() + &quot; Spring WebApplicationInitializers detected on classpath&quot;);</span><br><span class="line">		AnnotationAwareOrderComparator.sort(initializers);</span><br><span class="line">		for (WebApplicationInitializer initializer : initializers) &#123;</span><br><span class="line">			initializer.onStartup(servletContext);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>注解@HandlerTypes里面的value值正是我们上面的那个WebApplicationInitializer</p>
-<p>下面我们先来说下Tomcat里面的原理</p>
-<h1 id="Tomcat"><a href="#Tomcat" class="headerlink" title="Tomcat"></a>Tomcat</h1><p>就只说关键部分<br>Tomcat在启动的时候，会配置Context，配置Context需要ContextConfig<br>ContextConfig的核心就是webConfig 方法，下面主要看几条主要的代码<br>org.apache.catalina.startup.ContextConfig#webConfig<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">org.apache.catalina.startup.ContextConfig#webConfig</span><br><span class="line"></span><br><span class="line">// Step 1. 读取各个jar模块和fragments</span><br><span class="line">Map&lt;String,WebXml&gt; fragments = processJarsForWebFragments(webXml, webXmlParser);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// Step 2. 排序fragments</span><br><span class="line">Set&lt;WebXml&gt; orderedFragments = null;</span><br><span class="line">orderedFragments =</span><br><span class="line">	WebXml.orderWebFragments(webXml, fragments, sContext);</span><br><span class="line"></span><br><span class="line">// Step 3. 寻找所有的ServletContainerInitializer实现</span><br><span class="line">// SpringMVC也是基于这个过程开展的</span><br><span class="line">if (ok) &#123;</span><br><span class="line">processServletContainerInitializers();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// Step 4. 处理/WEB-INF/classes文件夹下面的注解了@HandlesTypes</span><br><span class="line">// 这一步很重要</span><br><span class="line">Map&lt;String,JavaClassCacheEntry&gt; javaClassCache = new HashMap&lt;&gt;();</span><br><span class="line">if (ok) &#123;</span><br><span class="line">	WebResource[] webResources =</span><br><span class="line">			context.getResources().listResources(&quot;/WEB-INF/classes&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// Step 5. 处理所有的jar中有关的@HandlesTypes</span><br><span class="line">if (ok) &#123;</span><br><span class="line">	processAnnotations(</span><br><span class="line">			orderedFragments, webXml.isMetadataComplete(), javaClassCache);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// Step 6. 将所有的fragments.xml合并</span><br><span class="line">if (ok) &#123;</span><br><span class="line">	ok = webXml.merge(orderedFragments);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// Step 7a，将所有的web.xml合并</span><br><span class="line">// merge tomcat-web.xml</span><br><span class="line">webXml.merge(tomcatWebXml);</span><br><span class="line"></span><br><span class="line">。。。</span><br><span class="line"> // Step 11. 将扫描到的所有实现了ServletContainerInitializer类添加到StandardContext容器中</span><br><span class="line">if (ok) &#123;</span><br><span class="line">	for (Map.Entry&lt;ServletContainerInitializer,</span><br><span class="line">			Set&lt;Class&lt;?&gt;&gt;&gt; entry :</span><br><span class="line">				initializerClassMap.entrySet()) &#123;</span><br><span class="line">		if (entry.getValue().isEmpty()) &#123;</span><br><span class="line">			context.addServletContainerInitializer(</span><br><span class="line">					entry.getKey(), null);</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			context.addServletContainerInitializer(</span><br><span class="line">					entry.getKey(), entry.getValue());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>通过注释大概可以知道每段代码的作用<br>其中这段代码很重要<strong> processServletContainerInitializers(); </strong><br>还有就是最后的Step 11将扫描到的类添加到Context 中<br>也就是说，Tomcat启动的时候，会使用ClassLoader扫描classes路径下所有的类，找出实现了ServletContainerInitializer类并保存，然后在随后的启动中调用ServletContainerInitializer<br>的onStart方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void onStartup(Set&lt;Class&lt;?&gt;&gt; c, ServletContext ctx) throws ServletException;</span><br></pre></td></tr></table></figure></p>
-<p>集合Set是存放注解@HandlesTypes中的类，目的是在特定的ServletContainerInitializer中启动的时候做另外的操作</p>
-<h1 id="SpringMVC跟Tomcat"><a href="#SpringMVC跟Tomcat" class="headerlink" title="SpringMVC跟Tomcat"></a>SpringMVC跟Tomcat</h1><p>上面我们讲到Tomcat启动的时候会扫描到所有实现了ServletContainerInitializer的类，而我们的SpringServletContainerInitialzer就是SpringMVC跟Tomcat的桥接<br>我们再来看下SpringServletContainerInitializer的源码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">package org.springframework.web;</span><br><span class="line">import java.lang.reflect.Modifier;</span><br><span class="line">import java.util.LinkedList;</span><br><span class="line">import java.util.List;</span><br><span class="line">import java.util.ServiceLoader;</span><br><span class="line">import java.util.Set;</span><br><span class="line">import javax.servlet.ServletContainerInitializer;</span><br><span class="line">import javax.servlet.ServletContext;</span><br><span class="line">import javax.servlet.ServletException;</span><br><span class="line">import javax.servlet.annotation.HandlesTypes;</span><br><span class="line"></span><br><span class="line">import org.springframework.core.annotation.AnnotationAwareOrderComparator;</span><br><span class="line">import org.springframework.lang.Nullable;</span><br><span class="line">import org.springframework.util.ReflectionUtils;</span><br><span class="line"></span><br><span class="line">@HandlesTypes(WebApplicationInitializer.class)</span><br><span class="line">public class SpringServletContainerInitializer implements ServletContainerInitializer &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void onStartup(@Nullable Set&lt;Class&lt;?&gt;&gt; webAppInitializerClasses, ServletContext servletContext)</span><br><span class="line">			throws ServletException &#123;</span><br><span class="line"></span><br><span class="line">		List&lt;WebApplicationInitializer&gt; initializers = new LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">		if (webAppInitializerClasses != null) &#123;</span><br><span class="line">			for (Class&lt;?&gt; waiClass : webAppInitializerClasses) &#123;</span><br><span class="line">				// Be defensive: Some servlet containers provide us with invalid classes,</span><br><span class="line">				// no matter what @HandlesTypes says...</span><br><span class="line">				if (!waiClass.isInterface() &amp;&amp; !Modifier.isAbstract(waiClass.getModifiers()) &amp;&amp;</span><br><span class="line">						WebApplicationInitializer.class.isAssignableFrom(waiClass)) &#123;</span><br><span class="line">					try &#123;</span><br><span class="line">						initializers.add((WebApplicationInitializer)</span><br><span class="line">								ReflectionUtils.accessibleConstructor(waiClass).newInstance());</span><br><span class="line">					&#125;</span><br><span class="line">					catch (Throwable ex) &#123;</span><br><span class="line">						throw new ServletException(&quot;Failed to instantiate WebApplicationInitializer class&quot;, ex);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		if (initializers.isEmpty()) &#123;</span><br><span class="line">			servletContext.log(&quot;No Spring WebApplicationInitializer types detected on classpath&quot;);</span><br><span class="line">			return;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		servletContext.log(initializers.size() + &quot; Spring WebApplicationInitializers detected on classpath&quot;);</span><br><span class="line">		AnnotationAwareOrderComparator.sort(initializers);</span><br><span class="line">		for (WebApplicationInitializer initializer : initializers) &#123;</span><br><span class="line">			initializer.onStartup(servletContext);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>因为SpringServletContainerInitializer实现了ServletContainerInitializer，所以会被Tomcat扫描存储到Context，并且因为该类上面注解了@HandlesTypes，里面的value为WebApplicationInitializer.class，所以Tomcat会将实现了WebApplicationInitializer的类扫描出来封装到Set中。<br>Tomcat的启动中，会调用所有的ServletContainerInitializer的onStartup方法来初始化并启动StrandContext容器，所以SpringServletContainerInitiar的onStartup方法就会被调用<br>在org.springframework.web.SpringServletContainerInitializer#onStartup方法中，通过一个for循环启动所有的WebApplicationInitializer<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">for (WebApplicationInitializer initializer : initializers) &#123;</span><br><span class="line">	initializer.onStartup(servletContext);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>就是这样，执行了SpringMVC官方文档的这段代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public class MyWebApplicationInitializer implements WebApplicationInitializer &#123;</span><br><span class="line"></span><br><span class="line">	@Override</span><br><span class="line">	public void onStartup(ServletContext servletContext) throws ServletException &#123;</span><br><span class="line">		System.out.println(&quot;----init  my ServletContext----&quot;);</span><br><span class="line">		// Load Spring web application configuration</span><br><span class="line">		AnnotationConfigWebApplicationContext ac = new AnnotationConfigWebApplicationContext();</span><br><span class="line">		ac.register(AppConfig.class);</span><br><span class="line">		// ac.refresh();</span><br><span class="line"></span><br><span class="line">		// Create and register the DispatcherServlet</span><br><span class="line">		DispatcherServlet servlet = new DispatcherServlet(ac);</span><br><span class="line">		ServletRegistration.Dynamic registration = servletContext.addServlet(&quot;app&quot;, servlet);</span><br><span class="line">		registration.setLoadOnStartup(1);</span><br><span class="line">		registration.addMapping(&quot;/*&quot;);</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1930,7 +1929,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-count">21</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
