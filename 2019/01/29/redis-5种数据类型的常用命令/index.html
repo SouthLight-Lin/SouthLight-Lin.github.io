@@ -105,7 +105,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/20190202102221283.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/20190202105536167.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/29/redis-5种数据类型的常用命令/20190202111635653.png">
-<meta property="og:updated_time" content="2019-02-17T15:33:25.052Z">
+<meta property="og:updated_time" content="2019-03-09T12:35:49.735Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redis 5种数据类型的常用命令">
 <meta name="twitter:description" content="Redis简介Redis的优势： * 速度快，性能高，每秒可以执行约100,000个Set以及100,000个Get操作 * 丰富的数据结构 * 原子性，因为所有Redis操作都是原子性的，所以多个客户端会并发访问Redis服务器，获取相同的更新值 * 丰富的特性，Redis的使用非常灵活，有很多适应场景，比如缓存、消息队列（Redis支持发布/订阅)等 String字符串可以支持三种类型： 1.">
@@ -495,11 +495,112 @@
 </table>
 <p><img src="/2019/01/29/redis-5种数据类型的常用命令/4.png" alt="常规操作"><br><img src="/2019/01/29/redis-5种数据类型的常用命令/5.png" alt="常规操作"><br><img src="/2019/01/29/redis-5种数据类型的常用命令/6.png" alt="常规操作"></p>
 <ul>
-<li>注：lindex相当于Java的LinkedList的get(int index)，它需要对链表进行遍历，性能随着index的增大而降低<br>Redis的列表List有Block（阻塞）的功能，下面是一些阻塞命令<h2 id="列表阻塞命令"><a href="#列表阻塞命令" class="headerlink" title="列表阻塞命令"></a>列表阻塞命令</h2>| 命令 | 用例和描述  |<br>| — | — |<br>| BLPOP | BLPOP key-name [key-name … ] timeout —— 从第一个非空列表中弹出位于最左端的元素，或者在timeout秒内阻塞并等待可弹出元素出现 |<br>| BRPOP | BRPOP key-name [key-name … ] timeout —— 从第一个非空列表中弹出位于最右端的元素，或者在timeout秒内阻塞并等待可弹出元素出现 |<br>| RPOPLPUSH | BPOPLPUSH source-key dest-key —— 从source-key 列表中弹出位于最右端的元素并将这个元素插入到dest-key 列表的最左端，并向用户返回这个元素 |<br>| BRPOPLPUSH | BRPOPLPUSH source-key dest-key timeout —— 从source-key 列表中弹出位于最右端的元素，然后将这个元素插入到dest-key列表的最左端，并向用户返回这个元素；如果source-key为空，那么在timeout秒内阻塞并等待元素出现 |<br><img src="/2019/01/29/redis-5种数据类型的常用命令/7.png" alt="常规操作"></li>
+<li>注：lindex相当于Java的LinkedList的get(int index)，它需要对链表进行遍历，性能随着index的增大而降低<br>Redis的列表List有Block（阻塞）的功能，下面是一些阻塞命令<h2 id="列表阻塞命令"><a href="#列表阻塞命令" class="headerlink" title="列表阻塞命令"></a>列表阻塞命令</h2></li>
 </ul>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用例和描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BLPOP</td>
+<td>BLPOP key-name [key-name … ] timeout —— 从第一个非空列表中弹出位于最左端的元素，或者在timeout秒内阻塞并等待可弹出元素出现</td>
+</tr>
+<tr>
+<td>BRPOP</td>
+<td>BRPOP key-name [key-name … ] timeout —— 从第一个非空列表中弹出位于最右端的元素，或者在timeout秒内阻塞并等待可弹出元素出现</td>
+</tr>
+<tr>
+<td>RPOPLPUSH</td>
+<td>BPOPLPUSH source-key dest-key —— 从source-key 列表中弹出位于最右端的元素并将这个元素插入到dest-key 列表的最左端，并向用户返回这个元素</td>
+</tr>
+<tr>
+<td>BRPOPLPUSH</td>
+<td>BRPOPLPUSH source-key dest-key timeout —— 从source-key 列表中弹出位于最右端的元素，然后将这个元素插入到dest-key列表的最左端，并向用户返回这个元素；如果source-key为空，那么在timeout秒内阻塞并等待元素出现</td>
+</tr>
+</tbody>
+</table>
+<p><img src="/2019/01/29/redis-5种数据类型的常用命令/7.png" alt="常规操作"></p>
 <p>简单的深入探讨列表的内部实现：<br>如果列表的数据较少的情况下，redis会为它分配一个连续的内存空间供他存储，这个结构就是<strong> ziplist </strong> ，即压缩链表<br>当数据量较多的时候，就会改成quicklist，即快速链表，它是链表+ziplist组合而成，减少了一些指针<br><img src="/2019/01/29/redis-5种数据类型的常用命令/20190217111247797.png" alt=""></p>
-<h1 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h1><h2 id="插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"><a href="#插入命令、移除命令、将元素从一个集合移动到另一个集合的命令" class="headerlink" title="插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"></a>插入命令、移除命令、将元素从一个集合移动到另一个集合的命令</h2><p>Redis的集合相当于Java的HashSet，它内部的键值对是无序且唯一的<br>| 命令 | 用例和描述 |<br>| — | — |<br>| SADD | SADD key-name item [itme….] ——将一个或者多个元素添加到集合里面，并返回当前操作被添加元素的数量 |<br>| SREM | SREM key-name item [item…] —— 从集合里面移除一个或者多个元素，并返回被移除元素的数量 |<br>| SISMEMBER | SISMEMBER key-name item —— 检查元素item是否在集合key-name里面 |<br>| SCARD | SCARD key-name —— 返回集合包含的元素的数量 |<br>| SMEMBERS | SMEMBERS key-name | 返回集合的所有元素 |<br>| SRANDMEMBER | SRANDMEMBER key-name [count] —— 从集合里面<strong>随机</strong>返回一个或者多个元素。当count为正数时，命令返回的随机元素不会重复；当count为负数时，命令返回的随机元素可能会重复 |<br>| SPOP | SPOP key-name —— <strong>随机</strong>移除集合中的一个元素，并返回被移除的元素 |<br>| SMOVE | SMOVE source-key dest-key item —— 如果集合source-key包含元素item，那么从集合source-key里面移除元素并将元素item添加到集合dest-key中；如果元素item移动成功，返回1，否则返回0|<br><img src="/2019/01/29/redis-5种数据类型的常用命令/8.png" alt="常规操作"></p>
-<h2 id="对多个集合执行交集运算、并集运算和差集运算的命令"><a href="#对多个集合执行交集运算、并集运算和差集运算的命令" class="headerlink" title="对多个集合执行交集运算、并集运算和差集运算的命令"></a>对多个集合执行交集运算、并集运算和差集运算的命令</h2><p>集合真正牛逼的地方，在于对组合和关联多个集合<br>| 命令 | 用例和描述 |<br>| — | — |<br>| SDIFF | SDIFF key-name [key-name … ]——返回那些存在于第一个集合，但不存在于其他集合中的元素（数学上的差集运算） |<br>| SDIFFSTORE | SDIFFSTORE dest-key key-name [ key-name … ]——将那些存在于第一个集合（key-name）但并不存在于其他集合中的元素（数学上的差集运算）存储到dest-key集合中 |<br>| SINTER | SINTER key-name [key-name … ] —— 返回那些同时存在于所有集合的元素（数学上的交集运算） |<br>| SUNION |SUNION key-name [key-name … ] —— 返回那些至少存在于一个集合中的元素（数学上的并集运算） |<br>| SUNIONSTORE | SUNIIONSTORE dest-key key-name [key-name … ] —— 返回那些至少存在于一个集合中的元素（数学上的并集运算）并存储到dest-key集合中 |</p>
+<h1 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h1><h2 id="插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"><a href="#插入命令、移除命令、将元素从一个集合移动到另一个集合的命令" class="headerlink" title="插入命令、移除命令、将元素从一个集合移动到另一个集合的命令"></a>插入命令、移除命令、将元素从一个集合移动到另一个集合的命令</h2><p>Redis的集合相当于Java的HashSet，它内部的键值对是无序且唯一的</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用例和描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SADD</td>
+<td>SADD key-name item [itme….] ——将一个或者多个元素添加到集合里面，并返回当前操作被添加元素的数量</td>
+</tr>
+<tr>
+<td>SREM</td>
+<td>SREM key-name item [item…] —— 从集合里面移除一个或者多个元素，并返回被移除元素的数量</td>
+</tr>
+<tr>
+<td>SISMEMBER</td>
+<td>SISMEMBER key-name item —— 检查元素item是否在集合key-name里面</td>
+</tr>
+<tr>
+<td>SCARD</td>
+<td>SCARD key-name —— 返回集合包含的元素的数量</td>
+</tr>
+<tr>
+<td>SMEMBERS</td>
+<td>SMEMBERS key-name</td>
+<td>返回集合的所有元素</td>
+</tr>
+<tr>
+<td>SRANDMEMBER</td>
+<td>SRANDMEMBER key-name [count] —— 从集合里面<strong>随机</strong>返回一个或者多个元素。当count为正数时，命令返回的随机元素不会重复；当count为负数时，命令返回的随机元素可能会重复</td>
+</tr>
+<tr>
+<td>SPOP</td>
+<td>SPOP key-name —— <strong>随机</strong>移除集合中的一个元素，并返回被移除的元素</td>
+</tr>
+<tr>
+<td>SMOVE</td>
+<td>SMOVE source-key dest-key item —— 如果集合source-key包含元素item，那么从集合source-key里面移除元素并将元素item添加到集合dest-key中；如果元素item移动成功，返回1，否则返回0</td>
+</tr>
+</tbody>
+</table>
+<p><img src="/2019/01/29/redis-5种数据类型的常用命令/8.png" alt="常规操作"></p>
+<h2 id="对多个集合执行交集运算、并集运算和差集运算的命令"><a href="#对多个集合执行交集运算、并集运算和差集运算的命令" class="headerlink" title="对多个集合执行交集运算、并集运算和差集运算的命令"></a>对多个集合执行交集运算、并集运算和差集运算的命令</h2><p>集合真正牛逼的地方，在于对组合和关联多个集合</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用例和描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SDIFF</td>
+<td>SDIFF key-name [key-name … ]——返回那些存在于第一个集合，但不存在于其他集合中的元素（数学上的差集运算）</td>
+</tr>
+<tr>
+<td>SDIFFSTORE</td>
+<td>SDIFFSTORE dest-key key-name [ key-name … ]——将那些存在于第一个集合（key-name）但并不存在于其他集合中的元素（数学上的差集运算）存储到dest-key集合中</td>
+</tr>
+<tr>
+<td>SINTER</td>
+<td>SINTER key-name [key-name … ] —— 返回那些同时存在于所有集合的元素（数学上的交集运算）</td>
+</tr>
+<tr>
+<td>SUNION</td>
+<td>SUNION key-name [key-name … ] —— 返回那些至少存在于一个集合中的元素（数学上的并集运算）</td>
+</tr>
+<tr>
+<td>SUNIONSTORE</td>
+<td>SUNIIONSTORE dest-key key-name [key-name … ] —— 返回那些至少存在于一个集合中的元素（数学上的并集运算）并存储到dest-key集合中</td>
+</tr>
+</tbody>
+</table>
 <h1 id="Hash-散列"><a href="#Hash-散列" class="headerlink" title="Hash 散列"></a>Hash 散列</h1><p>可以把一条散列数据看成是数据库的一行<br>它跟Java的HashMap差不多，结构也是链表+数组的二维结构，而且数据是无序的<br>不同的是Redis的Hash只能存储字符串，而且它们的refresh方式不一样。Java的HashMap的refresh是一个耗时的操作，需要一次性全部refresh。而Redis为了提高性能，采用渐进式refresh策略，Redis会生成新旧两个hash，然后循环渐进的将旧hash的内容一点一点的移动到新的hash中，当搬迁完后，就是用新的hash替代旧的hash，如果在这个过程中需要查询数据，会同时查询两个hash，也就是在新旧两个hash里面搜索一遍</p>
 <table>
 <thead>
@@ -836,7 +937,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
