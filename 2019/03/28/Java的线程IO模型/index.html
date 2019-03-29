@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="git,">
+  <meta name="keywords" content="java,">
 
 
 
@@ -79,22 +79,23 @@
 
 
 
-<meta name="description" content="git initgit init 就是把当前文件夹初始化为git仓库，这个文件夹就会被git所托管，文件夹里面的文件发生的所有改变都会被git所发现，而且该文件夹下就会多了一个.git的目录。我们创建Git版本库时，Git自动为我们创建了唯一一个master分支 git addgit add就是告诉Git，把文件添加到仓库（只是添加到暂存区）。即使有个文件已经在当前文件夹，但是没有使用git ad">
-<meta name="keywords" content="git">
+<meta name="description" content="前言我们的IO操作：文件的操作，网络请求的操作都跟IO有关，我们需要了解下目前的IO模型有哪些。在这之前我们需要了解缓存IO  缓存IO缓存IO又叫做标准IO，所有的IO写入都会先写向操作系统内核的缓存，再由操作系统刷新到硬盘。返回来也是一样，读取文件也是先读取到操作系统的缓存，然后再给程序。缓存I/O的缺点是数据在传输过程中需要在应用程序地址空间和内核进行多次数据拷贝操作，这些数据拷贝操作所带来">
+<meta name="keywords" content="java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="git学习">
-<meta property="og:url" content="http://yoursite.com/2019/02/24/git学习/index.html">
+<meta property="og:title" content="Java的线程IO模型">
+<meta property="og:url" content="http://yoursite.com/2019/03/28/Java的线程IO模型/index.html">
 <meta property="og:site_name" content="SouthLight&#39;s Blog">
-<meta property="og:description" content="git initgit init 就是把当前文件夹初始化为git仓库，这个文件夹就会被git所托管，文件夹里面的文件发生的所有改变都会被git所发现，而且该文件夹下就会多了一个.git的目录。我们创建Git版本库时，Git自动为我们创建了唯一一个master分支 git addgit add就是告诉Git，把文件添加到仓库（只是添加到暂存区）。即使有个文件已经在当前文件夹，但是没有使用git ad">
+<meta property="og:description" content="前言我们的IO操作：文件的操作，网络请求的操作都跟IO有关，我们需要了解下目前的IO模型有哪些。在这之前我们需要了解缓存IO  缓存IO缓存IO又叫做标准IO，所有的IO写入都会先写向操作系统内核的缓存，再由操作系统刷新到硬盘。返回来也是一样，读取文件也是先读取到操作系统的缓存，然后再给程序。缓存I/O的缺点是数据在传输过程中需要在应用程序地址空间和内核进行多次数据拷贝操作，这些数据拷贝操作所带来">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/02/24/git学习/20190224085606485.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/24/git学习/20190224085649620.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/24/git学习/20190224085857433.png">
-<meta property="og:updated_time" content="2019-02-24T13:07:05.961Z">
+<meta property="og:image" content="http://yoursite.com/2019/03/28/Java的线程IO模型/20190328094528216.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/28/Java的线程IO模型/20190328100712368.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/28/Java的线程IO模型/20190329041513978.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/28/Java的线程IO模型/20190329042912467.png">
+<meta property="og:updated_time" content="2019-03-29T09:13:33.785Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="git学习">
-<meta name="twitter:description" content="git initgit init 就是把当前文件夹初始化为git仓库，这个文件夹就会被git所托管，文件夹里面的文件发生的所有改变都会被git所发现，而且该文件夹下就会多了一个.git的目录。我们创建Git版本库时，Git自动为我们创建了唯一一个master分支 git addgit add就是告诉Git，把文件添加到仓库（只是添加到暂存区）。即使有个文件已经在当前文件夹，但是没有使用git ad">
-<meta name="twitter:image" content="http://yoursite.com/2019/02/24/git学习/20190224085606485.png">
+<meta name="twitter:title" content="Java的线程IO模型">
+<meta name="twitter:description" content="前言我们的IO操作：文件的操作，网络请求的操作都跟IO有关，我们需要了解下目前的IO模型有哪些。在这之前我们需要了解缓存IO  缓存IO缓存IO又叫做标准IO，所有的IO写入都会先写向操作系统内核的缓存，再由操作系统刷新到硬盘。返回来也是一样，读取文件也是先读取到操作系统的缓存，然后再给程序。缓存I/O的缺点是数据在传输过程中需要在应用程序地址空间和内核进行多次数据拷贝操作，这些数据拷贝操作所带来">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/28/Java的线程IO模型/20190328094528216.png">
 
 
 
@@ -124,13 +125,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/02/24/git学习/">
+  <link rel="canonical" href="http://yoursite.com/2019/03/28/Java的线程IO模型/">
 
 
 
 
 
-  <title>git学习 | SouthLight's Blog</title>
+  <title>Java的线程IO模型 | SouthLight's Blog</title>
   
 
 
@@ -267,7 +268,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/24/git学习/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/28/Java的线程IO模型/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -284,7 +285,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">git学习</h1>
+          <h1 class="post-title" itemprop="name headline">Java的线程IO模型</h1>
         
 
         <div class="post-meta">
@@ -296,8 +297,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-24T20:29:20+08:00">
-                2019-02-24
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-28T21:14:04+08:00">
+                2019-03-28
               </time>
             
 
@@ -319,8 +320,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/git/" itemprop="url" rel="index">
-                    <span itemprop="name">git</span>
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
                   </a>
                 </span>
 
@@ -356,24 +357,22 @@
       
 
       
-        <h1 id="git-init"><a href="#git-init" class="headerlink" title="git init"></a>git init</h1><p>git init 就是把当前文件夹初始化为git仓库，这个文件夹就会被git所托管，文件夹里面的文件发生的所有改变都会被git所发现，而且该文件夹下就会多了一个.git的目录。<br>我们创建Git版本库时，Git自动为我们创建了唯一一个master分支</p>
-<h1 id="git-add"><a href="#git-add" class="headerlink" title="git add"></a>git add</h1><p>git add就是告诉Git，把文件添加到仓库（只是添加到暂存区）。即使有个文件已经在当前文件夹，但是没有使用git add 文件名 命令，该文件也还是不存在git仓库<br>可以使用git add . 一下子添加当前目录下的所有文件</p>
-<h1 id="git-commit-m"><a href="#git-commit-m" class="headerlink" title="git commit -m"></a>git commit -m</h1><p>git commit告诉Git，把文件提交到仓库先将文件添加给Git托管，只有调用commit才算是正在的添加到仓库中。git commit后面要加上 -m参数，-m 参数代表本次提交的说明，最好输入的是有意义的内容，以便以后可以在历史中方便找到改动的记录</p>
-<h1 id="git-status"><a href="#git-status" class="headerlink" title="git status"></a>git status</h1><p>git status可以查看当前文件夹下有哪些文件被修改或者哪些文件没有被Git锁管理</p>
-<h1 id="git-diff"><a href="#git-diff" class="headerlink" title="git diff"></a>git diff</h1><p>git diff 可以查看当前目录下的文件跟上次提交的文件具体做了哪些修改</p>
-<h1 id="git-log"><a href="#git-log" class="headerlink" title="git log"></a>git log</h1><p>git log 列出了我们往期提交的所有历史记录。如果感觉输出的内容太多，可以加上–pretty=oneline命令</p>
-<h1 id="版本回退"><a href="#版本回退" class="headerlink" title="版本回退"></a>版本回退</h1><p>如果我们提交过多个版本，但是如果我们想回退到上一个版本，可以使用git reset命令<br>回退到上一个版本 git reset –hard HEAD^<br>回退到上上一个版本 git reset –hard HEAD^^<br>回退到上100个版本 git reset –hard HEAD~100<br>但是回退版本最好使用版本号，版本号可是使用git log查看，每次提交都会生成一个版本号，版本号不用全写，只需写前面几位就可以，git会自动识别。</p>
-<p>深入进去了解的话，我们每次提交，git里面会有一条链表记录，而且会有指针指向当前版本<br><img src="/2019/02/24/git学习/20190224085606485.png" alt=""><br>当版本回退时，比如回退到上一个版本，只需修改指针即可<br><img src="/2019/02/24/git学习/20190224085649620.png" alt=""></p>
-<ul>
-<li>图来自廖雪峰老师讲的Git课程<a href="https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/0013744142037508cf42e51debf49668810645e02887691000" target="_blank" rel="noopener">https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/0013744142037508cf42e51debf49668810645e02887691000</a></li>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我们的IO操作：文件的操作，网络请求的操作都跟IO有关，我们需要了解下目前的IO模型有哪些。在这之前我们需要了解<strong>缓存IO</strong> </p>
+<h1 id="缓存IO"><a href="#缓存IO" class="headerlink" title="缓存IO"></a>缓存IO</h1><p>缓存IO又叫做标准IO，所有的IO写入都会先写向操作系统内核的缓存，再由操作系统刷新到硬盘。返回来也是一样，读取文件也是先读取到操作系统的缓存，然后再给程序。<br>缓存I/O的缺点是数据在传输过程中需要在应用程序地址空间和内核进行多次数据拷贝操作，这些数据拷贝操作所带来的CPU以及内存开销是非常大的。</p>
+<h1 id="同步、异步、阻塞、非阻塞的概念"><a href="#同步、异步、阻塞、非阻塞的概念" class="headerlink" title="同步、异步、阻塞、非阻塞的概念"></a>同步、异步、阻塞、非阻塞的概念</h1><p>同步和异步最大的区别就是被调用方的执行方式和返回时机。 同步指的是被调用方做完事情之后再返回，异步指的是被调用方先返回，然后再做事情，做完之后再想办法通知调用方。<br>阻塞和非阻塞最大的区别就是在被调用方返回结果之前的这段时间内，调用方是否一直等待。 阻塞指的是调用方一直等待别的事情什么都不做。非阻塞指的是调用方先去忙别的事情。<br><strong>阻塞、非阻塞说的是调用者。同步、异步说的是被调用者。</strong></p>
+<h1 id="常见的IO模型"><a href="#常见的IO模型" class="headerlink" title="常见的IO模型"></a>常见的IO模型</h1><p>一个Socket请求服务器，会经过哪些步骤？<br>1、一个Socket会被分成多个包，经过多个路由到达服务器，进入操作系统的缓存区，也就是说要等待所有的Socket包都到达服务器<br>2、操作系统将数据拷贝给应用程序缓存<br>文件的IO也跟网络的IO类似，第一步需要等待操作系统从硬盘中读取数据到缓冲区</p>
+<h2 id="同步阻塞IO"><a href="#同步阻塞IO" class="headerlink" title="同步阻塞IO"></a>同步阻塞IO</h2><p>同步阻塞说明上面两步操作都会被阻塞，既要等待数据的准备，又要等待数据的拷贝<br><img src="/2019/03/28/Java的线程IO模型/20190328094528216.png" alt=""></p>
+<h2 id="同步非阻塞IO"><a href="#同步非阻塞IO" class="headerlink" title="同步非阻塞IO"></a>同步非阻塞IO</h2><p>同步阻塞相当在第一步的时候你可以去做别的事情，只是做的过程回来询问数据是否准备好了。当应用程序调用recvform后并不会阻塞，也就是说非阻塞的recvform系统调用调用之后，进程并没有被阻塞，内核马上返回给进程，如果数据还没准备好， 此时会返回一个error。进程在返回之后，可以干点别的事情，然后再发起recvform系统调用。<br><img src="/2019/03/28/Java的线程IO模型/20190328100712368.png" alt=""></p>
+<h2 id="IO多路复用"><a href="#IO多路复用" class="headerlink" title="IO多路复用"></a>IO多路复用</h2><p>这个是重点中的重点，现在的IO模型大多都是这个，Nginx，Redis，Java的NIO都是这个实现的<br>IO多路复用是指操作系统会有一个线程监听所有的IO请求，如果有一个请求的数据已经准备好了，那么就将该请求发送给预定的程序<br>目前的Unix系统的IO多路复用的函数有select、poll、epoll，select是最早出现的多路复用api，但是有一些缺点，比如最大只能有1024个线程，线程不安全；接着poll就修复了select的一些问题，解决了1024的问题，但还是线程不安全；最后epoll出现了，他解决了select的所有问题，现在的Linux都是使用它完成多路复用模型，但epoll只能在Linux上实现。还有一种叫kqueue的IO多路复用函数，但它是macos系统的东西。<br>想比较于同步非阻塞IO，它的改进之处在于原来用户进程轮询这事<strong>交给操作系统内核线程实现</strong> ，如果数据准备好，操作系统就会通知用户进程，将数据拷贝，而且这个内核进程可以等待多个Socket，能实现对多个IO端口进行监听<br><img src="/2019/03/28/Java的线程IO模型/20190329041513978.png" alt=""><br>如果连接数不高的话，使用IO多路复用并不一定比使用多线程+阻塞IO的Web Server性能好，因为<strong>IO多路复用的优势并不是对于单个连接处理得快，而是在于能处理更多的连接</strong> 。<br><strong>IO多路复用归为同步阻塞</strong> ，为什么？因为调用select、poll、epoll这些复用函数其实也是阻塞的，但是这种阻塞丢给操作系统后台去执行，用户进程不需要阻塞而已。</p>
+<h2 id="异步非阻塞IO"><a href="#异步非阻塞IO" class="headerlink" title="异步非阻塞IO"></a>异步非阻塞IO</h2><p>用户进程如果想进行异步非阻塞IO，调用aio_read系统后，等到Socket数据准备好，内核直接复制数据给进程（不是进程去内核拷贝数据了），然后内核向进程发送通知，IO这两个阶段都是非阻塞的</p>
+<p>Linux下的AIO库函数实现异步，但用得很少，目前很多开源异步IO库有：libevent、libev、libuv。<br><img src="/2019/03/28/Java的线程IO模型/20190329042912467.png" alt=""></p>
+<h1 id="Java中的四种IO模型"><a href="#Java中的四种IO模型" class="headerlink" title="Java中的四种IO模型"></a>Java中的四种IO模型</h1><ul>
+<li>1、Java传统IO模型，即阻塞IO</li>
+<li>2、NIO是同步非阻塞</li>
+<li>3、同步NIO实现的Reactor模式，即IO多路复用模型的实现</li>
+<li>4、同步AIO实现的Proactor模式，即是异步IO模型的实现</li>
+<li>本篇博客是读完该公众号后写的<a href="https://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&amp;mid=2247488064&amp;idx=2&amp;sn=56b6f87cb4e99107737c73f7ed1e5e8e&amp;chksm=eb539776dc241e60f88f7185da4b7fb46bf41f10a66a53898ca672e8942e8b6a8d47ec7d3d3d&amp;mpshare=1&amp;scene=1&amp;srcid=03282f5UGrOPqla3FRHsnIBf&amp;key=07b41b11cd2ea3cf8754e412ce5b2e1dda0131c9a5fa746e0eb74dbecee757f47a4be1b7ab19876a05437cfac54fc5fa19f2c7f64870a4920d18b6ca45c1ac83a0841ecd111138fb03b3d3e54daf5119&amp;ascene=1&amp;uin=MTEyMjk5MTQyMw%3D%3D&amp;devicetype=Windows+10&amp;version=62060739&amp;lang=zh_CN&amp;pass_ticket=L34Qc03cLwYw%2FDmghOHdw%2Fwmxf4sCxrhU%2FUHEHTt68cCHJY3jbH53l0ddsu2QPAy" target="_blank" rel="noopener">Java技术栈</a></li>
 </ul>
-<p>一张图解释add、commit、跟HEAD之间的关系<br><img src="/2019/02/24/git学习/20190224085857433.png" alt=""></p>
-<p>此外，还可以使用git checkout – file 直接丢弃工作区的修改</p>
-<h1 id="git-rm"><a href="#git-rm" class="headerlink" title="git rm"></a>git rm</h1><p>git rm用于删除文件，这里的删除只是从版本库里面删除</p>
-<h1 id="添加项目到GitHub"><a href="#添加项目到GitHub" class="headerlink" title="添加项目到GitHub"></a>添加项目到GitHub</h1><p>要将项目提交到GitHub，首先需要在GitHub上建一个仓库，然后复制仓库的地址，在本地将仓库clone下来，然后把你Java项目或者其他项目放进你从GitHub上clone下来的文件夹，接下来就是用git命令了<br>命令<br>1、使用 git status 查看文件夹下有哪些没有被git所管理</p>
-<p>2、 git add . 将当前文件夹下的所有文件托管给git 的仓库</p>
-<p>3、 git commit -m “提交项目”  告诉git 将项目提交到仓库， -m 后面是说明，内容随意，只是最好是有意义的说明，以便后面可以从历史上看到变动的记录</p>
-<p>4、git push -u origin master  最后将当前的master分支推送到远程仓库，也就是将当前被git管理的所有东西添加到远程仓库</p>
 
       
     </div>
@@ -391,7 +390,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/git/" rel="tag"># git</a>
+            <a href="/tags/java/" rel="tag"># java</a>
           
         </div>
       
@@ -404,8 +403,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/02/23/使用redis的分布式锁实现一个简单的秒杀系统/" rel="next" title="使用redis的分布式锁实现一个简单的秒杀系统">
-                <i class="fa fa-chevron-left"></i> 使用redis的分布式锁实现一个简单的秒杀系统
+              <a href="/2019/03/23/Spring的事务/" rel="next" title="Spring的事务">
+                <i class="fa fa-chevron-left"></i> Spring的事务
               </a>
             
           </div>
@@ -413,10 +412,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/02/25/一段String代码引发的思考/" rel="prev" title="一段String代码引发的思考">
-                一段String代码引发的思考 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -548,7 +543,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#git-init"><span class="nav-number">1.</span> <span class="nav-text">git init</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#git-add"><span class="nav-number">2.</span> <span class="nav-text">git add</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#git-commit-m"><span class="nav-number">3.</span> <span class="nav-text">git commit -m</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#git-status"><span class="nav-number">4.</span> <span class="nav-text">git status</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#git-diff"><span class="nav-number">5.</span> <span class="nav-text">git diff</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#git-log"><span class="nav-number">6.</span> <span class="nav-text">git log</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#版本回退"><span class="nav-number">7.</span> <span class="nav-text">版本回退</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#git-rm"><span class="nav-number">8.</span> <span class="nav-text">git rm</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#添加项目到GitHub"><span class="nav-number">9.</span> <span class="nav-text">添加项目到GitHub</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#缓存IO"><span class="nav-number">2.</span> <span class="nav-text">缓存IO</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#同步、异步、阻塞、非阻塞的概念"><span class="nav-number">3.</span> <span class="nav-text">同步、异步、阻塞、非阻塞的概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常见的IO模型"><span class="nav-number">4.</span> <span class="nav-text">常见的IO模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#同步阻塞IO"><span class="nav-number">4.1.</span> <span class="nav-text">同步阻塞IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步非阻塞IO"><span class="nav-number">4.2.</span> <span class="nav-text">同步非阻塞IO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IO多路复用"><span class="nav-number">4.3.</span> <span class="nav-text">IO多路复用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步非阻塞IO"><span class="nav-number">4.4.</span> <span class="nav-text">异步非阻塞IO</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java中的四种IO模型"><span class="nav-number">5.</span> <span class="nav-text">Java中的四种IO模型</span></a></li></ol></div>
             
 
           </div>
