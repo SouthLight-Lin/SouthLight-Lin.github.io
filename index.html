@@ -259,6 +259,157 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/31/Spring的抽Cache整合Redis/" itemprop="url">Spring的Cache整合Redis</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-31T21:22:56+08:00">
+                2019-03-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><ul>
+<li>假设以SpringBoot开发<br>当我们的数据量非常大时，不能每次都去数据库里面查找，就得使用缓存来分担数据库的压力。我们可以使用Redis作为我们的缓存数据库，但是如果把数据写入缓存的逻辑写入我们的业务代码，有两个不妥：1、代码可读性不强，简单的说就是难看。2、手累，敲那么多代码，你手不累吗？（开玩笑的，也就说要写太多的逻辑）<br>Spring为了简化开发人员编写缓存的逻辑，开发了spring-data-cache。emm…怎么说呢，这就是一种规范吧。如果你没有声明用哪种作为缓存的话，那么Spring就会使用你当前服务器的内存作为缓存，使用的是ConcurrentHashMap数据结构（官方文档就是这么说的）<br>If you do not add any specific cache library, Spring Boot auto-configures a simple provider that uses concurrent maps in memory.<br>如果我们在appclication.properties声明<strong>spring.cache.type=redis</strong> ，还加入了Redis的相关依赖，那么SpringBoot就会自动帮你生成一个RedisCacheManager的Bean（没有用SpringBoot则自己配置RedisCacheManager）<h2 id="CacheManager"><a href="#CacheManager" class="headerlink" title="CacheManager"></a>CacheManager</h2>CacheManager就相当于一个缓存管理器（接口），不同类型的缓存就会有不同的管理器，比如Redis的缓存管理就是<strong>RedisCacheManager</strong> ，RedisCacheManager可以设置RedisTemplate，设置存进Redis缓存的超时时间，设置生成缓存的键key..<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331093722771.png" alt=""></li>
+</ul>
+<h2 id="如何使用Spring-data-cache"><a href="#如何使用Spring-data-cache" class="headerlink" title="如何使用Spring-data-cache"></a>如何使用Spring-data-cache</h2><p>SpringBoot中叫spring-boot-starter-cache，引入该包开启缓存服务。如果你用Redis作为缓存的话，先配置Redis<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331094006436.png" alt=""><br>然后配置spring.cache.* ,简单的就如下配置<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331094106639.png" alt=""><br>然后在一个配置类上加上注解<strong>EnableCaching</strong> 开启缓存服务（大概是开启代理模式），这样的话，在Spring内部处理Bean时，会触发postProcessor（如果你懂Bean的生命周期的话）<br>其中一定要配置过期时间吧，不然Redis内存肯定不够用，而且数据的一致性又很难保证<br>如果你使用SpringBoot的话，就会自动帮你配置Redis连接池、RedisTemplate、RedisCacheManager了，你就可以直接使用了。如果你要自己配置，就声明一配置类，加上@EnableCaching，声明一个RedisTemplate的Bean，声明一个RedisCacheManager的Bean</p>
+<p>接下来就使用注解了：@Cacheable、@CachePut、@CacheEvict</p>
+<h2 id="Cacheable"><a href="#Cacheable" class="headerlink" title="@Cacheable"></a>@Cacheable</h2><p>先看怎么使用：<br>我们声明一个Service类，该类只有一个查询方法，返回一个列表，我们把列表的内存缓存进Redis<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">package com.cobuy.db.service.impl;</span><br><span class="line">/**</span><br><span class="line"> * @author SouthLight-Lin on 2019/3/30</span><br><span class="line"> */</span><br><span class="line">@Service</span><br><span class="line">public class DBUserServiceImpl implements DBUserService &#123;</span><br><span class="line"></span><br><span class="line">    // 查询数据库的Mapper类（Mybatis）</span><br><span class="line">    @Autowired</span><br><span class="line">    private CobuyTypeMapper cobuyTypeMapper;</span><br><span class="line"></span><br><span class="line">    @Cacheable(value = &quot;cobuy::cobuyTypes&quot;)</span><br><span class="line">    @Override</span><br><span class="line">    public List&lt;CobuyType&gt; selectCobuyTypes() &#123;</span><br><span class="line">        return cobuyTypeMapper.selectAll();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>作用：在进入方法前，会先去缓存里面寻找该数据是否有，有则直接返回缓存中的数据，并且不会执行你方法中的代码.如果缓存不存在，则执行查找数据的代码，并把返回的数据存进缓存。<br>该注解里面有value、key、condition、unless属性，各属性的作用如下：<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331100320968.png" alt=""><br>我是这么理解的，value可以自己指定KEY，比如我的value是cobuy::cobuyTypes，那么存进Redis中键的前缀就是这个，后面还会有key，所以形式是这样的cobuy::cobuyTypes::key，如图：<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331100908290.png" alt=""><br>如果指定key值，又因为该值只满足SPEL表达式，里面的值如下：<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331101007094.png" alt=""><br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331101014555.png" alt=""></p>
+<h2 id="CachePut"><a href="#CachePut" class="headerlink" title="@CachePut"></a>@CachePut</h2><p>用法跟@Cacheable差不多，不同的是：先执行方法，再缓存数据。其实很好理解，我们Http的PUT请求相当于修改的请求，一个修改操作就会去修改缓存中的数据，再存储数据<br>注解里面的四个属性跟@Cacheable一样，见上图</p>
+<h2 id="CacheEvict"><a href="#CacheEvict" class="headerlink" title="@CacheEvict"></a>@CacheEvict</h2><p>作用：移除缓存对应的key值<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331101126652.png" alt=""></p>
+<h1 id="底层原理"><a href="#底层原理" class="headerlink" title="底层原理"></a>底层原理</h1><p>spring-data-cache跟Spring事务原理差不多，用到了AOP动态代理的知识，所以需要在@EnableCaching里面开启代理，注意：该注解里面有一个属性可以开启Cglib代理的配置，因为我们的缓存类不可能都是基于接口的<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331101457297.png" alt=""><br>也就是说，最后执行的Service，不是我们编写的Service，而是经过Spring增强的代理类<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190401101206016.png" alt=""><br>类的增强发生在Bean的生命周期后置处理器的后置方法中<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190401102450667.png" alt=""><br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190401102112430.png" alt=""><br>增强后的类为：<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190401102411489.png" alt=""></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/28/Java的线程IO模型/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1670,153 +1821,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/21/类的加载时候的初始化顺序/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/21/类的加载时候的初始化顺序/" itemprop="url">类的加载时候的初始化顺序</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-21T21:23:21+08:00">
-                2019-02-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>在牛客网上刷题时，一直做错类的加载时初始化这些题，不懂静态方法什么时候执行，初始化代码块什么时候执行，构造方法什么执行，今天在这里谨记，下次要是再做错，我….</p>
-<h1 id="题型一"><a href="#题型一" class="headerlink" title="题型一"></a>题型一</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class A&#123;</span><br><span class="line"></span><br><span class="line">	static &#123;</span><br><span class="line">		System.out.println(&quot;静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public A()&#123;</span><br><span class="line">		System.out.println(&quot;构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">        System.out.println(&quot;A的静态main方法&quot;);</span><br><span class="line">		new A();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出执行顺序，执行结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">静态代码块</span><br><span class="line">A的静态main方法</span><br><span class="line">初始化块</span><br><span class="line">构造方法</span><br></pre></td></tr></table></figure></p>
-<h1 id="题型二"><a href="#题型二" class="headerlink" title="题型二"></a>题型二</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">class A&#123;</span><br><span class="line"></span><br><span class="line">	static &#123;</span><br><span class="line">		System.out.println(&quot;父类静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public A()&#123;</span><br><span class="line">		System.out.println(&quot;父类构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;父类初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">public class B extends A&#123;</span><br><span class="line">	static&#123;</span><br><span class="line">		System.out.println(&quot;子类静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public B()&#123;</span><br><span class="line">		System.out.println(&quot;子类构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;子类初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public static void main(String[] args)&#123;</span><br><span class="line">		new B();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出执行过程，结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">父类静态代码块</span><br><span class="line">子类静态代码块</span><br><span class="line">父类初始化块</span><br><span class="line">父类构造方法</span><br><span class="line">子类初始化块</span><br><span class="line">子类构造方法</span><br></pre></td></tr></table></figure></p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>对于题型一，谨记：静态的修饰变量（static）总是先于构造方法和普通代码块执行。static中又有static静态变量，static静态初始化块，static静态方法，里面静态方法是最后执行的，所以题型一中先执行静态代码块再执行静态方法。（原因：用static修饰的地方在编译器编译时就已经开始执行）<br>对于题型二，谨记：<strong> 先执行父类的静态代码块，然后执行子类的静态代码块 </strong> ，因为在编译时就开始执行。接着调用main方法，里面开始new B，所以 <strong> 执行父类的普通初始化块-&gt;父类的构造方法快-&gt;最后执行子类的普通初始化块-&gt;子类的构造块 </strong> </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1867,7 +1871,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

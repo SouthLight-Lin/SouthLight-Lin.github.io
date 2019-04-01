@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Spring,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言 假设以SpringBoot开发当我们的数据量非常大时，不能每次都去数据库里面查找，就得使用缓存来分担数据库的压力。我们可以使用Redis作为我们的缓存数据库，但是如果把数据写入缓存的逻辑写入我们的业务代码，有两个不妥：1、代码可读性不强，简单的说就是难看。2、手累，敲那么多代码，你手不累吗？（开玩笑的，也就说要写太多的逻辑）Spring为了简化开发人员编写缓存的逻辑，开发了spring-da">
+<meta name="keywords" content="Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring的Cache整合Redis">
+<meta property="og:url" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/index.html">
+<meta property="og:site_name" content="SouthLight&#39;s Blog">
+<meta property="og:description" content="前言 假设以SpringBoot开发当我们的数据量非常大时，不能每次都去数据库里面查找，就得使用缓存来分担数据库的压力。我们可以使用Redis作为我们的缓存数据库，但是如果把数据写入缓存的逻辑写入我们的业务代码，有两个不妥：1、代码可读性不强，简单的说就是难看。2、手累，敲那么多代码，你手不累吗？（开玩笑的，也就说要写太多的逻辑）Spring为了简化开发人员编写缓存的逻辑，开发了spring-da">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190331093722771.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190331094006436.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190331094106639.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190331100320968.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190331100908290.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190331101007094.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190331101014555.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190331101126652.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190331101457297.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190401101206016.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190401102450667.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190401102112430.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190401102411489.png">
+<meta property="og:updated_time" content="2019-04-01T02:33:17.916Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring的Cache整合Redis">
+<meta name="twitter:description" content="前言 假设以SpringBoot开发当我们的数据量非常大时，不能每次都去数据库里面查找，就得使用缓存来分担数据库的压力。我们可以使用Redis作为我们的缓存数据库，但是如果把数据写入缓存的逻辑写入我们的业务代码，有两个不妥：1、代码可读性不强，简单的说就是难看。2、手累，敲那么多代码，你手不累吗？（开玩笑的，也就说要写太多的逻辑）Spring为了简化开发人员编写缓存的逻辑，开发了spring-da">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/20190331093722771.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/">
+
+
+
+
+
+  <title>Spring的Cache整合Redis | SouthLight's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SouthLight's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spring的Cache整合Redis</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-31T21:22:56+08:00">
+                2019-03-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><ul>
+<li>假设以SpringBoot开发<br>当我们的数据量非常大时，不能每次都去数据库里面查找，就得使用缓存来分担数据库的压力。我们可以使用Redis作为我们的缓存数据库，但是如果把数据写入缓存的逻辑写入我们的业务代码，有两个不妥：1、代码可读性不强，简单的说就是难看。2、手累，敲那么多代码，你手不累吗？（开玩笑的，也就说要写太多的逻辑）<br>Spring为了简化开发人员编写缓存的逻辑，开发了spring-data-cache。emm…怎么说呢，这就是一种规范吧。如果你没有声明用哪种作为缓存的话，那么Spring就会使用你当前服务器的内存作为缓存，使用的是ConcurrentHashMap数据结构（官方文档就是这么说的）<br>If you do not add any specific cache library, Spring Boot auto-configures a simple provider that uses concurrent maps in memory.<br>如果我们在appclication.properties声明<strong>spring.cache.type=redis</strong> ，还加入了Redis的相关依赖，那么SpringBoot就会自动帮你生成一个RedisCacheManager的Bean（没有用SpringBoot则自己配置RedisCacheManager）<h2 id="CacheManager"><a href="#CacheManager" class="headerlink" title="CacheManager"></a>CacheManager</h2>CacheManager就相当于一个缓存管理器（接口），不同类型的缓存就会有不同的管理器，比如Redis的缓存管理就是<strong>RedisCacheManager</strong> ，RedisCacheManager可以设置RedisTemplate，设置存进Redis缓存的超时时间，设置生成缓存的键key..<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331093722771.png" alt=""></li>
+</ul>
+<h2 id="如何使用Spring-data-cache"><a href="#如何使用Spring-data-cache" class="headerlink" title="如何使用Spring-data-cache"></a>如何使用Spring-data-cache</h2><p>SpringBoot中叫spring-boot-starter-cache，引入该包开启缓存服务。如果你用Redis作为缓存的话，先配置Redis<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331094006436.png" alt=""><br>然后配置spring.cache.* ,简单的就如下配置<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331094106639.png" alt=""><br>然后在一个配置类上加上注解<strong>EnableCaching</strong> 开启缓存服务（大概是开启代理模式），这样的话，在Spring内部处理Bean时，会触发postProcessor（如果你懂Bean的生命周期的话）<br>其中一定要配置过期时间吧，不然Redis内存肯定不够用，而且数据的一致性又很难保证<br>如果你使用SpringBoot的话，就会自动帮你配置Redis连接池、RedisTemplate、RedisCacheManager了，你就可以直接使用了。如果你要自己配置，就声明一配置类，加上@EnableCaching，声明一个RedisTemplate的Bean，声明一个RedisCacheManager的Bean</p>
+<p>接下来就使用注解了：@Cacheable、@CachePut、@CacheEvict</p>
+<h2 id="Cacheable"><a href="#Cacheable" class="headerlink" title="@Cacheable"></a>@Cacheable</h2><p>先看怎么使用：<br>我们声明一个Service类，该类只有一个查询方法，返回一个列表，我们把列表的内存缓存进Redis<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">package com.cobuy.db.service.impl;</span><br><span class="line">/**</span><br><span class="line"> * @author SouthLight-Lin on 2019/3/30</span><br><span class="line"> */</span><br><span class="line">@Service</span><br><span class="line">public class DBUserServiceImpl implements DBUserService &#123;</span><br><span class="line"></span><br><span class="line">    // 查询数据库的Mapper类（Mybatis）</span><br><span class="line">    @Autowired</span><br><span class="line">    private CobuyTypeMapper cobuyTypeMapper;</span><br><span class="line"></span><br><span class="line">    @Cacheable(value = &quot;cobuy::cobuyTypes&quot;)</span><br><span class="line">    @Override</span><br><span class="line">    public List&lt;CobuyType&gt; selectCobuyTypes() &#123;</span><br><span class="line">        return cobuyTypeMapper.selectAll();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>作用：在进入方法前，会先去缓存里面寻找该数据是否有，有则直接返回缓存中的数据，并且不会执行你方法中的代码.如果缓存不存在，则执行查找数据的代码，并把返回的数据存进缓存。<br>该注解里面有value、key、condition、unless属性，各属性的作用如下：<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331100320968.png" alt=""><br>我是这么理解的，value可以自己指定KEY，比如我的value是cobuy::cobuyTypes，那么存进Redis中键的前缀就是这个，后面还会有key，所以形式是这样的cobuy::cobuyTypes::key，如图：<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331100908290.png" alt=""><br>如果指定key值，又因为该值只满足SPEL表达式，里面的值如下：<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331101007094.png" alt=""><br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331101014555.png" alt=""></p>
+<h2 id="CachePut"><a href="#CachePut" class="headerlink" title="@CachePut"></a>@CachePut</h2><p>用法跟@Cacheable差不多，不同的是：先执行方法，再缓存数据。其实很好理解，我们Http的PUT请求相当于修改的请求，一个修改操作就会去修改缓存中的数据，再存储数据<br>注解里面的四个属性跟@Cacheable一样，见上图</p>
+<h2 id="CacheEvict"><a href="#CacheEvict" class="headerlink" title="@CacheEvict"></a>@CacheEvict</h2><p>作用：移除缓存对应的key值<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331101126652.png" alt=""></p>
+<h1 id="底层原理"><a href="#底层原理" class="headerlink" title="底层原理"></a>底层原理</h1><p>spring-data-cache跟Spring事务原理差不多，用到了AOP动态代理的知识，所以需要在@EnableCaching里面开启代理，注意：该注解里面有一个属性可以开启Cglib代理的配置，因为我们的缓存类不可能都是基于接口的<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190331101457297.png" alt=""><br>也就是说，最后执行的Service，不是我们编写的Service，而是经过Spring增强的代理类<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190401101206016.png" alt=""><br>类的增强发生在Bean的生命周期后置处理器的后置方法中<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190401102450667.png" alt=""><br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190401102112430.png" alt=""><br>增强后的类为：<br><img src="/2019/03/31/Spring的抽Cache整合Redis/20190401102411489.png" alt=""></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Spring/" rel="tag"># Spring</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/28/Java的线程IO模型/" rel="next" title="Java的线程IO模型">
+                <i class="fa fa-chevron-left"></i> Java的线程IO模型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">SouthLight Lin</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CacheManager"><span class="nav-number">1.1.</span> <span class="nav-text">CacheManager</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何使用Spring-data-cache"><span class="nav-number">1.2.</span> <span class="nav-text">如何使用Spring-data-cache</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cacheable"><span class="nav-number">1.3.</span> <span class="nav-text">@Cacheable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CachePut"><span class="nav-number">1.4.</span> <span class="nav-text">@CachePut</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CacheEvict"><span class="nav-number">1.5.</span> <span class="nav-text">@CacheEvict</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#底层原理"><span class="nav-number">2.</span> <span class="nav-text">底层原理</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SouthLight Lin</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
