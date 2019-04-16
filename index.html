@@ -259,6 +259,209 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/15/MySQL存储数据的格式/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/04/15/MySQL存储数据的格式/" itemprop="url">MySQL存储数据的格式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-15T20:56:26+08:00">
+                2019-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我们都知道MySQL的数据有表的结构，一条数据在表中就是一行，但是实际上MySQL存储数据的真正形式不是表结构，因为数据都是存储硬盘这种类型的物理结构，需要某种数据结构来存储数据，比如像链表啊，数组啊，树啊..想了解MySQL存储数据的形式，需要知道一条数据在MySQL中的<strong>行格式</strong> ，还有MySQL管理数据的<strong>页结构</strong> 。（基于InnoDB引擎）<br>简单的讲，MySQL操作数据时，也就是内存跟磁盘交互时，MySQL是以<strong>页</strong>为单位交互的，<strong>一个页的大小是16KB</strong>，页中包含了若干条<strong>行数据</strong>，你就把页想象成一个固定大小的桶，每次去井里打水只能乘固定的水量。所以在一般情况下，一次最少从磁盘中读取16KB的内容到内存，一次最少把内存中的16KB内容刷新到磁盘中。</p>
+<h1 id="InnoDB的行格式"><a href="#InnoDB的行格式" class="headerlink" title="InnoDB的行格式"></a>InnoDB的行格式</h1><p>表中的一条数据，是我们定义的列的值。比如a表中有(id, name)两列，所以存储的数据可以是(1, ‘AA’), (2, ‘BB’)的数据，显示的时候是这样，存储的时候可不止有这两个属性，还有记录这条数据的大小是多少，有没有null值，下一条数据的地址是多少（数据不是连续存储的）….所以为了更快查询数据和更节省空间的存储数据，就设计出了<strong>行格式</strong>或者<strong>记录格式</strong>。<strong>InnoDB</strong>的行格式有四种：<strong>Compact</strong>，<strong>Redundant</strong>，<strong>Dynamic</strong>和<strong>Compressed</strong>。</p>
+<h2 id="COMPACT行格式"><a href="#COMPACT行格式" class="headerlink" title="COMPACT行格式"></a>COMPACT行格式</h2><p><img src="/2019/04/15/MySQL存储数据的格式/20190416113324980.png" alt=""><br>一条行数据可以分为<strong>记录的额外信息</strong>和<strong>记录的真实数据</strong><br>为了演示，我们需要创建一张表<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE TABLE record_format_demo (</span><br><span class="line">    -&gt;     c1 VARCHAR(10),</span><br><span class="line">    -&gt;     c2 VARCHAR(10) NOT NULL,</span><br><span class="line">    -&gt;     c3 CHAR(10),</span><br><span class="line">    -&gt;     c4 VARCHAR(10)</span><br><span class="line">    -&gt; ) CHARSET=ascii ROW_FORMAT=COMPACT;</span><br><span class="line">Query OK, 0 rows affected (0.03 sec)</span><br></pre></td></tr></table></figure></p>
+<p>插入数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO record_format_demo(c1, c2, c3, c4) VALUES(&apos;aaaa&apos;, &apos;bbb&apos;, &apos;cc&apos;, &apos;d&apos;), (&apos;eeee&apos;, &apos;fff&apos;, NULL, NULL);</span><br><span class="line">Query OK, 2 rows affected (0.02 sec)</span><br><span class="line">Records: 2  Duplicates: 0  Warnings: 0</span><br></pre></td></tr></table></figure></p>
+<p>查询<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT * FROM record_format_demo;</span><br><span class="line">+------+-----+------+------+</span><br><span class="line">| c1   | c2  | c3   | c4   |</span><br><span class="line">+------+-----+------+------+</span><br><span class="line">| aaaa | bbb | cc   | d    |</span><br><span class="line">| eeee | fff | NULL | NULL |</span><br><span class="line">+------+-----+------+------+</span><br><span class="line">2 rows in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt;</span><br></pre></td></tr></table></figure></p>
+<h3 id="记录的额外信息"><a href="#记录的额外信息" class="headerlink" title="记录的额外信息"></a>记录的额外信息</h3><p>这些信息是<strong>服务器为了描述这条记录而不得不额外添加的一些信息</strong>， 这些额外的信息分为三类<strong>可变字段长度列表</strong>、<strong>NULL值列表</strong>和<strong>记录头信息</strong></p>
+<h4 id="可变字段长度列表"><a href="#可变字段长度列表" class="headerlink" title="可变字段长度列表"></a>可变字段长度列表</h4><p>MySQL支持一些变长的数据，比如Varchar（N）、TEXT类型的数据等，变长数据存储多少字节的数据不是固定的，所以我们需要把<strong>存储可变数据的时候把数据占用的字节存储到可变字段长度列表</strong>。<br>在Compact行格式中，把所有可变长字段的真实数据占用的字节长度都存放在记录的开头部位，从而形成一个可变长度列表，各变长字段数据占用的字节数是按<strong>逆序</strong>的顺序存放的。<br>比如record表，c1、c2、c4列都是VARCHAR（10）类型，除了c3是CHAR（10），也就是可变长的数据类型，所以这三列的值长都需要保存在记录开头</p>
+<table>
+<thead>
+<tr>
+<th>列名</th>
+<th>存储内容</th>
+<th>内容长度（十进制）</th>
+<th>内容长度（十六进制）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>c1</td>
+<td>‘aaaa’</td>
+<td>4</td>
+<td>0x04</td>
+</tr>
+<tr>
+<td>c2</td>
+<td>‘bbb’</td>
+<td>3</td>
+<td>0x03</td>
+</tr>
+<tr>
+<td>c4</td>
+<td>‘d’</td>
+<td>1</td>
+<td>0x01</td>
+</tr>
+</tbody>
+</table>
+<p>这样行格式为<br><img src="/2019/04/15/MySQL存储数据的格式/20190416100741868.png" alt=""></p>
+<ul>
+<li>可变长度列表中只存储为非NULL的列内容长度，值为NULL的列长度是不存储的。</li>
+</ul>
+<h4 id="NULL值列表"><a href="#NULL值列表" class="headerlink" title="NULL值列表"></a>NULL值列表</h4><p>表中有些列可能会有NULL值，如果把NULL值放在记录数据的真实地方中存储会很占地方，所以Compact行格式把这些NULL的列统一管理起来，放在NULL值列表中<br>NULL值列表值存储允许NULL值的列，那些主键列或者NOT NULL是不可以存储的，存储的顺序也是<strong>逆序</strong>存储的。<strong>1表示为NULL值，0表示为非NULL值</strong>。如果行记录中没有NULL值，那么NULL值列表就不存在<br>当插入数据1后<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO record_format_demo(c1, c2, c3, c4) VALUES(&apos;aaaa&apos;, &apos;bbb&apos;, &apos;cc&apos;, &apos;d&apos;)</span><br></pre></td></tr></table></figure></p>
+<p>NULL列表为<br><img src="/2019/04/15/MySQL存储数据的格式/20190416102022886.png" alt=""><br>当插入数据2后<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO record_format_demo(c1, c2, c3, c4) VALUES(&apos;eeee&apos;, &apos;fff&apos;, NULL, NULL);</span><br></pre></td></tr></table></figure></p>
+<p>NULL列表为<br><img src="/2019/04/15/MySQL存储数据的格式/20190416102035076.png" alt=""><br>所以第二条记录的NULL值列表用十六进制表示就是：0x06<br><img src="/2019/04/15/MySQL存储数据的格式/20190416102055470.png" alt=""></p>
+<h4 id="记录头信息"><a href="#记录头信息" class="headerlink" title="记录头信息"></a>记录头信息</h4><p>该描述用于记录行格式的一些通用信息，比如是否被删除、当前记录的类型、下一条记录的位置（数据不是连续存储的）…<strong>固定由5个字节组成</strong><br><img src="/2019/04/15/MySQL存储数据的格式/20190416102414461.png" alt=""><br>各个部分的作用如下：<br>| 名称 | 大小（单位：bit） | 描述 |<br>| — | — | — |<br>| 预留位1 | 1 | 没有使用 |<br>| 预留位1 | 1 | 没有使用 |<br>| delete_mask | 1 | 标记该记录是否被删除 |<br>| min_rec_mask | 1 | B+ tree的每层非叶子节点的最小记录都会添加该标记 |<br>| n_owned | 4 | 表示当前记录拥有的记录数 |<br>| heap_no | 13 | 表示当前记录的类型，0表示普通记录，1表示B+数非叶子节点记录，2表示最小记录，3表示最大记录 |<br>| next_record | 16 | 表示下一条记录的相对位置 |</p>
+<ul>
+<li>delete_mask 主要用于被删除的数据，因为我们delete数据时，数据并不是马上被删除，而只是做个标记，然后把被删除的数据连接成一个链表。</li>
+</ul>
+<h3 id="记录真实的数据"><a href="#记录真实的数据" class="headerlink" title="记录真实的数据"></a>记录真实的数据</h3><p>比如record表，记录真实的数据除了c1、c2、c3、c4这几个我们定义的列的数据以外，MySQL会为每个记录默认的添加一些<strong>隐藏列</strong><br>| 列名 | 是否必须 | 占用空间 | 描述 |<br>| — | — | — | — |<br>| row_id | 否 | 6字节 | 行ID，唯一的表示一条记录 |<br>| transaction_id | 是 | 6字节 | 事务ID |<br>| roll_pointer | 是 | 7字节 | 回滚指针 |</p>
+<ul>
+<li>实际上这几个列的真正名称其实是：DB_ROW_ID、DB_TRX_ID、DB_ROLL_PTR，我们为了美观才写成了row_id、transaction_id和roll_pointer。<br>这里需要提一下InnoDB表对主键的生成策略：优先使用用户自定义主键作为主键，如果用户没有定义主键，则选取一个Unique键作为主键，如果表中连Unique键都没有定义的话，则InnoDB会为表默认添加一个名为row_id的隐藏列作为主键。所以我们从上表中可以看出：InnoDB存储引擎会为每条记录都添加 transaction_id 和 roll_pointer 这两个列，但是 row_id 是可选的（在没有自定义主键以及Unique键的情况下才会添加该列）。这些隐藏列的值不用我们操心，InnoDB存储引擎会自己帮我们生成的。<br>插入一些数据后大概是这样<br><img src="/2019/04/15/MySQL存储数据的格式/20190416103630585.png" alt=""></li>
+</ul>
+<h2 id="Redundant行格式"><a href="#Redundant行格式" class="headerlink" title="Redundant行格式"></a>Redundant行格式</h2><p>这是一种很老的行格式了<br><img src="/2019/04/15/MySQL存储数据的格式/20190416103901614.png" alt=""></p>
+<h2 id="VARCHAR-M-最多能存储的数据"><a href="#VARCHAR-M-最多能存储的数据" class="headerlink" title="VARCHAR(M)最多能存储的数据"></a>VARCHAR(M)最多能存储的数据</h2><p>VARCHAR(M)最多能存储65535个字节，其中M代表该类型最多存储的字符数量，如果我们使用ASCII字符集的话，一个字符就是代表一个字节。但是我们存储一个VARCHAR(M)的类型列，其实需要三个部分的空间：</p>
+<ul>
+<li>1、真实数据</li>
+<li>2、真实数据占用字节的长度（需要2个字节）</li>
+<li>3、NULL值标识，如果该列有NOT NULL属性则可以没有这部分空间（需要1个字节）<br>所以说VARCHAR(M)最多不是存储65535个字节，而是65532个字节<br>但是如果是别的编码，比如gbk（一个字符最多需要2个字节）最多存储65532/2=32776个字符、utf8(一个3字符最多需要3个字节)65532/3=21844个字符<h2 id="记录中的数据太多产生的溢出"><a href="#记录中的数据太多产生的溢出" class="headerlink" title="记录中的数据太多产生的溢出"></a>记录中的数据太多产生的溢出</h2>在Compact和Redundant行格式中，对于占用存储空间非常大的列，在记录真实数据出只会存储该列的一部分数据，把剩余数据分散存储在几个其他也中，然后记录真实数据处用20个字节存储指向这些页的地方，从而可以找到剩余数据所在的页，比如：<br><img src="/2019/04/15/MySQL存储数据的格式/20190416105111071.png" alt=""></li>
+</ul>
+<h2 id="Dynamic和Compressed行格式"><a href="#Dynamic和Compressed行格式" class="headerlink" title="Dynamic和Compressed行格式"></a>Dynamic和Compressed行格式</h2><p>Dynamic是MySQL5.7以后<strong>默认的行格式</strong>，这两种形式的行格式跟Compact差不多，不同的是<strong>处理行溢出</strong>时有分歧，他们不会在记录的真实数据存储字段真实数据的一些数据，而是把所有的字节数据都存储到其他页面中，只在记录真实数据存储到其他页面的地址<br><img src="/2019/04/15/MySQL存储数据的格式/20190416105425865.png" alt=""><br>Compressed行格式和Dynamic不同的一点是，Compressed行格式会采用压缩算法对页面进行压缩</p>
+<h1 id="指定和修改行格式的语法"><a href="#指定和修改行格式的语法" class="headerlink" title="指定和修改行格式的语法"></a>指定和修改行格式的语法</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE 表名 (列的信息) ROW_FORMAT=行格式名称</span><br><span class="line"></span><br><span class="line">ALTER TABLE 表名 ROW_FORMAT=行格式名称</span><br></pre></td></tr></table></figure>
+<p>喜欢的可以看原文作者，超级详细<br><img src="/2019/04/15/MySQL存储数据的格式/20190416110319769.png" alt=""></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/31/Spring的抽Cache整合Redis/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -397,168 +600,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/28/Java的线程IO模型/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/28/Java的线程IO模型/" itemprop="url">Java的线程IO模型</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-28T21:14:04+08:00">
-                2019-03-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我们的IO操作：文件的操作，网络请求的操作都跟IO有关，我们需要了解下目前的IO模型有哪些。在这之前我们需要了解<strong>缓存IO</strong> </p>
-<h1 id="缓存IO"><a href="#缓存IO" class="headerlink" title="缓存IO"></a>缓存IO</h1><p>缓存IO又叫做标准IO，所有的IO写入都会先写向操作系统内核的缓存，再由操作系统刷新到硬盘。返回来也是一样，读取文件也是先读取到操作系统的缓存，然后再给程序。<br>缓存I/O的缺点是数据在传输过程中需要在应用程序地址空间和内核进行多次数据拷贝操作，这些数据拷贝操作所带来的CPU以及内存开销是非常大的。</p>
-<h1 id="同步、异步、阻塞、非阻塞的概念"><a href="#同步、异步、阻塞、非阻塞的概念" class="headerlink" title="同步、异步、阻塞、非阻塞的概念"></a>同步、异步、阻塞、非阻塞的概念</h1><p>同步和异步最大的区别就是被调用方的执行方式和返回时机。 同步指的是被调用方做完事情之后再返回，异步指的是被调用方先返回，然后再做事情，做完之后再想办法通知调用方。<br>阻塞和非阻塞最大的区别就是在被调用方返回结果之前的这段时间内，调用方是否一直等待。 阻塞指的是调用方一直等待别的事情什么都不做。非阻塞指的是调用方先去忙别的事情。<br><strong>阻塞、非阻塞说的是调用者。同步、异步说的是被调用者。</strong></p>
-<h1 id="常见的IO模型"><a href="#常见的IO模型" class="headerlink" title="常见的IO模型"></a>常见的IO模型</h1><p>一个Socket请求服务器，会经过哪些步骤？<br>1、一个Socket会被分成多个包，经过多个路由到达服务器，进入操作系统的缓存区，也就是说要等待所有的Socket包都到达服务器<br>2、操作系统将数据拷贝给应用程序缓存<br>文件的IO也跟网络的IO类似，第一步需要等待操作系统从硬盘中读取数据到缓冲区</p>
-<h2 id="同步阻塞IO"><a href="#同步阻塞IO" class="headerlink" title="同步阻塞IO"></a>同步阻塞IO</h2><p>同步阻塞说明上面两步操作都会被阻塞，既要等待数据的准备，又要等待数据的拷贝<br><img src="/2019/03/28/Java的线程IO模型/20190328094528216.png" alt=""></p>
-<h2 id="同步非阻塞IO"><a href="#同步非阻塞IO" class="headerlink" title="同步非阻塞IO"></a>同步非阻塞IO</h2><p>同步阻塞相当在第一步的时候你可以去做别的事情，只是做的过程回来询问数据是否准备好了。当应用程序调用recvform后并不会阻塞，也就是说非阻塞的recvform系统调用调用之后，进程并没有被阻塞，内核马上返回给进程，如果数据还没准备好， 此时会返回一个error。进程在返回之后，可以干点别的事情，然后再发起recvform系统调用。<br><img src="/2019/03/28/Java的线程IO模型/20190328100712368.png" alt=""></p>
-<h2 id="IO多路复用"><a href="#IO多路复用" class="headerlink" title="IO多路复用"></a>IO多路复用</h2><p>这个是重点中的重点，现在的IO模型大多都是这个，Nginx，Redis，Java的NIO都是这个实现的<br>IO多路复用是指操作系统会有一个线程监听所有的IO请求，如果有一个请求的数据已经准备好了，那么就将该请求发送给预定的程序<br>目前的Unix系统的IO多路复用的函数有select、poll、epoll，select是最早出现的多路复用api，但是有一些缺点，比如最大只能有1024个线程，线程不安全；接着poll就修复了select的一些问题，解决了1024的问题，但还是线程不安全；最后epoll出现了，他解决了select的所有问题，现在的Linux都是使用它完成多路复用模型，但epoll只能在Linux上实现。还有一种叫kqueue的IO多路复用函数，但它是macos系统的东西。<br>想比较于同步非阻塞IO，它的改进之处在于原来用户进程轮询这事<strong>交给操作系统内核线程实现</strong> ，如果数据准备好，操作系统就会通知用户进程，将数据拷贝，而且这个内核进程可以等待多个Socket，能实现对多个IO端口进行监听<br><img src="/2019/03/28/Java的线程IO模型/20190329041513978.png" alt=""><br>如果连接数不高的话，使用IO多路复用并不一定比使用多线程+阻塞IO的Web Server性能好，因为<strong>IO多路复用的优势并不是对于单个连接处理得快，而是在于能处理更多的连接</strong> 。<br><strong>IO多路复用归为同步阻塞</strong> ，为什么？因为调用select、poll、epoll这些复用函数其实也是阻塞的，但是这种阻塞丢给操作系统后台去执行，用户进程不需要阻塞而已。</p>
-<h2 id="异步非阻塞IO"><a href="#异步非阻塞IO" class="headerlink" title="异步非阻塞IO"></a>异步非阻塞IO</h2><p>用户进程如果想进行异步非阻塞IO，调用aio_read系统后，等到Socket数据准备好，内核直接复制数据给进程（不是进程去内核拷贝数据了），然后内核向进程发送通知，IO这两个阶段都是非阻塞的</p>
-<p>Linux下的AIO库函数实现异步，但用得很少，目前很多开源异步IO库有：libevent、libev、libuv。<br><img src="/2019/03/28/Java的线程IO模型/20190329042912467.png" alt=""></p>
-<h1 id="Java中的四种IO模型"><a href="#Java中的四种IO模型" class="headerlink" title="Java中的四种IO模型"></a>Java中的四种IO模型</h1><ul>
-<li>1、Java传统IO模型，即阻塞IO</li>
-<li>2、NIO是同步非阻塞</li>
-<li>3、同步NIO实现的Reactor模式，即IO多路复用模型的实现</li>
-<li>4、同步AIO实现的Proactor模式，即是异步IO模型的实现</li>
-<li>本篇博客是读完该公众号后写的<a href="https://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&amp;mid=2247488064&amp;idx=2&amp;sn=56b6f87cb4e99107737c73f7ed1e5e8e&amp;chksm=eb539776dc241e60f88f7185da4b7fb46bf41f10a66a53898ca672e8942e8b6a8d47ec7d3d3d&amp;mpshare=1&amp;scene=1&amp;srcid=03282f5UGrOPqla3FRHsnIBf&amp;key=07b41b11cd2ea3cf8754e412ce5b2e1dda0131c9a5fa746e0eb74dbecee757f47a4be1b7ab19876a05437cfac54fc5fa19f2c7f64870a4920d18b6ca45c1ac83a0841ecd111138fb03b3d3e54daf5119&amp;ascene=1&amp;uin=MTEyMjk5MTQyMw%3D%3D&amp;devicetype=Windows+10&amp;version=62060739&amp;lang=zh_CN&amp;pass_ticket=L34Qc03cLwYw%2FDmghOHdw%2Fwmxf4sCxrhU%2FUHEHTt68cCHJY3jbH53l0ddsu2QPAy" target="_blank" rel="noopener">Java技术栈</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -604,7 +650,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -615,7 +661,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -626,7 +672,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
