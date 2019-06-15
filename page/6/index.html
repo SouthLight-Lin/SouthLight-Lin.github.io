@@ -259,6 +259,165 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/24/git学习/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/02/24/git学习/" itemprop="url">git学习</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-24T20:29:20+08:00">
+                2019-02-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/git/" itemprop="url" rel="index">
+                    <span itemprop="name">git</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="git-init"><a href="#git-init" class="headerlink" title="git init"></a>git init</h1><p>git init 就是把当前文件夹初始化为git仓库，这个文件夹就会被git所托管，文件夹里面的文件发生的所有改变都会被git所发现，而且该文件夹下就会多了一个.git的目录。<br>我们创建Git版本库时，Git自动为我们创建了唯一一个master分支</p>
+<h1 id="git-add"><a href="#git-add" class="headerlink" title="git add"></a>git add</h1><p>git add就是告诉Git，把文件添加到仓库（只是添加到暂存区）。即使有个文件已经在当前文件夹，但是没有使用git add 文件名 命令，该文件也还是不存在git仓库<br>可以使用git add . 一下子添加当前目录下的所有文件</p>
+<h1 id="git-commit-m"><a href="#git-commit-m" class="headerlink" title="git commit -m"></a>git commit -m</h1><p>git commit告诉Git，把文件提交到仓库先将文件添加给Git托管，只有调用commit才算是正在的添加到仓库中。git commit后面要加上 -m参数，-m 参数代表本次提交的说明，最好输入的是有意义的内容，以便以后可以在历史中方便找到改动的记录</p>
+<h1 id="git-status"><a href="#git-status" class="headerlink" title="git status"></a>git status</h1><p>git status可以查看当前文件夹下有哪些文件被修改或者哪些文件没有被Git锁管理</p>
+<h1 id="git-diff"><a href="#git-diff" class="headerlink" title="git diff"></a>git diff</h1><p>git diff 可以查看当前目录下的文件跟上次提交的文件具体做了哪些修改</p>
+<h1 id="git-log"><a href="#git-log" class="headerlink" title="git log"></a>git log</h1><p>git log 列出了我们往期提交的所有历史记录。如果感觉输出的内容太多，可以加上–pretty=oneline命令</p>
+<h1 id="版本回退"><a href="#版本回退" class="headerlink" title="版本回退"></a>版本回退</h1><p>如果我们提交过多个版本，但是如果我们想回退到上一个版本，可以使用git reset命令<br>回退到上一个版本 git reset –hard HEAD^<br>回退到上上一个版本 git reset –hard HEAD^^<br>回退到上100个版本 git reset –hard HEAD~100<br>但是回退版本最好使用版本号，版本号可是使用git log查看，每次提交都会生成一个版本号，版本号不用全写，只需写前面几位就可以，git会自动识别。</p>
+<p>深入进去了解的话，我们每次提交，git里面会有一条链表记录，而且会有指针指向当前版本<br><img src="/2019/02/24/git学习/20190224085606485.png" alt=""><br>当版本回退时，比如回退到上一个版本，只需修改指针即可<br><img src="/2019/02/24/git学习/20190224085649620.png" alt=""></p>
+<ul>
+<li>图来自廖雪峰老师讲的Git课程<a href="https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/0013744142037508cf42e51debf49668810645e02887691000" target="_blank" rel="noopener">https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/0013744142037508cf42e51debf49668810645e02887691000</a></li>
+</ul>
+<p>一张图解释add、commit、跟HEAD之间的关系<br><img src="/2019/02/24/git学习/20190224085857433.png" alt=""></p>
+<p>此外，还可以使用git checkout – file 直接丢弃工作区的修改</p>
+<h1 id="git-rm"><a href="#git-rm" class="headerlink" title="git rm"></a>git rm</h1><p>git rm用于删除文件，这里的删除只是从版本库里面删除</p>
+<h1 id="添加项目到GitHub"><a href="#添加项目到GitHub" class="headerlink" title="添加项目到GitHub"></a>添加项目到GitHub</h1><p>要将项目提交到GitHub，首先需要在GitHub上建一个仓库，然后复制仓库的地址，在本地将仓库clone下来，然后把你Java项目或者其他项目放进你从GitHub上clone下来的文件夹，接下来就是用git命令了<br>命令<br>1、使用 git status 查看文件夹下有哪些没有被git所管理</p>
+<p>2、 git add . 将当前文件夹下的所有文件托管给git 的仓库</p>
+<p>3、 git commit -m “提交项目”  告诉git 将项目提交到仓库， -m 后面是说明，内容随意，只是最好是有意义的说明，以便后面可以从历史上看到变动的记录</p>
+<p>4、git push -u origin master  最后将当前的master分支推送到远程仓库，也就是将当前被git管理的所有东西添加到远程仓库</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/23/使用redis的分布式锁实现一个简单的秒杀系统/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -419,153 +578,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/21/类的加载时候的初始化顺序/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/21/类的加载时候的初始化顺序/" itemprop="url">类的加载时候的初始化顺序</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-21T21:23:21+08:00">
-                2019-02-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>在牛客网上刷题时，一直做错类的加载时初始化这些题，不懂静态方法什么时候执行，初始化代码块什么时候执行，构造方法什么执行，今天在这里谨记，下次要是再做错，我….</p>
-<h1 id="题型一"><a href="#题型一" class="headerlink" title="题型一"></a>题型一</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class A&#123;</span><br><span class="line"></span><br><span class="line">	static &#123;</span><br><span class="line">		System.out.println(&quot;静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public A()&#123;</span><br><span class="line">		System.out.println(&quot;构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">        System.out.println(&quot;A的静态main方法&quot;);</span><br><span class="line">		new A();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出执行顺序，执行结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">静态代码块</span><br><span class="line">A的静态main方法</span><br><span class="line">初始化块</span><br><span class="line">构造方法</span><br></pre></td></tr></table></figure></p>
-<h1 id="题型二"><a href="#题型二" class="headerlink" title="题型二"></a>题型二</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">class A&#123;</span><br><span class="line"></span><br><span class="line">	static &#123;</span><br><span class="line">		System.out.println(&quot;父类静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public A()&#123;</span><br><span class="line">		System.out.println(&quot;父类构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;父类初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">public class B extends A&#123;</span><br><span class="line">	static&#123;</span><br><span class="line">		System.out.println(&quot;子类静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public B()&#123;</span><br><span class="line">		System.out.println(&quot;子类构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;子类初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public static void main(String[] args)&#123;</span><br><span class="line">		new B();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出执行过程，结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">父类静态代码块</span><br><span class="line">子类静态代码块</span><br><span class="line">父类初始化块</span><br><span class="line">父类构造方法</span><br><span class="line">子类初始化块</span><br><span class="line">子类构造方法</span><br></pre></td></tr></table></figure></p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>对于题型一，谨记：静态的修饰变量（static）总是先于构造方法和普通代码块执行。static中又有static静态变量，static静态初始化块，static静态方法，里面静态方法是最后执行的，所以题型一中先执行静态代码块再执行静态方法。（原因：用static修饰的地方在编译器编译时就已经开始执行）<br>对于题型二，谨记：<strong> 先执行父类的静态代码块，然后执行子类的静态代码块 </strong> ，因为在编译时就开始执行。接着调用main方法，里面开始new B，所以 <strong> 执行父类的普通初始化块-&gt;父类的构造方法快-&gt;最后执行子类的普通初始化块-&gt;子类的构造块 </strong> </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -616,7 +628,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">27</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -627,7 +639,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -638,7 +650,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
