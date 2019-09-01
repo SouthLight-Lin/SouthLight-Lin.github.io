@@ -259,6 +259,155 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/17/Redis线程模型/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/03/17/Redis线程模型/" itemprop="url">Redis线程模型</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-17T20:10:54+08:00">
+                2019-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Redis为什么这么快？"><a href="#Redis为什么这么快？" class="headerlink" title="Redis为什么这么快？"></a>Redis为什么这么快？</h1><ul>
+<li>1、纯内存操作：我们的数据都是存储在内存中的，所以跟存储在硬盘相比，写入读取速度快很多倍</li>
+<li>2、丰富的数据结构：redis基础的五种数据结构（string、hash、list、set、zset）是我们日常使用存储数据的结构（当然还有其他的结构，比如geo、hyperloglog），这些结构的性能非常优越，比如基础数据结构（除了set），刚开始是用压缩列表的结构存储数据，不仅读取速度快，而且占用内存也少。    （关于压缩列表可以查看，<a href="https://southlight-lin.github.io/2019/03/09/通过优化降低Redis的内存占用/" target="_blank" rel="noopener">通过优化降低Redis的内存占用</a> 这篇博客)</li>
+<li>3、I/O多路复用模型——本篇博客就是为了讲解这个模型</li>
+<li>4、单线程操作：减少多核CPU上下文切换引起的开销</li>
+</ul>
+<h1 id="Redis的IO多路复用模型"><a href="#Redis的IO多路复用模型" class="headerlink" title="Redis的IO多路复用模型"></a>Redis的IO多路复用模型</h1><p>借助网上的例子说明情况：比如有很多个水龙头（就是我们客户端的请求），但这些水龙头都不知道什么时候来水。当水来的时候，要把这些水接住，所以需要人（redis的线程）负责，但是我们需要多少个人？难道要每个水龙头都站一个人？这样的话当请求很多时，创建很多线程，肯定内存不够用。所以Redis采用一个线程（相当于一个人）来循环试探这些水龙头，当拧开水龙头发现有水时就处理。</p>
+<p>I/O多路复用模块是操作系统底层的东西，进程只要告诉操作系统需要监听哪个端口的Socket，当这些端口有套接字的可读或可写（Socket）事件时，操作系统就会通知进程（Redis）。而I/O监听这些端口，就是使用<strong>select</strong> ，<strong>poll</strong> ，<strong>epoll</strong> ，<strong>kqueue</strong> 这些I/O多路复用函数。这些函数可以同时监控多个流的I/O事件能力，如果没有Socket连接（没有请求过来时）的时候，当前主线程会阻塞；当有一个或者多个流过来时，操作系统就会通知程序（Redis），Redis就会轮询一遍所有的流，对这些流进行处理，这过程是有顺序的，先来先服务FIFS。所以“多路”指的是有多个请求连接，“复用”指的是复用一个线程，这个线程负责把请求监听请求，当有请求到来时，就传递给程序处理。<strong>这样的模型，提高了单个线程的处理能力，一个线程就可以高效的处理多个连接请求，尽量减少网络IO的开销</strong> 。<br>跟传统的阻塞IO相比，在计算机网络中，我们的请求可能被分成许多包，经过不同的路由器传递，如果有些包到达了服务器，有些还没到，那么服务器就要等到这些包全都收集齐了才能处理。如果请求很多，那么等待的时间就会很长，这就是网络开销之一。如果使用IO多路复用模型，把监听这些包有没有准备好的事情交给操作系统，我们只需调用轮询api（select、poll、epoll..）不断的询问操作系统就行了。当没有请求或者请求还没准备好时，Redis就可以做其他事情。<br>来看张图<br><img src="/2019/03/17/Redis线程模型/20190317092104769.png" alt=""><br>在Linux中，Socket也是文件！<br>类似上面的例子，当有很多请求到来时（一个Socket就相当于一个请求），操作系统就会跟踪这些请求 ，而且是有顺序的存入，先来先服务FIFO的原则。接下来，<strong>文件事件分配器</strong> 循环扫描指令队列，将不同类型请求的Socket交给不同的处理器（比如有些请求时get、有些是set）。循环扫描的过程就叫<strong>事件轮询</strong> ，这种事件轮询是操作实现的，常见的事件轮询api有：<strong>select</strong> ，<strong>poll</strong> ，<strong>epoll</strong> ，<strong>kqueue</strong> 。<br>select是最早出现的多路复用api，但是有一些缺点，比如最大只能有1024个线程，线程不安全；接着poll就修复了select的一些问题，解决了1024的问题，但还是线程不安全；最后epoll出现了，他解决了select的所有问题，现在的Linux都是使用它完成多路复用模型，但epoll只能在Linux上实现。kqueue是macos系统的东西。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/09/通过优化降低Redis的内存占用/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -397,166 +546,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/08/Spring循环依赖的解决方法/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/08/Spring循环依赖的解决方法/" itemprop="url">Spring循环依赖的解决方法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-08T20:42:53+08:00">
-                2019-03-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spring/" itemprop="url" rel="index">
-                    <span itemprop="name">Spring</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>Spring的循环依赖是什么？就是两个Bean之间互相依赖，比如A的Bean中依赖B，B的Bean依赖A<br>TeatA.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.dao;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">@Component</span><br><span class="line">public class TestA &#123;</span><br><span class="line">	public TestB testB;</span><br><span class="line">	@Autowired</span><br><span class="line">	public void setTestB(TestB testB) &#123;</span><br><span class="line">		this.testB = testB;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>TestB.java<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.dao;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">@Component</span><br><span class="line">public class TestB &#123;</span><br><span class="line">	public TestA testA;</span><br><span class="line"></span><br><span class="line">	@Autowired</span><br><span class="line">	public void setTestA(TestA testA)&#123;</span><br><span class="line">		this.testA = testA;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>此时如果运行Spring，是不会报错的，证明Spring可以自己解决循环依赖，那Spring是怎么解决的呢</p>
-<h1 id="解密"><a href="#解密" class="headerlink" title="解密"></a>解密</h1><p>这里需要大家了解下Spring的Bean的声明周期，不清楚的可以看这篇<a href="https://southlight-lin.github.io/2019/02/19/Spring-Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" target="_blank" rel="noopener">Spring-Bean的生命周期</a>博客<br>长话短说，先说下Spring的解决办法，如果Spring发现一个Bean（当前Bean为A）存在循环依赖时，此时就会为当前Bean封装一个ObjectFactory，放进一个类似IOC容器的HashMap中 <strong> singletonFactories </strong> ，放进之后，继续创建Bean  A，当到了Bean的生命周期的populateBean的属性解析的时候，发现依赖Bean B，就去创建Bean B；在创建Bean  B的时候发现B存在循环依赖，就把当前B封装成一个ObjectFactory放进 <strong> singletonFactories </strong> （注意，此时Map中已经有两个ObjectFactory）</p>
-<h2 id="Spring获取单例Bean的流程"><a href="#Spring获取单例Bean的流程" class="headerlink" title="Spring获取单例Bean的流程"></a>Spring获取单例Bean的流程</h2><p>这里有必要讲一下Spring获取单例Bean的流程，在getSingleton方法中<br>org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#getSingleton(java.lang.String, boolean)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">protected Object getSingleton(String beanName, boolean allowEarlyReference) &#123;</span><br><span class="line">		// 先尝试从IOC容器中获取Bean</span><br><span class="line">		Object singletonObject = this.singletonObjects.get(beanName);</span><br><span class="line">		// 如果获取不到Bean，并且解析出当前Bean存在循环依赖</span><br><span class="line">		if (singletonObject == null &amp;&amp; isSingletonCurrentlyInCreation(beanName)) &#123;</span><br><span class="line">			synchronized (this.singletonObjects) &#123;</span><br><span class="line">				// 尝试从earlySingletonObjects中获取Bean</span><br><span class="line">				// earlySingletonObjects跟singletonFactories是相辅相成的</span><br><span class="line">				// singletonFactories中存放ObjectFactory，ObjectFactory可以返回一个实例</span><br><span class="line">				// earlySingletonObjects可以存放ObjectFactory返回的实例</span><br><span class="line">				singletonObject = this.earlySingletonObjects.get(beanName);</span><br><span class="line">				// 如果不在earlySingletonObjects中</span><br><span class="line">				if (singletonObject == null &amp;&amp; allowEarlyReference) &#123;</span><br><span class="line">					ObjectFactory&lt;?&gt; singletonFactory = this.singletonFactories.get(beanName);</span><br><span class="line">					// 判断是否有ObjectFactory，如果有，就通过ObjectFactory创建</span><br><span class="line">					if (singletonFactory != null) &#123;</span><br><span class="line">						singletonObject = singletonFactory.getObject();</span><br><span class="line">						// 将实例存放进earlySingletonObjects</span><br><span class="line">						this.earlySingletonObjects.put(beanName, singletonObject);</span><br><span class="line">						// 将ObjectFactory移除</span><br><span class="line">						this.singletonFactories.remove(beanName);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return singletonObject;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
-<p>注释已经写明白了，先从IOC容器中获取，如果没有就判断是否有循环依赖，有循环依赖则从singletonFactories和earlySingletonObjects获取</p>
-<h2 id="继续"><a href="#继续" class="headerlink" title="继续"></a>继续</h2><p>我们继续讲解上面的流程，我们讲到在创建B的Bean时发现循环依赖，就把B封装成ObjectFactory并放进singletonFactories，然后在Bean生命周期的populateBean的方法解析属性时发现存在依赖A的Bean，此时又要走创建Bean A的流程，但是走到org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#getSingleton这个方法时（也就是上面Spring的源代码），会从singletonFactories获取A的ObjectFactory，由ObjectFactory创建对象，并且赋值给B的Bean，此时B的Bean是指向A的实例（尽管A的Bean还没有创建，但是实例，也就是对象已经存在），这样一来B的Bean就会创建完成，需要添加进IOC容器<br>org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#addSingleton<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">protected void addSingleton(String beanName, Object singletonObject) &#123;</span><br><span class="line">		synchronized (this.singletonObjects) &#123;</span><br><span class="line">			this.singletonObjects.put(beanName, singletonObject);</span><br><span class="line">			this.singletonFactories.remove(beanName);</span><br><span class="line">			this.earlySingletonObjects.remove(beanName);</span><br><span class="line">			this.registeredSingletons.add(beanName);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
-<p>添加进IOC容器前需要擦除earlySingletonObjects和singletonFactories有关B的所有信息<br>这样的话，B的Bean已经创建完成了，回退到解析A的属性时，此时A需依赖Bean  B，因为Bean B已经创建，所以直接将Bean B赋给A的属性，就这样循环依赖解决了。</p>
-<h2 id="再重复一次"><a href="#再重复一次" class="headerlink" title="再重复一次"></a>再重复一次</h2><p>当Spring创建TestA时，在doCreate方法中，有这么一段代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">		 * 这个判断很重要，Spring依靠这个判断解决循环依赖，检测循环依赖</span><br><span class="line">		 * 是这样的，当发现有依赖循环时，比如A依赖B，B依赖A，此时获取A的Bean</span><br><span class="line">		 * Spring发现依赖循环，并且B的Bean还没有被创建，先创建A的ObjectFactory，然后添加进singletonFactories</span><br><span class="line">		 * 在下面的populateBean方法，将属性的依赖B创建</span><br><span class="line">		 */</span><br><span class="line">		// Eagerly cache singletons to be able to resolve circular references</span><br><span class="line">		// even when triggered by lifecycle interfaces like BeanFactoryAware.</span><br><span class="line">        		// 这里有三个条件需要判断：1、是否为代理；2、是否允许允许循环依赖；3、是否对应的Bean正在创建</span><br><span class="line">		boolean earlySingletonExposure = (mbd.isSingleton() &amp;&amp; this.allowCircularReferences &amp;&amp;</span><br><span class="line">				isSingletonCurrentlyInCreation(beanName));</span><br><span class="line">		if (earlySingletonExposure) &#123;</span><br><span class="line">			if (logger.isTraceEnabled()) &#123;</span><br><span class="line">				logger.trace(&quot;Eagerly caching bean &apos;&quot; + beanName +</span><br><span class="line">						&quot;&apos; to allow for resolving potential circular references&quot;);</span><br><span class="line">			&#125;</span><br><span class="line">			// 为避免后期循环依赖，可以在Bean初始化完成前将创建实例的ObjectFactory加入工厂</span><br><span class="line">			// 在Lambda表达式中，我们熟知的AOP的advice就是在这里动态织入的</span><br><span class="line">            // addSingletonFactory方法就是将ObjectFactory放进singletonFactories中</span><br><span class="line">			addSingletonFactory(beanName, () -&gt; getEarlyBeanReference(beanName, mbd, bean) );</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure></p>
-<p>在创建Bean的时候会判断这个Bean是否存在循环依赖，此时TestA会判断出存在循环依赖。就会执行<strong> addSingletonFactory </strong><br>org.springframework.beans.factory.support.DefaultSingletonBeanRegistry#addSingletonFactory<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">protected void addSingletonFactory(String beanName, ObjectFactory&lt;?&gt; singletonFactory) &#123;</span><br><span class="line">		Assert.notNull(singletonFactory, &quot;Singleton factory must not be null&quot;);</span><br><span class="line">		synchronized (this.singletonObjects) &#123;</span><br><span class="line">			if (!this.singletonObjects.containsKey(beanName)) &#123;</span><br><span class="line">				this.singletonFactories.put(beanName, singletonFactory);</span><br><span class="line">				this.earlySingletonObjects.remove(beanName);</span><br><span class="line">				this.registeredSingletons.add(beanName);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
-<p>也就是为A封装一个ObjectFactory并添加进singletonFactories，为了给下面循环依赖的B使用<br>接下来解析A的属性时发现依赖B的Bean，因为B的Bean还没被创建，所以需要创建B，所以又走了一遍上面的流程。当解析B的属性时发现依赖A的Bean，因为A的Bean还没有，所以先获取A的Bean，所以会执行这段代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">protected Object getSingleton(String beanName, boolean allowEarlyReference) &#123;</span><br><span class="line">		// 先尝试从IOC容器中获取Bean</span><br><span class="line">		Object singletonObject = this.singletonObjects.get(beanName);</span><br><span class="line">		// 如果获取不到Bean，并且解析出当前Bean存在循环依赖</span><br><span class="line">		if (singletonObject == null &amp;&amp; isSingletonCurrentlyInCreation(beanName)) &#123;</span><br><span class="line">			synchronized (this.singletonObjects) &#123;</span><br><span class="line">				// 尝试从earlySingletonObjects中获取Bean</span><br><span class="line">				// earlySingletonObjects跟singletonFactories是相辅相成的</span><br><span class="line">				// singletonFactories中存放ObjectFactory，ObjectFactory可以返回一个实例</span><br><span class="line">				// earlySingletonObjects可以存放ObjectFactory返回的实例</span><br><span class="line">				singletonObject = this.earlySingletonObjects.get(beanName);</span><br><span class="line">				// 如果不在earlySingletonObjects中</span><br><span class="line">				if (singletonObject == null &amp;&amp; allowEarlyReference) &#123;</span><br><span class="line">					ObjectFactory&lt;?&gt; singletonFactory = this.singletonFactories.get(beanName);</span><br><span class="line">					// 判断是否有ObjectFactory，如果有，就通过ObjectFactory创建</span><br><span class="line">					if (singletonFactory != null) &#123;</span><br><span class="line">						singletonObject = singletonFactory.getObject();</span><br><span class="line">						// 将实例存放进earlySingletonObjects</span><br><span class="line">						this.earlySingletonObjects.put(beanName, singletonObject);</span><br><span class="line">						// 将ObjectFactory移除</span><br><span class="line">						this.singletonFactories.remove(beanName);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return singletonObject;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></p>
-<p>因为singletoeFactories中有两个ObjectFactory分别是A和B的，所以使用A的ObjectFactory提供的实例为B中的A赋值，当B创建完后又将B的Bean赋值给A中的B，这样A的Bean也就创建完成了。</p>
-<p>*注意：循环依赖只运行单例，原型直接抛出异常</p>
-<h1 id="画图理解"><a href="#画图理解" class="headerlink" title="画图理解"></a>画图理解</h1><p><img src="/2019/03/08/Spring循环依赖的解决方法/20190308102208466.png" alt=""></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -602,7 +596,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -613,7 +607,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -624,7 +618,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">16</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

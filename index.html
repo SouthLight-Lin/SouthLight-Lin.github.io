@@ -259,6 +259,173 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/31/常见的排序算法/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/31/常见的排序算法/" itemprop="url">常见的排序算法（一）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-31T22:04:38+08:00">
+                2019-08-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>好久没写博客了，今天就来写一篇跟排序算法有关的博客<br>说到排序算法，首先想到的有快排，堆排序等优秀的算法，你知道排序算法有哪些分类吗？</p>
+<h2 id="一、内排序、外排序"><a href="#一、内排序、外排序" class="headerlink" title="一、内排序、外排序"></a>一、内排序、外排序</h2><p>内排序：指数据直接在内存中进行，无需借助外存<br>外排序：由于数据量太大，内存不能一次性装完，需要借助外存储器才能完成<br>其实对于外排序，处理的时候大多数也会使用到内排序，也就是将一部分数据从磁盘加载进来然后使用内排序完后再写回磁盘<br>但也有直接外排序的算法，比如：多路平衡归并排序，置换——选择排序，最优归并树（PS：这些都没了解过hhhh）<br>但是常见的内排序算法就有很多了：冒泡、选择、插入、希尔、归并、快速、堆排序、计数排序、桶排序这些都是常见的排序算法</p>
+<h2 id="二、稳定性"><a href="#二、稳定性" class="headerlink" title="二、稳定性"></a>二、稳定性</h2><p>何为稳定性？<br>比如这样：<br><img src="/2019/08/31/常见的排序算法/20190831102048665.png" alt="排序1"><br>还没排序前，橙色的2在蓝色的2前面<br>排完序后橙色的2还是在蓝色的2前面<br>如果能做到这种特性，那么就认为该排序算法是稳定的</p>
+<p>为什么需要稳定的排序算法呢？<br>因为有时候我们不止依赖一个特性来排序，比如订单有金额跟下单时间的特性，我们按金额大小排序，如果金额相等，就要求按下单时间来排序。如果要求你来做，你怎么实现呢？<br>如果有稳定的排序算法，我们可以先按下单时间来排序，拍完后就再按照金额来排序，这样就能符合我们如果金额相等就按下单时间来排序<br>因为先按时间排好序后，再用稳定的排序算法按金额排列，不会出现相等金额的时间乱序的情况</p>
+<p>稳定性的排序算法有：冒泡排序、插入排序、归并排序、希尔排序<br>不稳定的排序算法有：选择排序、快速排序</p>
+<h2 id="三、是否需要辅助空间"><a href="#三、是否需要辅助空间" class="headerlink" title="三、是否需要辅助空间"></a>三、是否需要辅助空间</h2><p>不需要申请额外内存的排序，也叫做原地排序，常见的原地排序算法有：冒泡、选择、插入、希尔、快速、堆排序<br>而向归并、桶排序、计数排序，它们虽然时间复杂度很快，但需要借助额外的内存空间<br>所以选择合适的排序算法的时候，也需要考虑是否需要额外的内存空间，比如你的内存只有2G，但你有1.5G的数据需要排序，你得考虑申请额外空间是否够用</p>
+<h2 id="四、平均时间复杂度"><a href="#四、平均时间复杂度" class="headerlink" title="四、平均时间复杂度"></a>四、平均时间复杂度</h2><p>O(n^2)：冒泡排序、选择排序、插入排序<br>O(nlog2n)：希尔排序<br>O(nlogn)：归并排序、快速排序、堆排序<br>O(n)：计数排序、桶排序<br>也许有人会问，竟然计数跟桶排序能做到O(n)的时间复杂度，为什么他们不会经常出现在我们的视野呢？而是快排或者堆排序出现的比较多？<br>你学下去不就知道了<br>下面分析的时间复杂度都是平均时间复杂度</p>
+<h1 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h1><p>冒泡的思想为：每次比较相邻的元素。如果第一个比第二个大，交换他们，然后按照这个思想往后遍历<br>每次遍历完，最后的元素都是最大的</p>
+<p>看一下经过一次冒泡排序后，数据经过了哪些改变<br><img src="/2019/08/31/常见的排序算法/20190831110018173.png" alt="冒泡1"><br>可以看到，无序的数据经过一次冒泡后，5作为最大的数据被排在了末尾<br>再看一下完整的过程<br><img src="/2019/08/31/常见的排序算法/20190831110420863.png" alt=""><br>可以看到冒泡的每一次操作都能从中将最大的数移动到末尾，这样最后的数据就是有序的了</p>
+<p>代码实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">package sort_alorgithm;</span><br><span class="line"></span><br><span class="line">import java.util.Arrays;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 冒泡排序</span><br><span class="line"> *      稳定性：稳定</span><br><span class="line"> * 时间复杂度分析：</span><br><span class="line"> *      最好情况：O(n)</span><br><span class="line"> *      最坏：O(n^2)</span><br><span class="line"> *      平均：O(n^2)</span><br><span class="line"> * 空间复杂度：O(1)没有借助其他空间</span><br><span class="line"> * 稳定性：稳定</span><br><span class="line"> *</span><br><span class="line"> * @author SouthLight-Lin on 2019/6/7</span><br><span class="line"> */</span><br><span class="line">public class BubbleSort&#123;</span><br><span class="line">    /**</span><br><span class="line">     * 算法步骤：</span><br><span class="line">     *      比较相邻的元素。如果第一个比第二大，就交换他们两个</span><br><span class="line">     *      对每一对相邻元素做同样的工作，每次做完，最后的元素会是最大的数</span><br><span class="line">     *      重复以上步骤 ，除了最后一个</span><br><span class="line">     */</span><br><span class="line"></span><br><span class="line">    public static int[] sort(int[] source)&#123;</span><br><span class="line">        // 对source进行拷贝，不改变参数的内容</span><br><span class="line">        int[] arr = Arrays.copyOf(source, source.length);</span><br><span class="line"></span><br><span class="line">        for (int i = 1; i &lt; arr.length; i++) &#123;</span><br><span class="line">            // 设定标记，若为true，</span><br><span class="line">            // 表示本次循环没有进行交换，数组已经有有序</span><br><span class="line">            boolean flag = true;</span><br><span class="line">            for (int j = 0;j&lt;arr.length-i;j++)&#123;</span><br><span class="line">                if (arr[j]&gt;arr[j+1])&#123;</span><br><span class="line">                    int tmp = arr[j];</span><br><span class="line">                    arr[j] = arr[j+1];</span><br><span class="line">                    arr[j+1] = tmp;</span><br><span class="line">                    flag = false;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            if (flag)&#123;</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return arr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        int[] source = &#123;2,5,4,3,8&#125;;</span><br><span class="line">        int[] result = sort(source);</span><br><span class="line">        for (int i = 0; i &lt; result.length; i++) &#123;</span><br><span class="line">            System.out.print(result[i] + &quot; &quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码中，加入了一个boolean类型的flag，为了减少循环的次数，如果遍历的过程中发现没有数据交换，那么就可以认定为该组数据已经有序，后面的操作都不用做了，直接跳出</p>
+<p>时间复杂度：O(n^2）<br>空间复杂度：O(1)<br>稳定性：稳定排序</p>
+<h1 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h1><p>思想：每次遍历数据，从中选出最大的数（最小也可以），换到数据末尾<br><img src="/2019/08/31/常见的排序算法/20190831112017227.png" alt="选择排序"><br>代码实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">package sort_alorgithm;</span><br><span class="line"></span><br><span class="line">import java.util.Arrays;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 选择排序</span><br><span class="line"> * @author SouthLight-Lin on 2019/6/8</span><br><span class="line"> *</span><br><span class="line"> * 时间复杂度：</span><br><span class="line"> *      最好：O(n^2)</span><br><span class="line"> *      最坏：O(n^2)</span><br><span class="line"> *      平均：O(n^2)</span><br><span class="line"> * 空间复杂度：O(1)</span><br><span class="line"> * 稳定性：不稳定</span><br><span class="line"> */</span><br><span class="line">public class SelectionSort &#123;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 算法步骤：</span><br><span class="line">     *      首先在未排序序列中找到最小（大）的元素，存放到排序序列的起始位置</span><br><span class="line">     *      再从剩余未排序的元素中找到最小（大）元素，然后放到已排序序列的末尾</span><br><span class="line">     *      重复第二步，直到所有元素排列完毕</span><br><span class="line">     */</span><br><span class="line"></span><br><span class="line">    public static int[] selectionSort(int[] source)&#123;</span><br><span class="line">        int[] arr = Arrays.copyOf(source, source.length);</span><br><span class="line">        // 总共需要N-1此比较</span><br><span class="line">        for (int i = 0; i &lt; source.length-1; i++) &#123;</span><br><span class="line">            int min = i;</span><br><span class="line">            // 每轮需要N-i此比较</span><br><span class="line">            for (int j = i+1; j &lt; source.length; j++) &#123;</span><br><span class="line">                if (arr[j] &lt; arr[min]) &#123;</span><br><span class="line">                    // 记录目前能找到的最小值元素的小标</span><br><span class="line">                    min = j;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            // 将找到的最小值与i位置的数交换</span><br><span class="line">            if (i != min)&#123;</span><br><span class="line">                int tmp = arr[i];</span><br><span class="line">                arr[i] = arr[min];</span><br><span class="line">                arr[min] = tmp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return arr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        int[] source = &#123;4,2,3,6,5&#125;;</span><br><span class="line">        int[] result = selectionSort(source);</span><br><span class="line">        for (int i = 0; i &lt; result.length; i++) &#123;</span><br><span class="line">            System.out.print(result[i] + &quot; &quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>时间复杂度：O(n^2)<br>空间复杂度：O(1)<br>稳定性：非稳定排序</p>
+<h1 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h1><p>你应该玩过扑克牌，当你开始整理你的牌的时候，那你可能习惯一张一张的抽出牌并把它插入到正确的位置，插入排序的思想正是如此<br>从前往后遍历数据，以第一个数据为基准有序数据，将数据插入到正确的位置<br>其实实现的时候，插入是指将前面的数据比目前该数据大的往后移动，腾出空间插入<br><img src="/2019/08/31/常见的排序算法/20190831112438472.png" alt="插入排序"><br>代码实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">package sort_alorgithm;</span><br><span class="line"></span><br><span class="line">import java.util.Arrays;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 插入排序</span><br><span class="line"> * 时间复杂度：</span><br><span class="line"> *      最好：O(n)</span><br><span class="line"> *      最坏：O(n^2)</span><br><span class="line"> *      平均：O(n^2)</span><br><span class="line"> * 空间复杂度：O(1)</span><br><span class="line"> * 稳定性：稳定</span><br><span class="line"> *</span><br><span class="line"> * @author SouthLight-Lin on 2019/6/8</span><br><span class="line"> */</span><br><span class="line">public class InsertSort &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 算法步骤：</span><br><span class="line">     *      将待排序列第一个元素看成是一个有序序列，把第二个元素到最后一个元素当成是未排序序列</span><br><span class="line">     *      从头到尾一次扫描未排序序列，将扫描到的每个元素插入到有序序列的适当位置。（如果待插入的元素与有序</span><br><span class="line">     *      序列中的某个元素相等，则将待插入元素插入到相等元素的后面）</span><br><span class="line">     *</span><br><span class="line">     * 抽象：这个算法跟我们平时打扑克时，整理扑克的思路是一样的</span><br><span class="line">     */</span><br><span class="line"></span><br><span class="line">    public static int[] insertSort(int[] source)&#123;</span><br><span class="line">        int[] arr = Arrays.copyOf(source, source.length);</span><br><span class="line"></span><br><span class="line">        // 从下表为1开始，因为下标为0的值默认是有序的</span><br><span class="line">        for (int i = 1; i &lt; arr.length; i++) &#123;</span><br><span class="line">            int tmp = arr[i];</span><br><span class="line"></span><br><span class="line">            int j = i;</span><br><span class="line">            // 从末尾开始比较，如果比j-1位置的数小</span><br><span class="line">            // 则前一个数后移</span><br><span class="line">            while (j &gt; 0 &amp;&amp; tmp &lt; arr[j-1])&#123;</span><br><span class="line">                arr[j] = arr[j-1];</span><br><span class="line">                j--;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            // 存在比其小的数，插入</span><br><span class="line">            if (i!=j)&#123;</span><br><span class="line">                arr[j] = tmp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return arr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        int[] source = &#123;4,2,3,6,5&#125;;</span><br><span class="line">        int[] result = insertSort(source);</span><br><span class="line">        for (int i = 0; i &lt; result.length; i++) &#123;</span><br><span class="line">            System.out.print(result[i] + &quot; &quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>时间复杂度：O(n^2)<br>空间复杂度：O(1）<br>稳定性：稳定排序</p>
+<h1 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h1><p>希尔排序是对插入排序的改进，有实验证明，如果数据时部分有序的数据，使用插入排序效率会很高，所以希尔排序就是在这点上改进来的<br>针对插入排序的两点性质而提出的改进方法：<br><em>1、 插入排序在对几乎已经排好序的数据操作时，效率高，可以达到线性排序的效率
+</em>2、 但插入排序一般来说效率是低效的，因为每次插入排序每次只能将数据移动一位</p>
+<p>希尔排序的基本思想：<br>将待排序的记录分割成为若干个子序列，分别进行插入排序，待整个序列记录“基本有序时”，再对整体进行插入排序</p>
+<p><img src="/2019/08/31/常见的排序算法/20190901100238364.png" alt="希尔排序"><br>代码实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">package sort_alorgithm;</span><br><span class="line"></span><br><span class="line">import java.util.Arrays;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 希尔排序：</span><br><span class="line"> *      又称为增量排序，是插入排序的一种更加高效的改进版本。但是希尔排序是不稳定排序</span><br><span class="line"> * 希尔排序是针对插入排序的一下两点性质而提出改进方法：</span><br><span class="line"> *      1、插入排序在对几乎已经排好序的数据操作时，效率高，可以达到线性排序的效率</span><br><span class="line"> *      2、但插入排序一般来说效率是低效的，因为每次插入排序每次只能将数据移动一位</span><br><span class="line"> * 基本思想：</span><br><span class="line"> *      希尔排序的思想是将整个待排序的记录分割成为若干个子序列分别进行直接插入排序，待整个序列中的</span><br><span class="line"> *      记录“基本有序”时，再对全体记录进行依次直接插入排序</span><br><span class="line"> *</span><br><span class="line"> * 时间复杂度：</span><br><span class="line"> *      最好：O(nlog^2n)</span><br><span class="line"> *      最坏：O(nlog^2n)</span><br><span class="line"> *      平均：O(nlogn)</span><br><span class="line"> * 空间复杂度：O(1)</span><br><span class="line"> * @author SouthLight-Lin on 2019/6/9</span><br><span class="line"> */</span><br><span class="line">public class ShellSort &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 算法实现：</span><br><span class="line">     *      1、选择一个增量序列t1,t2,...,tk（tk=1）；</span><br><span class="line">     *      2、按增量序列个数k，对序列进行k趟排序;</span><br><span class="line">     *      3、每趟排序，根据对应的增量ti，将待拍序列分割成若干长度为m的子序列，</span><br><span class="line">     *      分别对各子序列进行直接插入排序。</span><br><span class="line">     *      仅增量因子为1时，整个序列作为一个表来处理，表长度即为整个序列的长度</span><br><span class="line">     */</span><br><span class="line">    public static int[] shellSort(int[] source)&#123;</span><br><span class="line">        int[] arr = Arrays.copyOf(source, source.length);</span><br><span class="line"></span><br><span class="line">        // 设置增量因子</span><br><span class="line">        int gap = 1;</span><br><span class="line">        while(gap &lt; arr.length)&#123;</span><br><span class="line">            gap = gap * 3 +1;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        while (gap &gt; 0)&#123;</span><br><span class="line">            for (int i = gap; i &lt; arr.length; i++) &#123;</span><br><span class="line">                int tmp = arr[i];</span><br><span class="line">                int j = i-gap;</span><br><span class="line">                while (j&gt;=0 &amp;&amp; arr[j] &gt; tmp)&#123;</span><br><span class="line">                    arr[j+gap] = arr[j];</span><br><span class="line">                    j -= gap;</span><br><span class="line">                &#125;</span><br><span class="line">                arr[j+gap] = tmp;</span><br><span class="line">            &#125;</span><br><span class="line">            gap = (int) Math.floor(gap/3);</span><br><span class="line">        &#125;</span><br><span class="line">        return arr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        int[] source = &#123;8,3,9,5,1,4,7,6,2,0&#125;;</span><br><span class="line">        int[] result = shellSort(source);</span><br><span class="line">        for (int i = 0; i &lt; result.length; i++) &#123;</span><br><span class="line">            System.out.print(result[i] + &quot; &quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>时间复杂度：O(nlog2n)<br>空间复杂度：O(1)<br>稳定性：非稳定排序</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>今天聊了冒泡、选择、插入、希尔排序四种算法，其实这四种算法各有好坏，比如前三种实现起来简单，但平均时间复杂度高一些，选择排序无论情况怎么样时间复杂度都是O(n^2)，希尔排序算是今天这四种算法里面最快了</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/15/TCP跟UDP/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -415,329 +582,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/15/MySQL存储数据的格式/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/04/15/MySQL存储数据的格式/" itemprop="url">MySQL存储数据的格式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-15T20:56:26+08:00">
-                2019-04-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/MySQL/" itemprop="url" rel="index">
-                    <span itemprop="name">MySQL</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我们都知道MySQL的数据有表的结构，一条数据在表中就是一行，但是实际上MySQL存储数据的真正形式不是表结构，因为数据都是存储硬盘这种类型的物理结构，需要某种数据结构来存储数据，比如像链表啊，数组啊，树啊..想了解MySQL存储数据的形式，需要知道一条数据在MySQL中的<strong>行格式</strong> ，还有MySQL管理数据的<strong>页结构</strong> 。（基于InnoDB引擎）<br>简单的讲，MySQL操作数据时，也就是内存跟磁盘交互时，MySQL是以<strong>页</strong>为单位交互的，<strong>一个页的大小是16KB</strong>，页中包含了若干条<strong>行数据</strong>，你就把页想象成一个固定大小的桶，每次去井里打水只能乘固定的水量。所以在一般情况下，一次最少从磁盘中读取16KB的内容到内存，一次最少把内存中的16KB内容刷新到磁盘中。</p>
-<h1 id="InnoDB的行格式"><a href="#InnoDB的行格式" class="headerlink" title="InnoDB的行格式"></a>InnoDB的行格式</h1><p>表中的一条数据，是我们定义的列的值。比如a表中有(id, name)两列，所以存储的数据可以是(1, ‘AA’), (2, ‘BB’)的数据，显示的时候是这样，存储的时候可不止有这两个属性，还有记录这条数据的大小是多少，有没有null值，下一条数据的地址是多少（数据不是连续存储的）….所以为了更快查询数据和更节省空间的存储数据，就设计出了<strong>行格式</strong>或者<strong>记录格式</strong>。<strong>InnoDB</strong>的行格式有四种：<strong>Compact</strong>，<strong>Redundant</strong>，<strong>Dynamic</strong>和<strong>Compressed</strong>。</p>
-<h2 id="COMPACT行格式"><a href="#COMPACT行格式" class="headerlink" title="COMPACT行格式"></a>COMPACT行格式</h2><p><img src="/2019/04/15/MySQL存储数据的格式/20190416113324980.png" alt=""><br>一条行数据可以分为<strong>记录的额外信息</strong>和<strong>记录的真实数据</strong><br>为了演示，我们需要创建一张表<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE TABLE record_format_demo (</span><br><span class="line">    -&gt;     c1 VARCHAR(10),</span><br><span class="line">    -&gt;     c2 VARCHAR(10) NOT NULL,</span><br><span class="line">    -&gt;     c3 CHAR(10),</span><br><span class="line">    -&gt;     c4 VARCHAR(10)</span><br><span class="line">    -&gt; ) CHARSET=ascii ROW_FORMAT=COMPACT;</span><br><span class="line">Query OK, 0 rows affected (0.03 sec)</span><br></pre></td></tr></table></figure></p>
-<p>插入数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO record_format_demo(c1, c2, c3, c4) VALUES(&apos;aaaa&apos;, &apos;bbb&apos;, &apos;cc&apos;, &apos;d&apos;), (&apos;eeee&apos;, &apos;fff&apos;, NULL, NULL);</span><br><span class="line">Query OK, 2 rows affected (0.02 sec)</span><br><span class="line">Records: 2  Duplicates: 0  Warnings: 0</span><br></pre></td></tr></table></figure></p>
-<p>查询<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT * FROM record_format_demo;</span><br><span class="line">+------+-----+------+------+</span><br><span class="line">| c1   | c2  | c3   | c4   |</span><br><span class="line">+------+-----+------+------+</span><br><span class="line">| aaaa | bbb | cc   | d    |</span><br><span class="line">| eeee | fff | NULL | NULL |</span><br><span class="line">+------+-----+------+------+</span><br><span class="line">2 rows in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt;</span><br></pre></td></tr></table></figure></p>
-<h3 id="记录的额外信息"><a href="#记录的额外信息" class="headerlink" title="记录的额外信息"></a>记录的额外信息</h3><p>这些信息是<strong>服务器为了描述这条记录而不得不额外添加的一些信息</strong>， 这些额外的信息分为三类<strong>可变字段长度列表</strong>、<strong>NULL值列表</strong>和<strong>记录头信息</strong></p>
-<h4 id="可变字段长度列表"><a href="#可变字段长度列表" class="headerlink" title="可变字段长度列表"></a>可变字段长度列表</h4><p>MySQL支持一些变长的数据，比如Varchar（N）、TEXT类型的数据等，变长数据存储多少字节的数据不是固定的，所以我们需要把<strong>存储可变数据的时候把数据占用的字节存储到可变字段长度列表</strong>。<br>在Compact行格式中，把所有可变长字段的真实数据占用的字节长度都存放在记录的开头部位，从而形成一个可变长度列表，各变长字段数据占用的字节数是按<strong>逆序</strong>的顺序存放的。<br>比如record表，c1、c2、c4列都是VARCHAR（10）类型，除了c3是CHAR（10），也就是可变长的数据类型，所以这三列的值长都需要保存在记录开头</p>
-<table>
-<thead>
-<tr>
-<th>列名</th>
-<th>存储内容</th>
-<th>内容长度（十进制）</th>
-<th>内容长度（十六进制）</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>c1</td>
-<td>‘aaaa’</td>
-<td>4</td>
-<td>0x04</td>
-</tr>
-<tr>
-<td>c2</td>
-<td>‘bbb’</td>
-<td>3</td>
-<td>0x03</td>
-</tr>
-<tr>
-<td>c4</td>
-<td>‘d’</td>
-<td>1</td>
-<td>0x01</td>
-</tr>
-</tbody>
-</table>
-<p>这样行格式为<br><img src="/2019/04/15/MySQL存储数据的格式/20190416100741868.png" alt=""></p>
-<ul>
-<li>可变长度列表中只存储为非NULL的列内容长度，值为NULL的列长度是不存储的。</li>
-</ul>
-<h4 id="NULL值列表"><a href="#NULL值列表" class="headerlink" title="NULL值列表"></a>NULL值列表</h4><p>表中有些列可能会有NULL值，如果把NULL值放在记录数据的真实地方中存储会很占地方，所以Compact行格式把这些NULL的列统一管理起来，放在NULL值列表中<br>NULL值列表值存储允许NULL值的列，那些主键列或者NOT NULL是不可以存储的，存储的顺序也是<strong>逆序</strong>存储的。<strong>1表示为NULL值，0表示为非NULL值</strong>。如果行记录中没有NULL值，那么NULL值列表就不存在<br>当插入数据1后<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO record_format_demo(c1, c2, c3, c4) VALUES(&apos;aaaa&apos;, &apos;bbb&apos;, &apos;cc&apos;, &apos;d&apos;)</span><br></pre></td></tr></table></figure></p>
-<p>NULL列表为<br><img src="/2019/04/15/MySQL存储数据的格式/20190416102022886.png" alt=""><br>当插入数据2后<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO record_format_demo(c1, c2, c3, c4) VALUES(&apos;eeee&apos;, &apos;fff&apos;, NULL, NULL);</span><br></pre></td></tr></table></figure></p>
-<p>NULL列表为<br><img src="/2019/04/15/MySQL存储数据的格式/20190416102035076.png" alt=""><br>所以第二条记录的NULL值列表用十六进制表示就是：0x06<br><img src="/2019/04/15/MySQL存储数据的格式/20190416102055470.png" alt=""></p>
-<h4 id="记录头信息"><a href="#记录头信息" class="headerlink" title="记录头信息"></a>记录头信息</h4><p>该描述用于记录行格式的一些通用信息，比如是否被删除、当前记录的类型、下一条记录的位置（数据不是连续存储的）…<strong>固定由5个字节组成</strong><br><img src="/2019/04/15/MySQL存储数据的格式/20190416102414461.png" alt=""><br>各个部分的作用如下：<br>| 名称 | 大小（单位：bit） | 描述 |<br>| — | — | — |<br>| 预留位1 | 1 | 没有使用 |<br>| 预留位1 | 1 | 没有使用 |<br>| delete_mask | 1 | 标记该记录是否被删除 |<br>| min_rec_mask | 1 | B+ tree的每层非叶子节点的最小记录都会添加该标记 |<br>| n_owned | 4 | 表示当前记录拥有的记录数 |<br>| heap_no | 13 | 表示当前记录的类型，0表示普通记录，1表示B+数非叶子节点记录，2表示最小记录，3表示最大记录 |<br>| next_record | 16 | 表示下一条记录的相对位置 |</p>
-<ul>
-<li>delete_mask 主要用于被删除的数据，因为我们delete数据后，重新排列这些数据需要消耗性能，所以数据并不是马上被删除，而只是做个标记，然后把被删除的数据连接成一个链表。</li>
-</ul>
-<h3 id="记录真实的数据"><a href="#记录真实的数据" class="headerlink" title="记录真实的数据"></a>记录真实的数据</h3><p>比如record表，记录真实的数据除了c1、c2、c3、c4这几个我们定义的列的数据以外，MySQL会为每个记录默认的添加一些<strong>隐藏列</strong><br>| 列名 | 是否必须 | 占用空间 | 描述 |<br>| — | — | — | — |<br>| row_id | 否 | 6字节 | 行ID，唯一的表示一条记录 |<br>| transaction_id | 是 | 6字节 | 事务ID |<br>| roll_pointer | 是 | 7字节 | 回滚指针 |</p>
-<ul>
-<li>实际上这几个列的真正名称其实是：DB_ROW_ID、DB_TRX_ID、DB_ROLL_PTR，我们为了美观才写成了row_id、transaction_id和roll_pointer。<br>这里需要提一下InnoDB表对主键的生成策略：优先使用用户自定义主键作为主键，如果用户没有定义主键，则选取一个Unique键作为主键，如果表中连Unique键都没有定义的话，则InnoDB会为表默认添加一个名为row_id的隐藏列作为主键。所以我们从上表中可以看出：InnoDB存储引擎会为每条记录都添加 transaction_id 和 roll_pointer 这两个列，但是 row_id 是可选的（在没有自定义主键以及Unique键的情况下才会添加该列）。这些隐藏列的值不用我们操心，InnoDB存储引擎会自己帮我们生成的。<br>插入一些数据后大概是这样<br><img src="/2019/04/15/MySQL存储数据的格式/20190416103630585.png" alt=""></li>
-</ul>
-<h2 id="Redundant行格式"><a href="#Redundant行格式" class="headerlink" title="Redundant行格式"></a>Redundant行格式</h2><p>这是一种很老的行格式了<br><img src="/2019/04/15/MySQL存储数据的格式/20190416103901614.png" alt=""></p>
-<h2 id="VARCHAR-M-最多能存储的数据"><a href="#VARCHAR-M-最多能存储的数据" class="headerlink" title="VARCHAR(M)最多能存储的数据"></a>VARCHAR(M)最多能存储的数据</h2><p>VARCHAR(M)最多能存储65535个字节，其中M代表该类型最多存储的字符数量，如果我们使用ASCII字符集的话，一个字符就是代表一个字节。但是我们存储一个VARCHAR(M)的类型列，其实需要三个部分的空间：</p>
-<ul>
-<li>1、真实数据</li>
-<li>2、真实数据占用字节的长度（需要2个字节）</li>
-<li>3、NULL值标识，如果该列有NOT NULL属性则可以没有这部分空间（需要1个字节）<br>所以说VARCHAR(M)最多不是存储65535个字节，而是65532个字节<br>但是如果是别的编码，比如gbk（一个字符最多需要2个字节）最多存储65532/2=32776个字符、utf8(一个3字符最多需要3个字节)65532/3=21844个字符<h2 id="记录中的数据太多产生的溢出"><a href="#记录中的数据太多产生的溢出" class="headerlink" title="记录中的数据太多产生的溢出"></a>记录中的数据太多产生的溢出</h2>在Compact和Redundant行格式中，对于占用存储空间非常大的列，在记录真实数据出只会存储该列的一部分数据，把剩余数据分散存储在几个其他也中，然后记录真实数据处用20个字节存储指向这些页的地方，从而可以找到剩余数据所在的页，比如：<br><img src="/2019/04/15/MySQL存储数据的格式/20190416105111071.png" alt=""></li>
-</ul>
-<h2 id="Dynamic和Compressed行格式"><a href="#Dynamic和Compressed行格式" class="headerlink" title="Dynamic和Compressed行格式"></a>Dynamic和Compressed行格式</h2><p>Dynamic是MySQL5.7以后<strong>默认的行格式</strong>，这两种形式的行格式跟Compact差不多，不同的是<strong>处理行溢出</strong>时有分歧，他们不会在记录的真实数据存储字段真实数据的一些数据，而是把所有的字节数据都存储到其他页面中，只在记录真实数据存储到其他页面的地址<br><img src="/2019/04/15/MySQL存储数据的格式/20190416105425865.png" alt=""><br>Compressed行格式和Dynamic不同的一点是，Compressed行格式会采用压缩算法对页面进行压缩</p>
-<h2 id="指定和修改行格式的语法"><a href="#指定和修改行格式的语法" class="headerlink" title="指定和修改行格式的语法"></a>指定和修改行格式的语法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE 表名 (列的信息) ROW_FORMAT=行格式名称</span><br><span class="line"></span><br><span class="line">ALTER TABLE 表名 ROW_FORMAT=行格式名称</span><br></pre></td></tr></table></figure>
-<h1 id="InnoDB数据页结构"><a href="#InnoDB数据页结构" class="headerlink" title="InnoDB数据页结构"></a>InnoDB数据页结构</h1><p><strong>页</strong>是管理存储空间的基本单位，一般大小是16KB。InnoDB为了不同的目的而设计了许多种不同类型的页，比如存放表空间头部信息的页，存放Insert Buffer信息的页，存放INODE信息的页，存放undo日志信息的页等等等等。下面讲的是我们存放表中记录的那种类型的页，官方称为<strong>索引（index）页</strong>，我们也可以叫<strong>数据页</strong>。</p>
-<h2 id="InnoDB数据页的整体结构"><a href="#InnoDB数据页的整体结构" class="headerlink" title="InnoDB数据页的整体结构"></a>InnoDB数据页的整体结构</h2><p><img src="/2019/04/15/MySQL存储数据的格式/20190417093300316.png" alt=""><br>先简单的阐述一下各个部分的作用</p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>中文名</th>
-<th>占用空间大小</th>
-<th>简单描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>File Header</td>
-<td>文件头部</td>
-<td>38字节</td>
-<td>页的一些通用信息</td>
-</tr>
-<tr>
-<td>Page Header</td>
-<td>页面头部</td>
-<td>56字节</td>
-<td>数据页专有的一些信息</td>
-</tr>
-<tr>
-<td>Infimum+Supremun</td>
-<td>最小记录和最大记录</td>
-<td>26字节</td>
-<td>两个虚拟的行记录</td>
-</tr>
-<tr>
-<td>User Records</td>
-<td>用户记录</td>
-<td>不确定</td>
-<td>实际存储的行记录内容</td>
-</tr>
-<tr>
-<td>Free Space</td>
-<td>空闲空间</td>
-<td>不确定</td>
-<td>页中尚未使用的空间</td>
-</tr>
-<tr>
-<td>Page Directory</td>
-<td>页面目录</td>
-<td>不确定</td>
-<td>页中某些记录的相对位置</td>
-</tr>
-<tr>
-<td>File Trailer</td>
-<td>文件尾部</td>
-<td>8字节</td>
-<td>校验页是否完整</td>
-</tr>
-</tbody>
-</table>
-<p>在这7个部分中，我们上面提到的行格式就是存储到<strong>User Records</strong>里面。但是在一开始生成页的时候，其实并没有User Records这个部分，每当我们插入一条记录，都会从<strong>Free Space</strong>部分，也就是尚未使用的存储空间中申请一个记录大小的空间划分到User Records部分，当Free Space部分的空间全部被User Records部分替代掉之后，也就意味着这个页使用完了，如果还有新的记录插入的话，就需要去申请新的页了，这个过程的图示如下：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417094048030.png" alt=""></p>
-<h2 id="记录头的秘密"><a href="#记录头的秘密" class="headerlink" title="记录头的秘密"></a>记录头的秘密</h2><p>我们先模拟一个表：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE TABLE page_demo(</span><br><span class="line">    -&gt;     c1 INT,</span><br><span class="line">    -&gt;     c2 INT,</span><br><span class="line">    -&gt;     c3 VARCHAR(10000),</span><br><span class="line">    -&gt;     PRIMARY KEY (c1)</span><br><span class="line">    -&gt; ) CHARSET=ascii ROW_FORMAT=Compact;</span><br><span class="line">Query OK, 0 rows affected (0.03 sec)</span><br></pre></td></tr></table></figure></p>
-<p>我们只列出行格式的记录头信息和真实记录信息<br><img src="/2019/04/15/MySQL存储数据的格式/20190417094435733.png" alt=""><br>我们往表里面插入几条数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO page_demo VALUES(1, 100, &apos;aaaa&apos;), (2, 200, &apos;bbbb&apos;), (3, 300, &apos;cccc&apos;), (4, 400, &apos;dddd&apos;);</span><br><span class="line">Query OK, 4 rows affected (0.00 sec)</span><br><span class="line">Records: 4  Duplicates: 0  Warnings: 0</span><br></pre></td></tr></table></figure></p>
-<p>插入后的数据如下（里面本来是二进制，这里用十进制）：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417094518959.png" alt=""></p>
-<ul>
-<li><strong>n_owned</strong><br>该组的主键才有值，记录该组拥有多少条记录（下面说）</li>
-<li>**delete_mask<br>这个属性标记着当前记录是否被删除，占用1个二进制位，值为0的时候代表记录并没有被删除，为1的时候代表记录被删除掉了。</li>
-</ul>
-<p>啥？被删除的记录还在页中么？是的，摆在台面上的和背地里做的可能大相径庭，你以为它删除了，可它还在真实的磁盘上。这些被删除的记录之所以不立即从磁盘上移除，是因为移除它们之后把其他的记录在磁盘上重新排列需要性能消耗，所以只是打一个删除标记而已，所有被删除掉的记录都会组成一个所谓的垃圾链表，在这个链表中的记录占用的空间称之为所谓的可重用空间，之后如果有新记录插入到表中的话，可能把这些被删除的记录占用的存储空间覆盖掉。</p>
-<ul>
-<li><strong>heap_no</strong><br>这个属性表示当前记录在本页中的位置，从图中可以看出来，我们插入的4条记录在本页中的位置分别是：2、3、4、5。是不是少了点啥？是的，怎么不见heap_no值为0和1的记录呢？</li>
-</ul>
-<p>这其实是设计InnoDB的大叔们玩的一个小把戏，他们自动给每个页里边儿加了两个记录，由于这两个记录并不是我们自己插入的，所以有时候也称为伪记录或者虚拟记录。这两个伪记录一个代表最小记录，一个代表最大记录，等一下哈~，记录可以比大小么？</p>
-<p>是的，记录也可以比大小，对于一条完整的记录来说，比较记录的大小就是比较主键的大小。比方说我们插入的4行记录的主键值分别是：1、2、3、4，这也就意味着这4条记录的大小从小到大依次递增。</p>
-<p>Infimum和Supremum虽然是两条记录，但是它们是在inifmum+supremum这部分，也就是我们上边说的7层结构的第三层。<br>由于这两条记录不是我们自己定义的记录，所以它们并不存放在页的User Records部分，他们被单独放在一个称为Infimum + Supremum的部分，如图所示：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417095023692.png" alt=""><br>从图中我们可以看出来，最小记录和最大记录的heap_no值分别是0和1，也就是说它们的位置最靠前。</p>
-<ul>
-<li>**record_type<br>这个属性表示当前记录的类型，一共有4种类型的记录，0表示普通记录，1表示B+树非叶节点记录，2表示最小记录，3表示最大记录。从图中我们也可以看出来，我们自己插入的记录就是普通记录，它们的record_type值都是0，而最小记录和最大记录的record_type值分别为2和3。</li>
-</ul>
-<p>至于record_type为1的情况，我们之后在说索引的时候会重点强调的。</p>
-<ul>
-<li><strong>next_record<br>这玩意儿非常重要，它表示从当前记录的真实数据到下一条记录的</strong>真实数据的地址偏移量<strong>。比方说第一条记录的</strong>next_record<strong>值为</strong>32<strong>，意味着从第一条记录的真实数据的地址处向后找</strong>32个字节<strong>便是下一条记录的真实数据。如果你熟悉数据结构的话，就立即明白了，这其实是个</strong>链表<strong>，可以通过一条记录找到它的下一条记录。但是需要注意注意再注意的一点是，</strong>下一条记录指得并不是按照我们插入顺序的下一条记录，而是按照主键值由小到大的顺序的下一条记录<strong>。而且规定 </strong>Infimum记录（也就是最小记录）<strong> 的下一条记录就是本页中主键值最小的用户记录，而本页中主键值最大的用户记录的下一条记录就是 </strong>Supremum记录（也就是最大记录）** ，为了更形象的表示一下这个next_record起到的作用，我们用箭头来替代一下next_record中的地址偏移量：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417095423739.png" alt=""><br>从图中可以看出来，我们的记录按照主键从小到大的顺序形成了一个单链表。最大记录的next_record的值为0，这也就是说最大记录是没有下一条记录了，它是这个单链表中的最后一个节点。如果从中删除掉一条记录，这个链表也是会跟着变化的，比如我们把第2条记录删掉,删掉第2条记录后的示意图就是：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417095446849.png" alt=""><br>再来看一个有意思的事情，因为主键值为2的记录被我们删掉了，但是存储空间却没有回收，如果我们再次把这条记录插入到表中，会发生什么事呢？<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO page_demo VALUES(2, 200, &apos;bbbb&apos;);</span><br><span class="line">Query OK, 1 row affected (0.00 sec)</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>我们看一下记录的存储情况：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417095550722.png" alt=""><br>从图中可以看到，InnoDB并没有因为新记录的插入而为它申请新的存储空间，而是直接复用了原来被删除记录的存储空间。</p>
-<h2 id="Page-Directory页目录"><a href="#Page-Directory页目录" class="headerlink" title="Page Directory页目录"></a>Page Directory页目录</h2><p>该结构的存在是为了快速查找数据设立的，我们前面说过数据存储的顺序不是插入时的顺序，而是按照主键的顺序插入，没有主键时就把unique列作为主键，如果连unique都没有，那么MySQL就会添加隐藏的row_id列作为主键。如果我们查询数据时，通过遍历数据来查询，那肯定不可能。如果我们此时想一下，数据现在的存储是<strong>有序</strong>的，那么我们能想到的一种快速查找算法——<strong>二分法</strong>。<br>所以Page Directory页目录的出现，是为了加快二分查找法，MySQL将页中的数据分组，每组的最后一条记录的地址偏移量取出来放进Page Directory中（这样就相当于它是这个组的代表），划分是这样的：</p>
-<ol>
-<li>将所有正常的记录（包括最大和最小记录，不包括标记为已删除的记录）划分为几个组。</li>
-<li>每个组的最后一条记录（也就是组内最大的那条记录）的头信息中的n_owned属性表示该记录拥有多少条记录，也就是该组内共有几条记录。</li>
-<li>将每个组的最后一条记录的地址偏移量单独提取出来按顺序存储到靠近页的尾部的地方，这个地方就是所谓的Page Directory，也就是页目录（此时应该返回头看看页面各个部分的图）。页面目录中的这些地址偏移量被称为槽（英文名：Slot），所以这个页面目录就是由槽组成的。<br>比方说现在的page_demo表中正常的记录共有6条，InnoDB会把它们分成两组，第一组中只有一个最小记录，第二组中是剩余的5条记录，看下边的示意图：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417101337532.png" alt=""><br>现在页目录部分中有两个槽，也就意味着我们的记录被分成了两个组，槽1中的值是112，代表最大记录的地址偏移量（就是从页面的0字节开始数，数112个字节）；槽0中的值是99，代表最小记录的地址偏移量。<br>最小记录的n_owned值为1，这就代表着以最小记录结尾的这个分组中只有1条记录，也就是最小记录本身。<br>最大记录的n_owned值为5，这就代表着以最大记录结尾的这个分组中只有5条记录，包括最大记录本身还有我们自己插入的4条记录。<br>这样画好看点<br><img src="/2019/04/15/MySQL存储数据的格式/20190417101408389.png" alt=""></li>
-</ol>
-<p>分组也是有规则的：<br>设计InnoDB的大叔们对每个分组中的记录条数是有规定的：对于最小记录所在的分组只能有 1 条记录，最大记录所在的分组拥有的记录条数只能在 1~8 条之间，剩下的分组中记录的条数范围只能在是 4~8 条之间。所以分组是按照下边的步骤进行的：<br>初始情况下一个数据页里只有最小记录和最大记录两条记录，它们分属于两个分组。<br>之后每插入一条记录，都会从页目录中找到主键值比本记录的主键值大并且差值最小的槽，然后把该槽对应的记录的n_owned值加1，表示本组内又添加了一条记录，直到该组中的记录数等于8个。<br>在一个组中的记录数等于8个后再插入一条记录时，会将组中的记录拆分成两个组，一个组中4条记录，另一个5条记录。这个过程会在页目录中新增一个槽来记录这个新增分组中最大的那条记录的偏移量。</p>
-<p>我们插入12条数据后<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO page_demo VALUES(5, 500, &apos;eeee&apos;), (6, 600, &apos;ffff&apos;), (7, 700, &apos;gggg&apos;), (8, 800, &apos;hhhh&apos;), (9, 900, &apos;iiii&apos;), (10, 1000, &apos;jjjj&apos;), (11, 1100, &apos;kkkk&apos;), (12, 1200, &apos;llll&apos;), (13, 1300, &apos;mmmm&apos;), (14, 1400, &apos;nnnn&apos;), (15, 1500, &apos;oooo&apos;), (16, 1600, &apos;pppp&apos;);</span><br><span class="line">Query OK, 12 rows affected (0.00 sec)</span><br><span class="line">Records: 12  Duplicates: 0  Warnings: 0</span><br></pre></td></tr></table></figure></p>
-<p>分为5个组，分组情况如下：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417101549689.png" alt=""><br>这样当查找主键为6的值的过程如下：<br>计算中间槽的位置：(0+4)/2=2，所以查看槽2对应记录的主键值为8，又因为8 &gt; 6，所以设置high=2，low保持不变。</p>
-<p>重新计算中间槽的位置：(0+2)/2=1，所以查看槽1对应的主键值为4，又因为4 &lt; 6，所以设置low=1，high保持不变。</p>
-<p>因为high - low的值为1，所以确定主键值为5的记录在槽2对应的组中。此刻我们需要找到槽2中主键值最小的那条记录，然后沿着单向链表遍历槽2中的记录。但是我们前边又说过，每个槽对应的记录都是该组中主键值最大的记录，这里槽2对应的记录是主键值为8的记录，怎么定位一个组中最小的记录呢？别忘了各个槽都是挨着的，我们可以很轻易的拿到槽1对应的记录（主键值为4），该条记录的下一条记录就是槽2中主键值最小的记录，该记录的主键值为5。所以我们可以从这条主键值为5的记录出发，遍历槽2中的各条记录，直到找到主键值为6的那条记录即可。由于一个组中包含的记录条数只能是1~8条，所以遍历一个组中的记录的代价是很小的。</p>
-<p>所以在一个数据页中查找指定主键值的记录的过程分为两步：</p>
-<ol>
-<li><p>通过二分法确定该记录所在的槽，并找到该槽中主键值最小的那条记录。</p>
-</li>
-<li><p>通过记录的next_record属性遍历该槽所在的组中的各个记录。</p>
-</li>
-</ol>
-<h2 id="Page-Header"><a href="#Page-Header" class="headerlink" title="Page Header"></a>Page Header</h2><p>MySQL为了直观、快速地得到这个数据页的一些常用信息，比如本页存储了多少数据、第一条记录的地址、页目录有多少个槽..所以设立了Page Header</p>
-<h2 id="File-Header（文件头部）"><a href="#File-Header（文件头部）" class="headerlink" title="File Header（文件头部）"></a>File Header（文件头部）</h2><p>上边唠叨的Page Header是专门针对数据页记录的各种状态信息，比方说页里头有多少个记录了呀，有多少个槽了呀。我们现在描述的File Header针对各种类型的页都通用，也就是说不同类型的页都会以File Header作为第一个组成部分，它描述了一些针对各种页都通用的一些信息，比方说这个页的编号是多少，它的上一个页、下一个页是谁啦吧啦吧啦～ 这个部分占用固定的38个字节<br>比较重要的属性有</p>
-<ul>
-<li>FIL_PAGE_SPACE_OR_CHKSUM  页的校验和（checksum值）需要跟下面的page trailer一起使用才能起效果</li>
-<li>FIL_PAGE_OFFSET  页号</li>
-<li>FIL_PAGE_PREV  上一个页的页号</li>
-<li>FIL_PAGE_NEXT  下一个页的页号</li>
-<li>FIL_PAGE_TYPE  当前页的类型，页的类型有很多，比如数据页、系统页、Undo日志页…</li>
-</ul>
-<h2 id="File-Trailer"><a href="#File-Trailer" class="headerlink" title="File Trailer"></a>File Trailer</h2><p>我们知道InnoDB存储引擎会把数据存储到磁盘上，但是磁盘速度太慢，需要以页为单位把数据加载到内存中处理，如果该页中的数据在内存中被修改了，那么在修改后的某个时间需要把数据同步到磁盘中。但是在同步了一半的时候中断电了咋办，这不是莫名尴尬么？为了检测一个页是否完整（也就是在同步的时候有没有发生只同步一半的尴尬情况），设计InnoDB的大叔们在每个页的尾部都加了一个File Trailer部分，这个部分由8个字节组成，可以分成2个小部分：</p>
-<ul>
-<li><p>前4个字节代表页的校验和<br>这个部分是和File Header中的校验和相对应的。每当一个页面在内存中修改了，在同步之前就要把它的校验和算出来，因为File Header在页面的前边，所以校验和会被首先同步到磁盘，当完全写完时，校验和也会被写到页的尾部，如果完全同步成功，则页的首部和尾部的校验和应该是一致的。如果写了一半儿断电了，那么在File Header中的校验和就代表着已经修改过的页，而在File Trialer中的校验和代表着原先的页，二者不同则意味着同步中间出了错。</p>
-</li>
-<li><p>后4个字节代表页面被最后修改时对应的日志序列位置（LSN）</p>
-</li>
-</ul>
-<p>这个部分也是为了校验页的完整性的，只不过我们目前还没说LSN是个什么意思，所以大家可以先不用管这个属性。</p>
-<p>喜欢的可以看原文作者，超级详细<br><img src="/2019/04/15/MySQL存储数据的格式/20190416110319769.png" alt=""></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -783,7 +632,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -794,7 +643,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -805,7 +654,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">16</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
