@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="算法,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="今天趁着周末，来聊聊两道题目。周末做了两家公司的秋招笔试——小米、网易娱乐，虽然笔试类型不同，但最后都有编程题。而且编程题中刚好都考了二叉树的算法题，而且不是正规的二叉树题目，算是二叉树的变种题，惭愧的是小米的那道二叉树想到了解决方案，无奈最后时间有限，只搭了个框架，没有做出来PS：笔试虐我千百遍，我待笔试如初恋 题目一：中根遍历二叉树题目是这样的：输入一个字符串，该字符串是二叉树先根遍历比如输入">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="每日一题——该死的二叉树">
+<meta property="og:url" content="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/index.html">
+<meta property="og:site_name" content="SouthLight&#39;s Blog">
+<meta property="og:description" content="今天趁着周末，来聊聊两道题目。周末做了两家公司的秋招笔试——小米、网易娱乐，虽然笔试类型不同，但最后都有编程题。而且编程题中刚好都考了二叉树的算法题，而且不是正规的二叉树题目，算是二叉树的变种题，惭愧的是小米的那道二叉树想到了解决方案，无奈最后时间有限，只搭了个框架，没有做出来PS：笔试虐我千百遍，我待笔试如初恋 题目一：中根遍历二叉树题目是这样的：输入一个字符串，该字符串是二叉树先根遍历比如输入">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/20190908114105153.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/20190908114354580.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/20190908020247432.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/20190908020339403.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/20190908020417216.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/20190908020526633.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/20190908022255871.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/20190908030304451.png">
+<meta property="og:updated_time" content="2019-09-08T07:03:11.384Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="每日一题——该死的二叉树">
+<meta name="twitter:description" content="今天趁着周末，来聊聊两道题目。周末做了两家公司的秋招笔试——小米、网易娱乐，虽然笔试类型不同，但最后都有编程题。而且编程题中刚好都考了二叉树的算法题，而且不是正规的二叉树题目，算是二叉树的变种题，惭愧的是小米的那道二叉树想到了解决方案，无奈最后时间有限，只搭了个框架，没有做出来PS：笔试虐我千百遍，我待笔试如初恋 题目一：中根遍历二叉树题目是这样的：输入一个字符串，该字符串是二叉树先根遍历比如输入">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/20190908114105153.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/">
+
+
+
+
+
+  <title>每日一题——该死的二叉树 | SouthLight's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SouthLight's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">每日一题——该死的二叉树</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-08T08:57:10+08:00">
+                2019-09-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>今天趁着周末，来聊聊两道题目。周末做了两家公司的秋招笔试——小米、网易娱乐，虽然笔试类型不同，但最后都有编程题。而且编程题中刚好都考了二叉树的算法题，而且不是正规的二叉树题目，算是二叉树的变种题，惭愧的是小米的那道二叉树想到了解决方案，无奈最后时间有限，只搭了个框架，没有做出来<br>PS：笔试虐我千百遍，我待笔试如初恋</p>
+<h1 id="题目一：中根遍历二叉树"><a href="#题目一：中根遍历二叉树" class="headerlink" title="题目一：中根遍历二叉树"></a>题目一：中根遍历二叉树</h1><p>题目是这样的：输入一个字符串，该字符串是二叉树先根遍历比如输入1(2,3)，输出该二叉树的中根遍历序列<br>输入的先根遍历序列，比如1(2,3)，它对应节点的结构为：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908114105153.png" alt="节点"><br>也就是括号里面代表子节点，括号外面是父节点<br>再来举个例子，例如输入：1(2(4,),3(,5))，对应的树结构为：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908114354580.png" alt="节点2"><br>如果输入：1 ，那么对应的只有1这个节点，没有子节点</p>
+<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>刚开始看到括号，脑子里立马想到的是使用栈，但比划了许久后发现使用栈行不通，所以改变了一下策略<br>这道题的关键，只要能通过输入的字符串构造二叉树就好办了。先来看下1(2,3）这个字符串怎么构造节点，其实很简单嘛，括号外面就是父节点，逗号左边就是左子节点，右边就是右子节点<br>单个括号很容易解决，那多个括号镶嵌怎么解决？我们就一个一个解决，用分治思想，因为我们解决单个括号后，还要回退回去，跟父节点匹配，所以 <strong>分治法</strong> 就是这道题的关键<br>对于输入：1(2(3,4(,5)),6(7,)) 我画个图分析下：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908020247432.png" alt="分治"><br>构建出来的二叉树为：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908020339403.png" alt="二叉树"><br>整个解题过程大概就是这样，但还有一个关键问题没解决：怎么截取字符串？也就是怎么从1(2(3,4(,5)),6(7,))截取出2(3,4(,5))和6(7,)<br>我们可以写个函数，该函数可以找到括号中分割的逗号下标，这样就可以把字符串划分为左右子串两部分，代表两个节点<br>我的思路是这样的：<br>1、先判断该字符串是否有左节点<br>2、如果没有左节点，例如1(,3(4,5))，那么返回的下标就为2<br>3、如果有左节点，还要在分下情况<br>    3.1、如果左节点没有子节点，返回3，例如1(2,3(4,5))<br>    3.2、如果左节点有子节点，那么就循环一直找。例如1(2(3,4(,5)),6(7,)) 从’3’开始，定义一个sum=1（代表有一个左括号还没匹配），每遇到一个左括号sum++，遇到右括号sum–，直到sum==0终止条件，返回当前下标加一，idx+1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">/** 找到分割的逗号下标 **/</span><br><span class="line">    public static int findMidComma(String input) &#123;</span><br><span class="line">        // 查看有没有左节点</span><br><span class="line">        // 如果有左节点而且左节点还有子节点</span><br><span class="line">        if (input.charAt(2)!=&apos;,&apos; &amp;&amp; input.charAt(3) == &apos;(&apos;)&#123;</span><br><span class="line">            int sum = 1;</span><br><span class="line">            char[] chars = input.toCharArray();</span><br><span class="line">            int idx = -1;</span><br><span class="line">            for (int i = 4; i &lt; chars.length &amp;&amp; sum!=0; i++) &#123;</span><br><span class="line">                if (chars[i] == &apos;)&apos;)&#123;</span><br><span class="line">                    sum--;</span><br><span class="line">                &#125;</span><br><span class="line">                if (chars[i] == &apos;(&apos;)&#123;</span><br><span class="line">                    sum++;</span><br><span class="line">                &#125;</span><br><span class="line">                idx = i;</span><br><span class="line">            &#125;</span><br><span class="line">            return idx+1;</span><br><span class="line">        &#125;</span><br><span class="line">        // 有左节点但没有左节点的子节点</span><br><span class="line">        else if (input.charAt(2)!=&apos;,&apos; &amp;&amp; input.charAt(3) == &apos;,&apos;)&#123;</span><br><span class="line">            return 3;</span><br><span class="line">        &#125;</span><br><span class="line">        // 如果没有左节点</span><br><span class="line">        return 2;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>画个图就知道了：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908020417216.png" alt="流程1"><br><img src="/2019/09/08/每日一题——该死的二叉树/20190908020526633.png" alt="流程2"><br>可能有人会担心越界问题，但我们只要严格控制调用这个函数时，字符串长度一定到大于6即可<br>好了，只要分割到字符串的个数小于等于6，就能使用开头我们讲的单个括号生成节点的方案，然后递归回溯回去就能构成一棵二叉树<br>但题目要求是求中根遍历，二叉树我们构建出来了，那么中根遍历就很容易了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">static StringBuilder builder = new StringBuilder();</span><br><span class="line">private static void midOrder(TreeNode root) &#123;</span><br><span class="line">        if (root == null)&#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        midOrder(root.left);</span><br><span class="line">        builder.append(root.val);</span><br><span class="line">        midOrder(root.right);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们声明一个全局变量，记录遍历的节点值，使用递归的方法就可完成该题目<br>完整代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line">package bishi.xiaomi;</span><br><span class="line"></span><br><span class="line">import java.util.*;</span><br><span class="line"></span><br><span class="line">public class Main2 &#123;</span><br><span class="line"></span><br><span class="line">    static StringBuilder builder = new StringBuilder();</span><br><span class="line"></span><br><span class="line">    /*请完成下面这个函数，实现题目要求的功能</span><br><span class="line">    当然，你也可以不按照下面这个模板来作答，完全按照自己的想法来 ^-^</span><br><span class="line">    ******************************开始写代码******************************/</span><br><span class="line">    static String solution(String input) &#123;</span><br><span class="line">        // 将字符串解析成二叉树</span><br><span class="line">        TreeNode root = resolveStringToTree(input);</span><br><span class="line">        // 中跟遍历</span><br><span class="line">        midOrder(root);</span><br><span class="line">        return builder.toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static void midOrder(TreeNode root) &#123;</span><br><span class="line">        if (root == null)&#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        midOrder(root.left);</span><br><span class="line">        builder.append(root.val);</span><br><span class="line">        midOrder(root.right);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static TreeNode resolveStringToTree(String input) &#123;</span><br><span class="line">        if (&quot;&quot;.equals(input))&#123;</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line">        TreeNode root = new TreeNode(input.charAt(0) - &apos;0&apos;);</span><br><span class="line">        // 终止条件，当字符串长度最长为6时，例如：1(2,3)</span><br><span class="line">        if (input.length()&lt;=6)&#123;</span><br><span class="line">            // 没有子节点</span><br><span class="line">            if (input.length() == 1)&#123;</span><br><span class="line">                return root;</span><br><span class="line">            &#125;</span><br><span class="line">            // 有左节点 3(4,)</span><br><span class="line">            else if (input.charAt(2) != &apos;,&apos;)&#123;</span><br><span class="line">                root.left = new TreeNode(input.charAt(2)-&apos;0&apos;);</span><br><span class="line">            &#125;</span><br><span class="line">            // 有右节点 3(,4)</span><br><span class="line">            else &#123;</span><br><span class="line">                root.right = new TreeNode(input.charAt(3) - &apos;0&apos;);</span><br><span class="line">            &#125;</span><br><span class="line">            return root;</span><br><span class="line">        &#125;</span><br><span class="line">        // 还可以继续划分</span><br><span class="line">        int idx = findMidComma(input);</span><br><span class="line">        root.left = resolveStringToTree(input.substring(2,idx));</span><br><span class="line">        root.right = resolveStringToTree(input.substring(idx+1, input.length()-1));</span><br><span class="line">        return root;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /** 找到分割的逗号下标 **/</span><br><span class="line">    public static int findMidComma(String input) &#123;</span><br><span class="line">        // 查看有没有左节点</span><br><span class="line">        // 如果有左节点而且左节点还有子节点</span><br><span class="line">        if (input.charAt(2)!=&apos;,&apos; &amp;&amp; input.charAt(3) == &apos;(&apos;)&#123;</span><br><span class="line">            int sum = 1;</span><br><span class="line">            char[] chars = input.toCharArray();</span><br><span class="line">            int idx = -1;</span><br><span class="line">            for (int i = 4; i &lt; chars.length &amp;&amp; sum!=0; i++) &#123;</span><br><span class="line">                if (chars[i] == &apos;)&apos;)&#123;</span><br><span class="line">                    sum--;</span><br><span class="line">                &#125;</span><br><span class="line">                if (chars[i] == &apos;(&apos;)&#123;</span><br><span class="line">                    sum++;</span><br><span class="line">                &#125;</span><br><span class="line">                idx = i;</span><br><span class="line">            &#125;</span><br><span class="line">            return idx+1;</span><br><span class="line">        &#125;</span><br><span class="line">        // 有左节点但没有左节点的子节点</span><br><span class="line">        else if (input.charAt(2)!=&apos;,&apos; &amp;&amp; input.charAt(3) == &apos;,&apos;)&#123;</span><br><span class="line">            return 3;</span><br><span class="line">        &#125;</span><br><span class="line">        // 如果没有左节点</span><br><span class="line">        return 2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /******************************结束写代码******************************/</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public static void main(String[] args)&#123;</span><br><span class="line">        Scanner in = new Scanner(System.in);</span><br><span class="line">        String res;</span><br><span class="line"></span><br><span class="line">        String _input;</span><br><span class="line">        try &#123;</span><br><span class="line">            _input = in.nextLine();</span><br><span class="line">        &#125; catch (Exception e) &#123;</span><br><span class="line">            _input = null;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        res = solution(_input);</span><br><span class="line">        System.out.println(res);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    static class TreeNode&#123;</span><br><span class="line">        int val;</span><br><span class="line">        TreeNode left;</span><br><span class="line">        TreeNode right;</span><br><span class="line">        public TreeNode(int val)&#123;</span><br><span class="line">            this.val = val;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 测试用例：</span><br><span class="line">//1(2(3,4(,5)),6(7,)) 324176</span><br><span class="line"></span><br><span class="line">//1(2(3(4,),),)  4321</span><br><span class="line"></span><br><span class="line">//1(,2(,3(,4)))  1234</span><br></pre></td></tr></table></figure>
+<h1 id="题目二：递增树"><a href="#题目二：递增树" class="headerlink" title="题目二：递增树"></a>题目二：递增树</h1><p>这道题是网易娱乐的笔试题，题目是这样的，输入整数n，代表n个节点，然后接下来的n行，每行代表第k个节点（k从0开始），每行输入3个数，第一个数代表节点的值，第二个值代表左子节点的序号，第三个值代表右子节点的序号，如果没有子节点就输入-1，这样输入的就是一棵二叉树。判断这颗二叉树是不是递增树，递增树：树的每一层值的和比下一层值的和小<br>是不是看到题目描述看不懂，没关系，我也就看了十几分钟才看得懂他到底想说什么。<br>比如输入：n=3，接下来输入3行<br>1 1 2<br>2 -1 -1<br>3 -1 -1<br>一行代表一个节点，第一个数代表该节点的值，第二个数为左子树的序号，也就是1代表下面一行的值为2的节点，第三个数代表右子树的序号，也就是2代表白值为3的节点，画图如下<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908022255871.png" alt="2.1"><br>关键是理解每行输入的后面两个数，对应输入的行数的第n+1行</p>
+<h2 id="方案-1"><a href="#方案-1" class="headerlink" title="方案"></a>方案</h2><p>要判断这棵树是不是递增树，我们也要首先把输入的节点构造成一个二叉树<br>我们先声明树节点的Class类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">static class TreeNode&#123;</span><br><span class="line">        int val;</span><br><span class="line">        TreeNode left; //左节点</span><br><span class="line">        TreeNode right; // 右节点</span><br><span class="line">        int leftIdx;   // 左节点下标</span><br><span class="line">        int rightIdx;  // 右节点下标</span><br><span class="line">        int maxDepth;  // 该节点的最深度</span><br><span class="line">        public TreeNode(int val)&#123;</span><br><span class="line">            this.val = val;</span><br><span class="line">        &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>前三个属性很好理解，后面三个是为了后续操作加上的。<br>因为我想先用TreeNode[] 数组存放输入的各个节点，所以leftIdx和rightIdx分别对应在数组中的下标。<br>然后遍历一遍数组，让数组中的各个节点左右指针连接起来<br>如图：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908030304451.png" alt="2.2"><br>经过步骤1后形成了数组TreeNode[]，已经可以构成一棵二叉树了，但是我们不知道哪个是根节点，所以TreeNode的属性maxDepth派上用场了。<br>我们写个函数maxDepth(TreeNode node)，计算数组中每个节点的最大深度，然后从数组中找出最大的maxDepth，该节点就是根节点了<br>求每个节点的最深度这个函数也不难写</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/** 求每个节点的深度 **/</span><br><span class="line">    private static int maxDepth(TreeNode treeNode) &#123;</span><br><span class="line">        if (treeNode == null)&#123;</span><br><span class="line">            return 0;</span><br><span class="line">        &#125;</span><br><span class="line">        int left = maxDepth(treeNode.left);</span><br><span class="line">        int right = maxDepth(treeNode.right);</span><br><span class="line">        return Math.max(left, right)+1;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>只要得到根节点，二叉树就算构建完成了，回到题目，判断树是否为递增树，我的思路是：我们维护一个maxDepth大小的int[]数组res，每个值代表该层的总和值。我们如果能将这个res计算处理，遍历一遍就知道是不是递增树了<br>这个函数也不难写，我们可以通过深度搜索DFS，函数接受三个值——节点，res数组，当前层数i。dfs(TreeNode root,int[] res, int i)， 递归搜索知道叶节点即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/** 深度搜索，计算每一层的和 **/</span><br><span class="line">    private static void dfs(TreeNode root, int[] res, int i) &#123;</span><br><span class="line">        if (root == null)&#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        res[i] += root.val;</span><br><span class="line">        // left</span><br><span class="line">        dfs(root.left, res,i+1);</span><br><span class="line">        // right</span><br><span class="line">        dfs(root.right, res,i+1);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>完整代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line">package bishi.wangyiyouxi;</span><br><span class="line"></span><br><span class="line">import java.util.Scanner;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 测试用例</span><br><span class="line"> * n=8</span><br><span class="line"> * 2 -1 -1</span><br><span class="line"> * 1 5 3</span><br><span class="line"> * 4 -1 6</span><br><span class="line"> * 2 -1 -1</span><br><span class="line"> * 3 0 2</span><br><span class="line"> * 2 4 7</span><br><span class="line"> * 7 -1 -1</span><br><span class="line"> * 2 -1 -1</span><br><span class="line"> * @author SouthLight-Lin on 2019/9/7</span><br><span class="line"> */</span><br><span class="line">public class Main2 &#123;</span><br><span class="line">    static class TreeNode&#123;</span><br><span class="line">        int val;</span><br><span class="line">        TreeNode left; //左节点</span><br><span class="line">        TreeNode right; // 右节点</span><br><span class="line">        int leftIdx;   // 左节点下标</span><br><span class="line">        int rightIdx;  // 右节点下标</span><br><span class="line">        int maxDepth;  // 该节点的最深度</span><br><span class="line">        public TreeNode(int val)&#123;</span><br><span class="line">            this.val = val;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        Scanner  in = new Scanner(System.in);</span><br><span class="line">        int n = in.nextInt();</span><br><span class="line">        for (int i = 0; i &lt; n; i++) &#123;</span><br><span class="line">            int nodeSum = in.nextInt();</span><br><span class="line">            TreeNode[] treeNodes = new TreeNode[nodeSum];</span><br><span class="line">            for (int j = 0; j &lt; nodeSum; j++) &#123;</span><br><span class="line">                treeNodes[j] = new TreeNode(in.nextInt());</span><br><span class="line">                treeNodes[j].leftIdx = in.nextInt();</span><br><span class="line">                treeNodes[j].rightIdx = in.nextInt();</span><br><span class="line">            &#125;</span><br><span class="line">            TreeNode root = buildBinaryTree(treeNodes);</span><br><span class="line">            boolean flag = judge(root);</span><br><span class="line">            if (flag)&#123;</span><br><span class="line">                System.out.println(&quot;YES&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            else &#123;</span><br><span class="line">                System.out.println(&quot;NO&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    /** 判断 **/</span><br><span class="line">    private static boolean judge(TreeNode root) &#123;</span><br><span class="line">        int[] res = new int[root.maxDepth];</span><br><span class="line">        dfs(root, res, 0);</span><br><span class="line">        for (int i = 0; i &lt; root.maxDepth-1; i++) &#123;</span><br><span class="line">            if (res[i] &gt; res[i+1])&#123;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    /** 深度搜索，计算每一层的和 **/</span><br><span class="line">    private static void dfs(TreeNode root, int[] res, int i) &#123;</span><br><span class="line">        if (root == null)&#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        res[i] += root.val;</span><br><span class="line">        // left</span><br><span class="line">        dfs(root.left, res,i+1);</span><br><span class="line">        // right</span><br><span class="line">        dfs(root.right, res,i+1);</span><br><span class="line">    &#125;</span><br><span class="line">    /** 构造二叉树 **/</span><br><span class="line">    private static TreeNode buildBinaryTree(TreeNode[] treeNodes) &#123;</span><br><span class="line">        // 先遍历一遍，让数组中的各个节点的指针连接起来</span><br><span class="line">        for (TreeNode treeNode : treeNodes) &#123;</span><br><span class="line">            if (treeNode.leftIdx != -1)&#123;</span><br><span class="line">                treeNode.left = treeNodes[treeNode.leftIdx];</span><br><span class="line">            &#125;</span><br><span class="line">            if (treeNode.rightIdx != -1)&#123;</span><br><span class="line">                treeNode.right = treeNodes[treeNode.rightIdx];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 计算每个节点的最深度</span><br><span class="line">        for (TreeNode treeNode : treeNodes) &#123;</span><br><span class="line">            treeNode.maxDepth = maxDepth(treeNode);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        TreeNode root = treeNodes[0];</span><br><span class="line"></span><br><span class="line">        for (int i = 1; i &lt; treeNodes.length; i++) &#123;</span><br><span class="line">            if (root.maxDepth &lt; treeNodes[i].maxDepth)&#123;</span><br><span class="line">                root = treeNodes[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return root;</span><br><span class="line">    &#125;</span><br><span class="line">    /** 求每个节点的深度 **/</span><br><span class="line">    private static int maxDepth(TreeNode treeNode) &#123;</span><br><span class="line">        if (treeNode == null)&#123;</span><br><span class="line">            return 0;</span><br><span class="line">        &#125;</span><br><span class="line">        int left = maxDepth(treeNode.left);</span><br><span class="line">        int right = maxDepth(treeNode.right);</span><br><span class="line">        return Math.max(left, right)+1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这两道算法题都是很有代表性的，一方面考察我们构造二叉树的能力，第二方面考察我们对递归和分治法运用。说实话大厂的笔试是真的难，前几次笔试的题没有一道能跑通过，笔试完就挂了，连面试的机会都没有，我不服气，我就不信没一道能跑通过！终于，昨晚的笔试，四道算法题终于跑过了三道，算是一种鼓励吧。算法这种东西，还是得多学多练才能掌握~~~</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag"># 算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/07/每日一题——中根遍历/" rel="next" title="每日一题——中根遍历">
+                <i class="fa fa-chevron-left"></i> 每日一题——中根遍历
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">SouthLight Lin</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#题目一：中根遍历二叉树"><span class="nav-number">1.</span> <span class="nav-text">题目一：中根遍历二叉树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方案"><span class="nav-number">1.1.</span> <span class="nav-text">方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#题目二：递增树"><span class="nav-number">2.</span> <span class="nav-text">题目二：递增树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方案-1"><span class="nav-number">2.1.</span> <span class="nav-text">方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SouthLight Lin</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

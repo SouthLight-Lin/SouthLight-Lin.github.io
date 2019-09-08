@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/03/Autowired跟-Resource的关系和区别/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/07/Redis之持久化/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/02/03/Autowired跟-Resource的关系和区别/" itemprop="url">@Autowired跟@Resource的关系和区别</a></h1>
+                <a class="post-title-link" href="/2019/02/07/Redis之持久化/" itemprop="url">Redis之持久化</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-03T21:36:16+08:00">
-                2019-02-03
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-07T16:47:06+08:00">
+                2019-02-07
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spring/" itemprop="url" rel="index">
-                    <span itemprop="name">Spring</span>
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
                   </a>
                 </span>
 
@@ -352,18 +352,22 @@
       
         
           
-            <p>Spring自动装配中，我们可能会使用到两个注解@Autowired跟@Resource<br>这两个注解都可以帮我们完成Bean之间的自动装配，那它们之间有什么不一样呢？</p>
-<h1 id="Autowired"><a href="#Autowired" class="headerlink" title="@Autowired"></a>@Autowired</h1><ul>
-<li>是Spring自己家的产品（亲儿子），需要引入Spring的包才能使用</li>
-<li>默认是按照类型byType来自动装配的</li>
-<li>如果要通过name来装配（byName），需要配合另一个注解@Qualifier使用<br>如图所示：<br><img src="/2019/02/03/Autowired跟-Resource的关系和区别/20190203110600737.png" alt=""><br>@Autowired源码<br><img src="/2019/02/03/Autowired跟-Resource的关系和区别/20190203110632646.png" alt=""><br>@Qualifier源码<br><img src="/2019/02/03/Autowired跟-Resource的关系和区别/20190203110659408.png" alt=""></li>
+            <h1 id="为什么需要持久化"><a href="#为什么需要持久化" class="headerlink" title="为什么需要持久化"></a>为什么需要持久化</h1><p>Redis的所有数据是存储在内存里面的，Redis的持久化，为了防止机器忽然的宕机、断电使Redis内存中的数据来不及存储在硬盘而导致数据的丢失</p>
+<h1 id="哪些持久化方法"><a href="#哪些持久化方法" class="headerlink" title="哪些持久化方法"></a>哪些持久化方法</h1><p>Redis有两种持久化机制<br><strong> 快照 </strong><br><strong> AOF </strong></p>
+<h1 id="快照-snopashotting"><a href="#快照-snopashotting" class="headerlink" title="快照 snopashotting"></a>快照 snopashotting</h1><p>跟名字一样，就是将内存中的数据全部备份到硬盘的一个文件中，我们可以在redis.conf文件中设置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">save 60 1000  # 当60秒内写入1000个请求时，触发BGSAVE</span><br><span class="line">stop-write-on-bgsave-error  no   # 当创建快照文件失败后是否继续执行写命令</span><br><span class="line">rdbcomparession yes      # 是否对快照文件进行压缩</span><br><span class="line">dbfilename dump.rdb     # 备份数据的文件</span><br><span class="line">dir ./                          # 存储的路径</span><br></pre></td></tr></table></figure></p>
+<h2 id="创建快照的方法"><a href="#创建快照的方法" class="headerlink" title="创建快照的方法"></a>创建快照的方法</h2><p>1、 客户端发送BGSAVE命令来创建一个快照，Redis会调用fork创建一个子进程，子进程负责快照备份并写入硬盘，父进程继续处理客户端的请求<br>2、客户端发送SAVE指令，这时Redis只会进行快照的备份，在快照完成之前，不会再响应任何其他命令<br>3、如果用户在redis.conf中设置了SAVE配置（也就是上面那段代码），比如save 60 1000  从Redis最近一次创建快照之后算起，当60秒内有1000次写入，就会自动触发BGSAVE命令。当设置了多个SAVE配置，只要有一个满足就会执行BGSAVE<br>4、当Redis通过SHUTDOWN命令接收到关闭服务器或者接受到标准的TEMP信号时，会执行一个SAVE命令<br>5、当Redis服务器连接另一个Redis服务器，并向对方发送SYNC命令来开始一个复制操作时，如果主服务器没有执行BGSAVE操作，就会自己执行BGSAVE操作</p>
+<p>注意：快照会丢失数据的，因为在创建快照的时候，如果有指令写入，此时数据是不会被备份的，因为Redis是使用系统的COW（Copy On Write）</p>
+<h2 id="Fork"><a href="#Fork" class="headerlink" title="Fork"></a>Fork</h2><p>上面说当Redis执行BGSAVE命令时，会调用系统glibc的函数fork产生一个子进程，来完成快照的创建，而父进程继续处理请求<br>当子进程创建出来的时候，它不会修改内存中的数据结构，只会对数据进行遍历读取然后序列化到硬盘，如果此时父进程有请求指令处理时，Redis就会调用系统的COW（Copy on Write ）机制来进行数据段页面的分离。页面是内存中存储的一种形式，当一个页面中的数据在父进程中被修改时，父进程就会把该页面复制出来，然后在该页面里面操作数据，此时子进程快照备份的是没有被修改的页面，所以父进程在创建快照期间的所有操作是不会被备份的</p>
+<h1 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h1><p>AOF（append-only file）只追加文件，它存储的是命令不是数据，也就是说，Redis会将成功执行的命令写入到一个文件中，然后把该文件的命令从头到尾在另一台Redis服务器运行一遍，就能恢复原来的数据<br>AOF配置可以通过设置redis.conf来配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">appendonly  no                       # 是否开启AOF持久化</span><br><span class="line">appendfysnc  everysec              # 多久将写入内容同步到硬盘</span><br><span class="line">no-appendsync-on-rewrite  no    # 在对AOF进行同步的时候是否执行同步操作</span><br><span class="line">appendfilename &quot;appendonly.aof&quot;  # 存储AOF的文件</span><br><span class="line"># 下面两条命令可以配置自动执行AOF重写</span><br><span class="line">auto-aof-rewrite-percentage 100  # AOF的体积比上一次文件重写之后的体积大了一倍（100%）</span><br><span class="line">auto-aof-rewrite-min-size 64mb  #  AOF文件的体积大于64MB</span><br></pre></td></tr></table></figure></p>
+<p>上面第三条配置，是配置是否开启文件同步，文件同步是强制Redis将缓存区里的数据（AOF数据会先写入缓存）马上写入硬盘，此时会阻塞客户端的请求</p>
+<h2 id="appendfsync同步频率"><a href="#appendfsync同步频率" class="headerlink" title="appendfsync同步频率"></a>appendfsync同步频率</h2><p>上面配置的第二句，设置了多久将缓存中的文件写入到硬盘。AOF是先写入硬盘的缓存的，然后才从缓存写入硬盘，所以如果发生宕机，会发生AOF数据丢失的风险，所以设置同步频率很重要，设置同步频率是调用Linux的glibc的fsync(int id)函数，只要Redis调用了该函数就能保证aof日志不丢失，因为会强制系统写入，还发生阻塞了其他请求<br>三种同步频率：</p>
+<ul>
+<li>always：每个Redis写命令都要同步到硬盘，这严重降低了Redis的速度，不建议</li>
+<li>everysec：每秒执行一次同步，将一秒内的请求命令写入硬盘，推荐使用，就算是发送故障，丢失的数据也能控制在1秒内</li>
+<li>no：让系统自己决定何时进行同步</li>
 </ul>
-<h1 id="Resource"><a href="#Resource" class="headerlink" title="@Resource"></a>@Resource</h1><ul>
-<li>这是JDK中自带的注解，但是Spring也是支持这个注解</li>
-<li>@Resource默认是byName，也就是通过名称来装配Bean</li>
-<li>如果要通过类型来装配，需要声明byType指定类型</li>
-</ul>
-<p>如图<br><img src="/2019/02/03/Autowired跟-Resource的关系和区别/20190203110958397.png" alt=""></p>
+<h2 id="重写AOF（AOF瘦身）"><a href="#重写AOF（AOF瘦身）" class="headerlink" title="重写AOF（AOF瘦身）"></a>重写AOF（AOF瘦身）</h2><p>随着系统的运行，AOF日志文件的体积会不断增大，这时可以通过重写AOF来减小AOF的体积。<br>用户可以发送BGREWRITEAOF命令，该命令会移除AOF文件中冗余的命令来重写（rewrite）AOF，BGREWRITEAOF跟BGSAVE很相似，也是开启一个子进程后台运行<br>除了手动开启BGREWRITEAOF，还可以通过配置redis.conf来开启，也就是上面最后两条配置<br>auto-aof-rewrite-percentage 100 #AOF的体积比上一次文件重写之后的体积大了一倍（100%）<br>auto-aof-rewrite-min-size 64mb # AOF文件的体积大于64MB<br>当上面这两个条件满足时，就会开启BGREWRITEAOF</p>
+<h1 id="快照跟AOF的比较"><a href="#快照跟AOF的比较" class="headerlink" title="快照跟AOF的比较"></a>快照跟AOF的比较</h1><p>AOF恢复数据的速度远不如快照，当时快照会发生数据丢失，两者各有各的优点<br>在Redis4.0后，引入了混合持久化，也就是快照跟AOF并存，当需要Redis持久化时，先进行快照备份，在快照备份期间，所有的写命令都将写入AOF<br>当需要重启或者恢复数据时，先进行快照恢复，等快照恢复进行完了就进行AOF恢复，完美解决！</p>
 
           
         
@@ -412,7 +416,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/31/SpringMVC之三个Servlet/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/03/HTTP的GET跟POST的区别/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -431,7 +435,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/01/31/SpringMVC之三个Servlet/" itemprop="url">SpringMVC之三个Servlet</a></h1>
+                <a class="post-title-link" href="/2019/02/03/HTTP的GET跟POST的区别/" itemprop="url">HTTP的GET跟POST的区别</a></h1>
         
 
         <div class="post-meta">
@@ -443,8 +447,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-31T22:51:53+08:00">
-                2019-01-31
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-03T23:12:26+08:00">
+                2019-02-03
               </time>
             
 
@@ -466,8 +470,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spring/" itemprop="url" rel="index">
-                    <span itemprop="name">Spring</span>
+                  <a href="/categories/http/" itemprop="url" rel="index">
+                    <span itemprop="name">http</span>
                   </a>
                 </span>
 
@@ -505,14 +509,16 @@
       
         
           
-            <h1 id="一、HttpServletBean"><a href="#一、HttpServletBean" class="headerlink" title="一、HttpServletBean"></a>一、HttpServletBean</h1><p>参与创建工作，没有涉及请求的处理</p>
-<h1 id="二、FrameworkServlet"><a href="#二、FrameworkServlet" class="headerlink" title="二、FrameworkServlet"></a>二、FrameworkServlet</h1><p>当第一个请求过来时，就初始化容器</p>
-<p><img src="/2019/01/31/SpringMVC之三个Servlet/init.png" alt=""><br>如上图，当<strong>第一个请求</strong>过来时，FrameworkServlet就初始化容器，并将Spring的容器进行刷新，而DispatcherServlet的onRefresh刷新只是初始化九大组件。以后的请求就都不需要初始化容器。<br>初始化完容器以后，因为FrameworkServlet重写了Servlet的service，doGet，doPost等方法，所以会先走到Framework的doGet或者doPost等请求方法。<br>FrameworkServlet的设计很有趣，它将所有的请求get,post,delete等请求全部嫁接到<br><strong>processRequest(request,response)</strong><br><img src="/2019/01/31/SpringMVC之三个Servlet/processRequest.png" alt=""></p>
-<p>在 <strong>doService(request,response)</strong> 方法中又调用了 <strong>doService(request,response)</strong> 方法，该方法是在DispatcherServlet中具体实现<br>所以说FrameworkServlet主要有两个作用：<br>1.创建并初始化Spring容器<br>2.请求的入口</p>
-<h1 id="三、DispatcherServlet"><a href="#三、DispatcherServlet" class="headerlink" title="三、DispatcherServlet"></a>三、DispatcherServlet</h1><p>第一个作用是初始化九大组件，就是在上面的FrameworkServlet执行完初始化容器后，就调用 <strong>onRefresh</strong> ，方法里面只调用了 <strong>initStrategies(context)</strong> 方法，initStrategies方法才是重点，如下图<br><img src="/2019/01/31/SpringMVC之三个Servlet/nine_components.png" alt=""></p>
-<p>每个组件在处理请求时都有可能会用到<br>第二个作用就是处理请求<br>请求的入口是doService ，我们看下请求过来的调用链<br><img src="/2019/01/31/SpringMVC之三个Servlet/20190131105943159.png" alt=""><br>doService对request设置了一些属性<br><img src="/2019/01/31/SpringMVC之三个Servlet/doService.png" alt=""></p>
-<p>接着调用doDispatch，doDispatch是DispatcherServlet的核心<br>我们看代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doDispatch</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* doDispatch中最重要的代码总共有四句（见下面的标签数字）</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* Handler、HandlerMapping、HandlerAdapter三者的关系：</span></span><br><span class="line"><span class="comment">* Handler：就是我们的控制器Controller中加了<span class="doctag">@XXXMapping</span>的方法</span></span><br><span class="line"><span class="comment">* HandlerMapping： 用来快速查找Handler</span></span><br><span class="line"><span class="comment">* HandlerAdapter：调用Handler来干活，而且不同Handler需要不同的Adapter</span></span><br><span class="line"><span class="comment">* 这就好比HandlerAdapter是工人，Handler是工具，HandlerMapping是根据加工的需求来选择用</span></span><br><span class="line"><span class="comment">* 什么设备</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 封装Request，如果不是上传请求则直接使用接收到的request</span></span><br><span class="line"><span class="comment">* 如果是上传请求，重新封装成MultipartHttpServletRequest</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">HttpServletRequest processedRequest = request;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 处理请求的处理器链</span></span><br><span class="line"><span class="comment">* 包含有处理器Handler和对应的拦截器Interceptor</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">HandlerExecutionChain mappedHandler = <span class="keyword">null</span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 是否为上传请求的标记</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">boolean</span> multipartRequestParsed = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 从request中获取异步请求</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* View 跟 ViewResolver</span></span><br><span class="line"><span class="comment">* View 是用来展示数据的</span></span><br><span class="line"><span class="comment">* 而ViewResolver是用来查找View的</span></span><br><span class="line"><span class="comment">* 做完请求工作后，需要返回结果，而返回结果就需要模板，</span></span><br><span class="line"><span class="comment">* View就是所需要的模板，ViewResolver就是来选择哪个模板</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* **/</span></span><br><span class="line">ModelAndView mv = <span class="keyword">null</span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 异常声明</span></span><br><span class="line"><span class="comment">* doDispatch()中对异常又两种处理方法：</span></span><br><span class="line"><span class="comment">* 一、如果是处理请求中出现的异常，会捕获并在processDispatchResult中渲染到最后的视图中</span></span><br><span class="line"><span class="comment">* 二、如果是渲染中出现异常，则直接抛出</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">Exception dispatchException = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line"><span class="comment">// 检查是不是上传请求</span></span><br><span class="line">processedRequest = checkMultipart(request);</span><br><span class="line">multipartRequestParsed = (processedRequest != request);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 第一句</span></span><br><span class="line"><span class="comment">* 使用HandlerMapping找到可以干活的Handler</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* **/</span></span><br><span class="line"><span class="comment">// Determine handler for the current request.</span></span><br><span class="line">mappedHandler = getHandler(processedRequest);</span><br><span class="line"><span class="keyword">if</span> (mappedHandler == <span class="keyword">null</span>) &#123;</span><br><span class="line"><span class="comment">// 找不到Handler返回404</span></span><br><span class="line">noHandlerFound(processedRequest, response);</span><br><span class="line"><span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 第二句</span></span><br><span class="line"><span class="comment">* 找到合适的HandlerAdapter去让他干活</span></span><br><span class="line"><span class="comment">* **/</span></span><br><span class="line"><span class="comment">// Determine handler adapter for the current request.</span></span><br><span class="line">HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line"><span class="comment">// 处理GET、HEAD请求的last-modified</span></span><br><span class="line"><span class="comment">// Process last-modified header, if supported by the handler.</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Last-Modified是HTTP头部的一种属性，表示当前请求的资源跟上一次请求的资源是否相同</span></span><br><span class="line"><span class="comment">* 如果相同，返回304并且没有新的实体（body)返回</span></span><br><span class="line"><span class="comment">* 否则返回新的实体内容</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* 在浏览器第一次请求某一个URL时，服务器端的返回状态会是200，内容是客户端请求的资源，</span></span><br><span class="line"><span class="comment">* 同时有一个Last-Modified的属性标记此文件在服务器端最后被修改的时间。</span></span><br><span class="line"><span class="comment">* 客户端第二次请求此URL时，根据HTTP协议的规定，浏览器会向服务器传送If-Modified-Since报头，询问该时间之后文件是否有被修改过</span></span><br><span class="line"><span class="comment">* 如果服务器端的资源没有变化，则自动返回 HTTP 304（Not Changed.）状态码，内容为空，这样就节省了传输数据量。</span></span><br><span class="line"><span class="comment">* 当服务器端代码发生改变或者重启服务器时，则重新发出资源，</span></span><br><span class="line"><span class="comment">* 返回和第一次请求时类似。从而保证不向客户端重复发出资源，也保证当服务器有变化时，客户端能够得到最新的资源。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">String method = request.getMethod();</span><br><span class="line"><span class="keyword">boolean</span> isGet = <span class="string">"GET"</span>.equals(method);</span><br><span class="line"><span class="keyword">if</span> (isGet || <span class="string">"HEAD"</span>.equals(method)) &#123;</span><br><span class="line"><span class="keyword">long</span> lastModified = ha.getLastModified(request, mappedHandler.getHandler());</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">new</span> ServletWebRequest(request, response).checkNotModified(lastModified) &amp;&amp; isGet) &#123;</span><br><span class="line"><span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 如果有拦截器，就饿执行我们的拦截器，preHandle前置处理**/</span></span><br><span class="line"><span class="keyword">if</span> (!mappedHandler.applyPreHandle(processedRequest, response)) &#123;</span><br><span class="line"><span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 第三句</span></span><br><span class="line"><span class="comment">* 让HandlerAdapter开始干活，干完活后返回数据</span></span><br><span class="line"><span class="comment">* **/</span></span><br><span class="line"><span class="comment">// Actually invoke the handler.</span></span><br><span class="line">mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果需要异步处理，则直接返回</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 因为异步处理会重新开启一个线程去执行结果的返回</span></span><br><span class="line"><span class="comment">* 不会占用目前这个线程，所以可以直接返回</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">if</span> (asyncManager.isConcurrentHandlingStarted()) &#123;</span><br><span class="line"><span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当view为空时（比如，handler返回类型为void），根据request设置默认view</span></span><br><span class="line">applyDefaultViewName(processedRequest, mv);</span><br><span class="line"><span class="comment">/** 执行了拦截器的后置处理 postHandle**/</span></span><br><span class="line">mappedHandler.applyPostHandle(processedRequest, response, mv);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">dispatchException = ex;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (Throwable err) &#123;</span><br><span class="line"><span class="comment">// As of 4.3, we're processing Errors thrown from handler methods as well,</span></span><br><span class="line"><span class="comment">// making them available for @ExceptionHandler methods and other scenarios.</span></span><br><span class="line">dispatchException = <span class="keyword">new</span> NestedServletException(<span class="string">"Handler dispatch failed"</span>, err);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/** 第四句</span></span><br><span class="line"><span class="comment">* 将数据处理，通过View展示给用户</span></span><br><span class="line"><span class="comment">* 处理结果，包括处理异常，渲染页面，发出完成通知，触发拦截器的afterCompletion</span></span><br><span class="line"><span class="comment">* **/</span></span><br><span class="line">processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">triggerAfterCompletion(processedRequest, response, mappedHandler, ex);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (Throwable err) &#123;</span><br><span class="line">triggerAfterCompletion(processedRequest, response, mappedHandler,</span><br><span class="line"><span class="keyword">new</span> NestedServletException(<span class="string">"Handler processing failed"</span>, err));</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">finally</span> &#123;</span><br><span class="line"><span class="comment">// 判断是否为异步请求</span></span><br><span class="line"><span class="keyword">if</span> (asyncManager.isConcurrentHandlingStarted()) &#123;</span><br><span class="line"><span class="comment">// 执行异步的拦截器</span></span><br><span class="line"><span class="comment">// Instead of postHandle and afterCompletion</span></span><br><span class="line"><span class="keyword">if</span> (mappedHandler != <span class="keyword">null</span>) &#123;</span><br><span class="line">mappedHandler.applyAfterConcurrentHandlingStarted(processedRequest, response);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line"><span class="comment">// 删除上传请求的资源，不然会产生临时的资源</span></span><br><span class="line"><span class="comment">// Clean up any resources used by a multipart request.</span></span><br><span class="line"><span class="keyword">if</span> (multipartRequestParsed) &#123;</span><br><span class="line">cleanupMultipart(processedRequest);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>doDispatch方法主要有四个任务：1.用request找到Handler； 2.根据Handler找到HandlerAdapter； 3.用HandlerAdapter处理Handler 4.调用processDispatchResult方法处理结果（包括异常的处理和View视图的渲染）。除此之外还另外做了许多事情，比如判断是否为上传文件请求，是否带有Last-Modified头部，执行拦截器，是否为异步请求…processDispatchResult方法处理上面doDispatch返回的结果，包括处理异常、渲染页面、触发拦截器的后置处理，处理异常只是处理doDispatch()方法中的异常、渲染页面的异常就抛出。渲染页面的方法调用render</p>
+            <h1 id="基本区别"><a href="#基本区别" class="headerlink" title="基本区别"></a>基本区别</h1><ul>
+<li>GET 比 POST更不安全，因为参数直接暴露在URL上，所以不能用来传递敏感信息</li>
+<li>GET 参数通过URL传递，而POST则放在request body中（这就解释了上一条规则</li>
+<li>GET在浏览器回退时是无害的，而POST会再次提交请求</li>
+<li>GET请求会被浏览器主动缓存（cache），而POST不会，除非手动设置</li>
+<li>GET 请求只会进行URL编码，而POST支持多种编码方式</li>
+<li>GET请求在URL中有参数限制（一般是2K），而POST没有限制</li>
+</ul>
+<h1 id="更加深入一点："><a href="#更加深入一点：" class="headerlink" title="更加深入一点："></a>更加深入一点：</h1><p>HTTP底层是TCP/IP实现的，所以GET和POST底层都是用TCP/IP，所以理论上我们可以在GET带上request body，也可以让POST带上URL参数，只是这样做违反了HTTP的规定而已</p>
+<h2 id="还有一个重大的区别："><a href="#还有一个重大的区别：" class="headerlink" title="还有一个重大的区别："></a>还有一个重大的区别：</h2><p>GET会产生一个TCP数据包，而POST产生两个TCP数据包<br>GET请求会把header头部和data数据一起发送过去，服务器返回200<br>POST请求，浏览器会先发送header，服务器返回100 continue，浏览器再发送data，服务器返回200<br>即使是这样，发送一次包的时间和发送两次包的时间其实是差不多的，所以POST请求也不必GET请求差</p>
 
           
         
@@ -552,7 +558,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -598,7 +604,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-count">31</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -609,7 +615,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -620,7 +626,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

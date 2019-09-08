@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/31/Java基础之Error、Exception/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/03/equals跟-的区别/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/01/31/Java基础之Error、Exception/" itemprop="url">Java基础之Error、Exception</a></h1>
+                <a class="post-title-link" href="/2019/02/03/equals跟-的区别/" itemprop="url">equals跟==的区别</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-31T22:30:48+08:00">
-                2019-01-31
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-03T22:57:04+08:00">
+                2019-02-03
               </time>
             
 
@@ -352,27 +352,11 @@
       
         
           
-            <p>只要是程序，就会有错误跟异常，Java程序也不例外！<br>那什么是错误，什么是异常？Java异常又可分为哪两类？</p>
-<h1 id="Error"><a href="#Error" class="headerlink" title="Error"></a>Error</h1><h2 id="VirtualMachineError（虚拟机错误）"><a href="#VirtualMachineError（虚拟机错误）" class="headerlink" title="VirtualMachineError（虚拟机错误）"></a>VirtualMachineError（虚拟机错误）</h2><p>错误一般是程序在正常条件下，是系统内部的错误或者资源耗尽的错误！常见的错误主要有两种，内存溢出和栈溢出！</p>
-<ul>
-<li>OutOfMemoryError（内存溢出）：一般是虚拟机分配的内存不能容下程序所需的数据，或者new 出的对象太多太多了（主要是堆内存或者方法区内存的不足）</li>
-<li>StackOverFlowError（栈溢出）：常见的就是递归循环没有出口，导致虚拟机栈记录太多东西导致溢出</li>
-</ul>
-<h2 id="AWTError"><a href="#AWTError" class="headerlink" title="AWTError"></a>AWTError</h2><p>一般是调用AWT包下的类，使用操作系统的资源时出现的错误</p>
-<h1 id="Exception"><a href="#Exception" class="headerlink" title="Exception"></a>Exception</h1><h2 id="RuntimeExcept（运行时异常，非检查异常）"><a href="#RuntimeExcept（运行时异常，非检查异常）" class="headerlink" title="RuntimeExcept（运行时异常，非检查异常）"></a>RuntimeExcept（运行时异常，非检查异常）</h2><p>这种异常在我们的程序中是最常见的：</p>
-<ol>
-<li>NullPointException（空指针异常）</li>
-<li>IndexOutOfBoundsException （数组下表越界）</li>
-<li>ClassCastException （强转类型是异常）</li>
-<li>ClassNotFoundException （找不到指定类）</li>
-<li>ArithmeticException （算数运算异常 如除0）</li>
-<li>NumberFormatException （String类型装数字类型异常）<br>…<h2 id="IOException-（其他异常，也叫做检查异常，必须处理的异常）"><a href="#IOException-（其他异常，也叫做检查异常，必须处理的异常）" class="headerlink" title="IOException （其他异常，也叫做检查异常，必须处理的异常）"></a>IOException （其他异常，也叫做检查异常，必须处理的异常）</h2></li>
-<li>FileNotFoundException （文件未找到异常）</li>
-<li>EOFException （文件已经结束异常）</li>
-<li>SQLException （SQL异常）</li>
-</ol>
-<h1 id="关于检查异常跟非异常"><a href="#关于检查异常跟非异常" class="headerlink" title="关于检查异常跟非异常"></a>关于检查异常跟非异常</h1><p>非检查异常（unchecked exception）： 包括RuntimeException和Error类的异常，对于运行时的异常，编译器不要求程序员强制捕获异常处理或者抛出异常声明<br>检查异常（checked exception） ： 编译器强制要求程序员对异常进行捕获，比如常见的IOException和SQLException！！</p>
-<h1 id="总结图："><a href="#总结图：" class="headerlink" title="总结图："></a>总结图：</h1><p>最后给一张大图完整的说明Exception和Error：<br><img src="/2019/01/31/Java基础之Error、Exception/20190131104704989.png" alt=""></p>
+            <h1 id=""><a href="#" class="headerlink" title="=="></a>==</h1><p>== 比较的是变量（栈）内存中存放的对象的（堆）地址是否相同，即是否为同一个对象， <strong> 比较的真正意义是指针上的操作 </strong></p>
+<p>此时我们可能有一些疑问，如果是int a=1; int b=1;此时我们a==b，为什么为true呢？<br>我们上面说说， == 是比较内存地址是否相同，是指针上的操作比较，如果为true的话，就说明一个问题！那就是a和b的值都是指向同一个地址！因为都是1嘛，1这种数据都是会放在 <strong> 常量池 </strong> 里面。<br>不仅a可以等于b，如果long b=1L; double c=10.0；他们彼此之间都会相等</p>
+<h1 id="equals"><a href="#equals" class="headerlink" title="equals"></a>equals</h1><p>equals用来比较两个对象的内容是否相等，equals是Object的方法<br>源码上看，其实是没有区别的，我们看Object类的源码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Object#equals</span><br><span class="line">public boolean equals(Object obj) &#123;</span><br><span class="line">        return (this == obj);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>底层只是调用==<br>但是我们所有的类都是Object类的子类，都可以重写equals的方法，比如String，他重写了Object的equals的方法，用equals方法来比较每个String对象里面value值是否相等，所以String类型的equals跟==是有区别了！！<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">java.lang.String#equals</span><br><span class="line">public boolean equals(Object anObject) &#123;   </span><br><span class="line">    if (this == anObject) &#123; </span><br><span class="line">        return true;   </span><br><span class="line">        &#125;    if (anObject instanceof String) &#123; </span><br><span class="line">            String anotherString = (String)anObject; </span><br><span class="line">            int n = value.length;</span><br><span class="line">            if (n == anotherString.value.length) &#123; </span><br><span class="line">                char v1[] = value; </span><br><span class="line">                char v2[] = anotherString.value; </span><br><span class="line">                int i = 0;</span><br><span class="line">                while (n-- != 0) &#123; </span><br><span class="line">                    if (v1[i] != v2[i]) </span><br><span class="line">                    return false;  </span><br><span class="line">                    i++;   </span><br><span class="line">                &#125;   </span><br><span class="line">                return true;   </span><br><span class="line">            &#125;   </span><br><span class="line">        &#125;  </span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果类没有重写equals，那么调用equals方法跟调用==是没有什么区别的！</p>
 
           
         
@@ -421,7 +405,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/31/解决跨域问题/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/03/Autowired跟-Resource的关系和区别/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -440,7 +424,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/01/31/解决跨域问题/" itemprop="url">解决跨域问题</a></h1>
+                <a class="post-title-link" href="/2019/02/03/Autowired跟-Resource的关系和区别/" itemprop="url">@Autowired跟@Resource的关系和区别</a></h1>
         
 
         <div class="post-meta">
@@ -452,8 +436,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-31T22:07:53+08:00">
-                2019-01-31
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-03T21:36:16+08:00">
+                2019-02-03
               </time>
             
 
@@ -475,8 +459,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/问题/" itemprop="url" rel="index">
-                    <span itemprop="name">问题</span>
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
                   </a>
                 </span>
 
@@ -514,32 +498,18 @@
       
         
           
-            <h1 id="什么是跨域问题？"><a href="#什么是跨域问题？" class="headerlink" title="什么是跨域问题？"></a>什么是跨域问题？</h1><p>跨域，指浏览器从一个域名的网页去请求另一个域名的资源（比如请求API）时，由于域名或者端口不同，导致资源不能访问，这就是跨域问题。<br>比如：网页<strong><a href="http://www.lnw.com/index.html" target="_blank" rel="noopener">www.lnw.com/index.html</a></strong>  请求接口—-&gt;  <strong><a href="http://www.api.com/get" target="_blank" rel="noopener">www.api.com/get</a></strong>，此时由于域名的不同就会有跨域问题的出现</p>
-<p>或者  <strong>localhost:8081/index.html</strong> 请求接口—–&gt;  <strong>localhost:8082/get</strong> ，此时由于端口的不同也会有跨域问题的出现</p>
-<h1 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h1><h2 id="Spring项目的解决办法："><a href="#Spring项目的解决办法：" class="headerlink" title="Spring项目的解决办法："></a>Spring项目的解决办法：</h2><h3 id="一、使用-CrossOrigin"><a href="#一、使用-CrossOrigin" class="headerlink" title="一、使用@CrossOrigin"></a>一、使用@CrossOrigin</h3><p>在controller加上该注解，即可解决</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@CrossOrigin</span>(origins = &#123;<span class="string">"http://localhost"</span>&#125;)</span><br><span class="line"><span class="meta">@Controller</span> </span><br><span class="line"><span class="comment">// 加上注解</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StudentController</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>允许80端口跨域<br>但这样的每个Controller都要加上该注解，有点麻烦</p>
-<h3 id="二、实现WebMvcConfigurer的addCrosMappings方法"><a href="#二、实现WebMvcConfigurer的addCrosMappings方法" class="headerlink" title="二、实现WebMvcConfigurer的addCrosMappings方法"></a>二、实现WebMvcConfigurer的addCrosMappings方法</h3><p>实现该方法可以让所有的Controller能够允许跨域</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* SpringMVC  配置类</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> SouthLight</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebMvc</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MVCApplicationConfig</span>  <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addCorsMappings</span><span class="params">(CorsRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addMapping(<span class="string">"http://localhost"</span>)</span><br><span class="line">                .allowedOrigins(<span class="string">"*"</span>)</span><br><span class="line">                .allowCredentials(<span class="keyword">true</span>)</span><br><span class="line">                .allowedMethods(<span class="string">"GET"</span>, <span class="string">"POST"</span>, <span class="string">"DELETE"</span>, <span class="string">"PUT"</span>)</span><br><span class="line">                .maxAge(<span class="number">3600</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="三、配置Filter过滤器"><a href="#三、配置Filter过滤器" class="headerlink" title="三、配置Filter过滤器"></a>三、配置Filter过滤器</h3><p>上诉两种方法好像不能解决Cookie传递的问题，因为Cookie的跨域传递需要前后两端都要规定头部的协议：Access-Control-<br>设置过滤器不仅可以对请求进行拦截，还可以对请求的request和response进行修改<br>自己实现Filter</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.helper.config;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.*;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Filter过滤器</span></span><br><span class="line"><span class="comment">* 解决跨域问题</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> SouthLight-Lin</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"---初始化----"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        HttpServletResponse response = (HttpServletResponse) servletResponse;</span><br><span class="line">        HttpServletRequest request = (HttpServletRequest)servletRequest;</span><br><span class="line">        System.out.println(<span class="string">"MyFilter拦截："</span>+request.getServletPath());</span><br><span class="line">        String origin = request.getHeader(<span class="string">"Origin"</span>);</span><br><span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Origin"</span>, origin);</span><br><span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Methods"</span>, <span class="string">"*"</span>);</span><br><span class="line">        response.setHeader(<span class="string">"Access-Control-Max-Age"</span>, <span class="string">"3600"</span>);</span><br><span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Headers"</span>, <span class="string">"*"</span>);</span><br><span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Credentials"</span>, <span class="string">"true"</span>);</span><br><span class="line">        String method = request.getMethod();</span><br><span class="line">        <span class="keyword">if</span>(method.equalsIgnoreCase(<span class="string">"OPTIONS"</span>))&#123;</span><br><span class="line">            servletResponse.getOutputStream().write(<span class="string">"Success"</span>.getBytes(<span class="string">"utf-8"</span>));</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            filterChain.doFilter(servletRequest, servletResponse);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>前端的请求需要设置头部Access-Control-，后端的response也需要设置相同的头部，不然的话也还是不能访问</p>
-<p>添加Filter</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* SpringMVC  配置类</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> SouthLight</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebMvc</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MVCApplicationConfig</span>  <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> FilterRegistrationBean <span class="title">filterRegistrationBean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 将Filter注册</span></span><br><span class="line">        FilterRegistrationBean registration = <span class="keyword">new</span> FilterRegistrationBean();</span><br><span class="line">        registration.setFilter(<span class="keyword">new</span> MyFilter());</span><br><span class="line">        registration.addUrlPatterns(<span class="string">"/*"</span>);</span><br><span class="line">        registration.addInitParameter(<span class="string">"paramName"</span>, <span class="string">"paramValue"</span>);</span><br><span class="line">        registration.setName(<span class="string">"myFilter"</span>);</span><br><span class="line">        registration.setOrder(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> registration;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这样就可以解决跨域以及Cookie的传递了</p>
-<h2 id="使用Nginx解决跨域问题"><a href="#使用Nginx解决跨域问题" class="headerlink" title="使用Nginx解决跨域问题"></a>使用Nginx解决跨域问题</h2><p>因为前端项目一般都是部署在Nginx的服务器上，我们可以让Nginx代理我们请求资源的接口，比如我有一个前端项目，部署端口80的根目录“/”，后端接口8080部署Nginx代理路径“/api”<br>nginx.conf</p>
-<pre><code>location / {
-    root   html/homework-helper-frontend/html;
-    index  index.html index.htm;
-}
-
-# 服务器访问路径
-location /api{
-    # 将/api代理到下面的地址
-    proxy_pass http://localhost:8080/api;
-}
-</code></pre><p>如此一来，我们输入localhost/index.html就可以访问网页<br>输入localhost/api/get，Nginx就会代理，转成请求localhost:8080/api这个地址，完美的解决了跨域的问题，而且cookie也可以正常传递</p>
-<p>美滋滋·~~~~</p>
+            <p>Spring自动装配中，我们可能会使用到两个注解@Autowired跟@Resource<br>这两个注解都可以帮我们完成Bean之间的自动装配，那它们之间有什么不一样呢？</p>
+<h1 id="Autowired"><a href="#Autowired" class="headerlink" title="@Autowired"></a>@Autowired</h1><ul>
+<li>是Spring自己家的产品（亲儿子），需要引入Spring的包才能使用</li>
+<li>默认是按照类型byType来自动装配的</li>
+<li>如果要通过name来装配（byName），需要配合另一个注解@Qualifier使用<br>如图所示：<br><img src="/2019/02/03/Autowired跟-Resource的关系和区别/20190203110600737.png" alt=""><br>@Autowired源码<br><img src="/2019/02/03/Autowired跟-Resource的关系和区别/20190203110632646.png" alt=""><br>@Qualifier源码<br><img src="/2019/02/03/Autowired跟-Resource的关系和区别/20190203110659408.png" alt=""></li>
+</ul>
+<h1 id="Resource"><a href="#Resource" class="headerlink" title="@Resource"></a>@Resource</h1><ul>
+<li>这是JDK中自带的注解，但是Spring也是支持这个注解</li>
+<li>@Resource默认是byName，也就是通过名称来装配Bean</li>
+<li>如果要通过类型来装配，需要声明byType指定类型</li>
+</ul>
+<p>如图<br><img src="/2019/02/03/Autowired跟-Resource的关系和区别/20190203110958397.png" alt=""></p>
 
           
         
@@ -579,7 +549,7 @@ location /api{
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/12/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/14/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/12/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/14/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -625,7 +595,7 @@ location /api{
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-count">31</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -636,7 +606,7 @@ location /api{
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -647,7 +617,7 @@ location /api{
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

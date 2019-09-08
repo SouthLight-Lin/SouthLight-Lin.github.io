@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="算法,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="题目给定一个非空的无需数组，输出该数组的中位数 例如： 12输入：[8,13,7,21,15,20,30,9]输出：14 思路一首先我们想到的就是对数组进行排序，然后再求中位数，但是排序算法中最好快速排序时间复杂度为O(nlogn) 我们可以换一种思路，什么叫中位数？ 中位数我们可以理解为它的左半部分比它小，它的右半部分比它大。说到这里，有没有感觉这种情况好像在哪实现过呢？没错，快速排序使用par">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="每日一题——求无序数组的中位数">
+<meta property="og:url" content="http://yoursite.com/2019/09/02/每日一题——求无序数组的中位数/index.html">
+<meta property="og:site_name" content="SouthLight&#39;s Blog">
+<meta property="og:description" content="题目给定一个非空的无需数组，输出该数组的中位数 例如： 12输入：[8,13,7,21,15,20,30,9]输出：14 思路一首先我们想到的就是对数组进行排序，然后再求中位数，但是排序算法中最好快速排序时间复杂度为O(nlogn) 我们可以换一种思路，什么叫中位数？ 中位数我们可以理解为它的左半部分比它小，它的右半部分比它大。说到这里，有没有感觉这种情况好像在哪实现过呢？没错，快速排序使用par">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yjmf.bs2dl.yy.com/MzRkYjc0OGQtNzNhMy00YzdmLTkwMTUtZGI1ZmU3OTM0MmVk.png">
+<meta property="og:image" content="http://yjmf.bs2dl.yy.com/OWNjNTM5ZGEtNDY3NC00MGY2LWE3NDctMzRkYjJhZDE1NTY5.png">
+<meta property="og:image" content="http://yjmf.bs2dl.yy.com/MmU0MzM5NjYtNTRmNy00NzRhLWFjZjctNzA2NDgzYjBkZTZh.png">
+<meta property="og:image" content="http://yjmf.bs2dl.yy.com/YWE5Yjg2NTUtMjJmZS00ZDcxLTk3NzEtYjU3ODFmMjI2NWRj.png">
+<meta property="og:image" content="http://yjmf.bs2dl.yy.com/YTI2Y2I2ZjUtODcxNy00NTJlLWFkNDctMjAzMzBkNDEzZTc3.png">
+<meta property="og:image" content="http://yjmf.bs2dl.yy.com/ZDYzODc2YzUtMmM5OS00M2JkLTg3M2EtM2IwMTU1NWE0YTY0.png">
+<meta property="og:updated_time" content="2019-09-07T07:26:41.774Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="每日一题——求无序数组的中位数">
+<meta name="twitter:description" content="题目给定一个非空的无需数组，输出该数组的中位数 例如： 12输入：[8,13,7,21,15,20,30,9]输出：14 思路一首先我们想到的就是对数组进行排序，然后再求中位数，但是排序算法中最好快速排序时间复杂度为O(nlogn) 我们可以换一种思路，什么叫中位数？ 中位数我们可以理解为它的左半部分比它小，它的右半部分比它大。说到这里，有没有感觉这种情况好像在哪实现过呢？没错，快速排序使用par">
+<meta name="twitter:image" content="http://yjmf.bs2dl.yy.com/MzRkYjc0OGQtNzNhMy00YzdmLTkwMTUtZGI1ZmU3OTM0MmVk.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/02/每日一题——求无序数组的中位数/">
+
+
+
+
+
+  <title>每日一题——求无序数组的中位数 | SouthLight's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SouthLight's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/02/每日一题——求无序数组的中位数/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">每日一题——求无序数组的中位数</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-02T16:25:34+08:00">
+                2019-09-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><p>给定一个非空的无需数组，输出该数组的中位数</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：[8,13,7,21,15,20,30,9]</span><br><span class="line">输出：14</span><br></pre></td></tr></table></figure>
+<h1 id="思路一"><a href="#思路一" class="headerlink" title="思路一"></a>思路一</h1><p>首先我们想到的就是对数组进行排序，然后再求中位数，但是排序算法中最好快速排序时间复杂度为<strong>O(nlogn)</strong></p>
+<p>我们可以换一种思路，什么叫中位数？</p>
+<p>中位数我们可以理解为它的左半部分比它小，它的右半部分比它大。说到这里，有没有感觉这种情况好像在哪实现过呢？没错，快速排序使用partition进行分区的时，最好的情况下会使数据分为两部分</p>
+<p>所以我们可以将这道题升级为TOP N问题，通过调用快排的partition函数，找到中位数。</p>
+<p>怎么利用partition函数呢？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int partition(int[] arr, int start, int end);</span><br></pre></td></tr></table></figure>
+<p>partition返回的是下标pivot，如果返回的下标pivot刚好等于中位数的下标，则直接返回值</p>
+<p>如果pivot&gt;midIdx， 往左边找，让end = pivot-1；</p>
+<p>如果pivor&lt;midIdx，往右边找，让end = pivot+1；</p>
+<p>如果数组的个数是奇数，那么只要找到下标为 <strong>length/2</strong> 位置的pivot就是我们要找的中位数。如果数组的个数是偶数，那也简单，找到下标为 <strong>(length/2)-1</strong> 和 <strong>length/2</strong> </p>
+<p>伪代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">package algorithm;</span><br><span class="line"></span><br><span class="line">import java.util.Arrays;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Created by linnanwei on 2019/9/3</span><br><span class="line"> *</span><br><span class="line"> * @author linnanwei</span><br><span class="line"> */</span><br><span class="line">public class ArrayMedian2 &#123;</span><br><span class="line">    public double findMedianInArray(int[] arr)&#123;</span><br><span class="line">        if (arr == null || arr.length==0)&#123;</span><br><span class="line">            return 0;</span><br><span class="line">        &#125;</span><br><span class="line">        int length = arr.length;</span><br><span class="line">        int start = 0;</span><br><span class="line">        int end = length-1;</span><br><span class="line">        // 长度为奇数的情况</span><br><span class="line">        if (length%2 == 1)&#123;</span><br><span class="line">            int medianIdx = length/2;</span><br><span class="line">            return doFindMedian(arr, start, end, medianIdx);</span><br><span class="line">        &#125;</span><br><span class="line">        // 长度为偶数的情况</span><br><span class="line">        else&#123;</span><br><span class="line">            int medianIdx1 = length/2 - 1;</span><br><span class="line">            int medianIdx2 = length/2;</span><br><span class="line">            // 这里要注意，因为第一次查找中位数时，已经做了分割，所以直接查找后面即可</span><br><span class="line">            return (doFindMedian(arr, start, end, medianIdx1)+doFindMedian(arr, medianIdx1+1, end, medianIdx2)) / 2.0;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private double doFindMedian(int[] arr, int start, int end, int medianIdx)&#123;</span><br><span class="line">        while(true)&#123;</span><br><span class="line">            int pivot = partition(arr, start, end);</span><br><span class="line">            if (pivot == medianIdx)&#123;</span><br><span class="line">                return arr[pivot];</span><br><span class="line">            &#125;</span><br><span class="line">            else if (pivot &gt; medianIdx)&#123;</span><br><span class="line">                end = pivot - 1;</span><br><span class="line">            &#125;</span><br><span class="line">            else &#123;</span><br><span class="line">                start = pivot + 1;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public int partition(int[] arr, int start, int end)&#123;</span><br><span class="line">        int pivot = arr[start];</span><br><span class="line">        int idx = start+1;</span><br><span class="line">        for (int i = start+1; i &lt;= end ; i++) &#123;</span><br><span class="line">            if (arr[i] &lt; pivot)&#123;</span><br><span class="line">                swap(arr, i, idx);</span><br><span class="line">                idx++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        swap(arr, start, idx-1);</span><br><span class="line">        return idx-1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private void swap(int[] arr, int i,  int j)&#123;</span><br><span class="line">        int tmp = arr[i];</span><br><span class="line">        arr[i] = arr[j];</span><br><span class="line">        arr[j] = tmp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        int[] arr = &#123;4,5,2,3,1,6&#125;;</span><br><span class="line">        ArrayMedian2 arrayMedian2 = new ArrayMedian2();</span><br><span class="line">        // System.out.println(arrayMedian2.partition(arr, 0, arr.length-1));</span><br><span class="line">        System.out.println(arrayMedian2.findMedianInArray(arr));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="时间复杂度分析"><a href="#时间复杂度分析" class="headerlink" title="时间复杂度分析"></a>时间复杂度分析</h2><p>partition的时间复杂度为O(n)，如果一次没找到，理想情况下，下次从n/2个中寻找</p>
+<p>所以O(n) = O(n) + O(n/2) + O(n/4) …  +O(1)</p>
+<p>所以时间复杂度为O(n)，但是这只是理想情况，最差的时间复杂度有可能蜕变为O(n^2)</p>
+<h1 id="思路二"><a href="#思路二" class="headerlink" title="思路二"></a>思路二</h1><p>还有一种更好的解决方案，使用两个堆数据结构。我们通过维护一个大堆和一个小堆，小堆的元素都比大堆中的元素大</p>
+<p>1、刚开始往大顶堆中插入数据</p>
+<p>2、插入的数据如果比大顶堆大，则插入到小顶堆</p>
+<p>3、插入的数据如果比大顶堆的堆顶元素小，则插入到大顶堆</p>
+<p>4、大顶堆元素的个数要大于等于小顶堆的元素，但是不能比小顶堆多于1个，如果大顶堆中的元素个数比小顶堆多出1个以上，则弹出堆顶元素到小顶堆中</p>
+<p>5、如果小顶堆的元素个数大于大顶堆，弹出小顶堆元素到大顶堆</p>
+<p>如果数组元素个数为奇数，直接弹出大顶堆堆顶元素</p>
+<p>如果数组元素个数为偶数，弹出大顶堆和小顶堆元素之和除以2</p>
+<p>画个图开心一下</p>
+<p><img src="http://yjmf.bs2dl.yy.com/MzRkYjc0OGQtNzNhMy00YzdmLTkwMTUtZGI1ZmU3OTM0MmVk.png" alt="1"></p>
+<p><img src="http://yjmf.bs2dl.yy.com/OWNjNTM5ZGEtNDY3NC00MGY2LWE3NDctMzRkYjJhZDE1NTY5.png" alt="2"></p>
+<p><img src="http://yjmf.bs2dl.yy.com/MmU0MzM5NjYtNTRmNy00NzRhLWFjZjctNzA2NDgzYjBkZTZh.png" alt="3"></p>
+<p><img src="http://yjmf.bs2dl.yy.com/YWE5Yjg2NTUtMjJmZS00ZDcxLTk3NzEtYjU3ODFmMjI2NWRj.png" alt="4"></p>
+<p><img src="http://yjmf.bs2dl.yy.com/YTI2Y2I2ZjUtODcxNy00NTJlLWFkNDctMjAzMzBkNDEzZTc3.png" alt="5"></p>
+<p><img src="http://yjmf.bs2dl.yy.com/ZDYzODc2YzUtMmM5OS00M2JkLTg3M2EtM2IwMTU1NWE0YTY0.png" alt="6"></p>
+<p>PS：原谅我第一次画图……</p>
+<p>代码实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">package algorithm;</span><br><span class="line"></span><br><span class="line">import java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 无序数组中的中位数</span><br><span class="line"> * @author SouthLight-Lin</span><br><span class="line"> */</span><br><span class="line">public class ArrayMedian &#123;</span><br><span class="line">	/**</span><br><span class="line">	 * 解题思路：</span><br><span class="line">	 * 		如果数组个数是奇数个，那么中位数是排序后数组的中间值</span><br><span class="line">	 * 		如果数组个数是偶数个，那么中位数是排序后数组的中间两个数的均值</span><br><span class="line">	 * 		使用两个堆，一个是最大堆left，一个是最小堆right</span><br><span class="line">	 * 		right中所有的元素都比left大</span><br><span class="line">	 * 	</span><br><span class="line">	 */</span><br><span class="line">	</span><br><span class="line">	/** 大顶堆，存储左半边元素 **/</span><br><span class="line">	private PriorityQueue&lt;Integer&gt; left = new PriorityQueue&lt;Integer&gt;((o1, o2)-&gt;&#123;</span><br><span class="line">		return o2 -o1;</span><br><span class="line">	&#125;);</span><br><span class="line">	</span><br><span class="line">	/** 小顶堆，存储右半边元素  **/</span><br><span class="line">	private PriorityQueue&lt;Integer&gt; right = new PriorityQueue&lt;Integer&gt;();</span><br><span class="line">	</span><br><span class="line">	/** 当前数据流读入的元素 **/</span><br><span class="line">	private int N = 0;</span><br><span class="line">	</span><br><span class="line">	/** 插入元素的同时维护两个堆结构 **/</span><br><span class="line">	public void insert(Integer val)&#123;</span><br><span class="line">		// 如果比大顶堆的堆顶元素大，插入到小顶堆</span><br><span class="line">		if (left.size() == 0 || val &lt;= left.peek())&#123;</span><br><span class="line">			left.add(val);</span><br><span class="line">		&#125;</span><br><span class="line">		else&#123;</span><br><span class="line">			right.add(val);</span><br><span class="line">		&#125;</span><br><span class="line">		N++;</span><br><span class="line">		adjust();</span><br><span class="line">	&#125;</span><br><span class="line">	/** 调整两个堆得数量以达到平衡 **/</span><br><span class="line">	private void adjust() &#123;</span><br><span class="line">		if (right.size() &gt; left.size())&#123;</span><br><span class="line">			left.add(right.poll());</span><br><span class="line">		&#125;</span><br><span class="line">		else if (left.size() - right.size() &gt; 1)&#123;</span><br><span class="line">			right.add(left.poll());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	public double getMedian()&#123;</span><br><span class="line">		if(N%2==0)&#123;</span><br><span class="line">			return (left.peek()+right.peek())/2.0;</span><br><span class="line">		&#125;else&#123;</span><br><span class="line">			return right.peek();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		int[] data = &#123;8,13,7,21,15,20,30,9&#125;;</span><br><span class="line">		ArrayMedian arrayMedian = new ArrayMedian();</span><br><span class="line">		for(int i:data)&#123;</span><br><span class="line">			arrayMedian.insert(i);</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		System.out.println(arrayMedian.getMedian());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="时间复杂度分析-1"><a href="#时间复杂度分析-1" class="headerlink" title="时间复杂度分析"></a>时间复杂度分析</h2><p>遍历数据为O(n)，调整堆的复杂度为O(log n/2)</p>
+<p>所以时间复杂度为O(n*log n/2)，n不是很大时，可以看成为O(n)，稳定性比第一种方案好点</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag"># 算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/31/常见的排序算法/" rel="next" title="常见的排序算法（一）">
+                <i class="fa fa-chevron-left"></i> 常见的排序算法（一）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/07/每日一题——中根遍历/" rel="prev" title="每日一题——中根遍历">
+                每日一题——中根遍历 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">SouthLight Lin</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#题目"><span class="nav-number">1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#思路一"><span class="nav-number">2.</span> <span class="nav-text">思路一</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#时间复杂度分析"><span class="nav-number">2.1.</span> <span class="nav-text">时间复杂度分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#思路二"><span class="nav-number">3.</span> <span class="nav-text">思路二</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#时间复杂度分析-1"><span class="nav-number">3.1.</span> <span class="nav-text">时间复杂度分析</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SouthLight Lin</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
