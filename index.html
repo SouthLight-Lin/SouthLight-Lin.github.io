@@ -259,6 +259,199 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/23/初识Kafka/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/23/初识Kafka/" itemprop="url">初识Kafka</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-23T10:16:24+08:00">
+                2019-11-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Kafka/" itemprop="url" rel="index">
+                    <span itemprop="name">Kafka</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="What’s-Kafka？"><a href="#What’s-Kafka？" class="headerlink" title="What’s Kafka？"></a>What’s Kafka？</h1><p>官方定义，Kafka是一款<strong>开源的消息引擎系统</strong>。消息引擎系统是一种规范，利用这种规范在不同系统之间传递语义准确的消息，实现松耦合的异步式数据传递<br>举个例子：比如系统A发送消息给消息引擎系统（Kafka），系统B从消息引擎中读取A的消息</p>
+<ul>
+<li>注：Kafka发展到现在是2.0版本了，现在致力于流处理平台，这篇博客讨论的还是Kafka消息引擎，对于Kafka的流处理，可以自行google了解下</li>
+</ul>
+<h1 id="Kafka能解决什么"><a href="#Kafka能解决什么" class="headerlink" title="Kafka能解决什么"></a>Kafka能解决什么</h1><p>1、 异步处理<br>2、 流量控制<br>3、 服务解耦<br>4、 削峰填谷：保护下游系统，防止下游系统被压垮</p>
+<h1 id="Kafka传输消息的两种方式"><a href="#Kafka传输消息的两种方式" class="headerlink" title="Kafka传输消息的两种方式"></a>Kafka传输消息的两种方式</h1><p>1、 点对点：生产生产的消息只能被一个消费者消费<br>2、 发布/订阅模型：生产者生产的消息，被多个订阅的消费者消费</p>
+<h1 id="Kafka中的术语"><a href="#Kafka中的术语" class="headerlink" title="Kafka中的术语"></a>Kafka中的术语</h1><p>先来看一张图<br><img src="/2019/11/23/初识Kafka/20191123030442600.png" alt=""><br>1、 Record（消息）：主要是指发送到Kafka，Kafka处理的对象<br>2、 Broker：你可以简单的理解，一个Broker就是一个Kafka进程（如果你一台服务器运行多个Kafka，那就代表有多个Broker），一个Kafka集群可以有多个Broker组成，Broker负责接受消息和处理客户端发送过来的请求，以及对消息进行持久化。<br>3、 Topic（主题）：发布订阅的对象，你可以为每个业务、每个应用甚至每类数据都创建专属的主题（比如，商品系统跟订单系统需要消息通信，那么你可以在Kafka上创建一个Topic名字叫order_good_topic，两个系统同时指定这个topic就可完成通信）<br>4、 Producer（生产者）：向主题发送消息的客户端程序，生产者可以不断地向一个或多个主题发送消息<br>5、 Consumer（消费者）：订阅这些主题的客户端程序，消费者可以同时订阅多个主题<br>6、 Replica（副本）：相当于备份。Kafka中同一条消息能够被拷贝到多个地方一提供数据冗余，这些地方就是副本。<br>7、Leader Replica（领导者副本）：对外提供服务<br>8、Follower Replica（追随者副本）：被动地追随领导者副本，不能与外界进行交互</p>
+<ul>
+<li>你可能会有这样的疑惑，竟然追随者副本不能对外提供，只是类似一种备份的作用，那么也就是说只有一个Kafka集群里面，只有一台主Broker进行读写请求的响应，而一台Broker肯定不能积累太多消息，并且所有请求都集中到一台Broker，那肯定会挂，Kafka不能做到横向扩展，这也太cai了吧。别急，分区Partition的出现就是为了解决这种情况<br>9、Partition（分区）：这是个很重要的概念！为了解决伸缩性问题，防止领导者副本积累了太多的数据以至于单台Broker机器无法容纳。我们可以把数据分割成多份保存到不同的Broker上。分区机制指将每个主题划分成多个分区，每个分区是一组<strong>有序的</strong>消息日志，生产者生产的数据只会被发送到一个分区中。上面的图中，有两台Broker，同一个主题中有3个分区，两个Leader副本（绿色的）在Broker0，一个Leader副本在Broker1，这样的读写消息会分布在两台机器上。这里特别指出，同一个分区中的数据时有序的，什么意思呢？比如你发送三条消息——&gt;1,2,3。那么Kafka接受到这三条数据可能存在不同的分区上，这样消费的顺序可能不是1,2,3（不同分区可以并发消费），如果这三条消息都放在了同一个分区比如分区0，那么消费的时候顺序就一定是1,2,3<br>10、 Offset（消息位移）：向分区写入消息时，每条消息在分区中的位置消息由位移（Offset）的数据来表征<br>11、 Consumer Offset（消费者位移）：记录消费者消费消息的进度，每个消费者都有自己的消费位移<br>12、 Consumer Group（消费者组）：多个消费者实例可以组成一个组，共同消费同一个Topic下的多个分区以实现高吞吐，默认情况下一个分区只能被一个消费者消费<br>13、 Rebalance（重平衡）：前面说一个分区只能被一个消费者消费，如果消费者挂了或者新增加了一个分区，那么就要把这个分区分配给其他消费者，这时需要重平衡操作</li>
+</ul>
+<h1 id="Docker运行Kafka"><a href="#Docker运行Kafka" class="headerlink" title="Docker运行Kafka"></a>Docker运行Kafka</h1><p>我们在Docker中装个Kafka玩一下，首先编写docker-compose.yml文件<br>docker-compose.yml<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">'3'</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line"><span class="attr">  zookeeper:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="string">wurstmeister/zookeeper</span></span><br><span class="line"><span class="attr">    ports:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">"2181:2181"</span></span><br><span class="line"><span class="attr">  kafka:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="string">wurstmeister/kafka</span></span><br><span class="line"><span class="attr">    depends_on:</span> <span class="string">[</span> <span class="string">zookeeper</span> <span class="string">]</span></span><br><span class="line"><span class="attr">    ports:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">"9092:9092"</span></span><br><span class="line"><span class="attr">    environment:</span></span><br><span class="line"><span class="attr">      KAFKA_ADVERTISED_HOST_NAME:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span></span><br><span class="line"><span class="attr">      KAFKA_CREATE_TOPICS:</span> <span class="string">"test:1:1"</span></span><br><span class="line"><span class="attr">      KAFKA_ZOOKEEPER_CONNECT:</span> <span class="attr">zookeeper:2181</span></span><br><span class="line"><span class="attr">    volumes:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">/var/run/docker.sock:/var/run/docker.sock</span></span><br></pre></td></tr></table></figure></p>
+<p>上述运行文件，运行一个Zookeeper和一个Kafka实例，如果需要配置一个Kafka集群，需要添加多个kafka实例，指定不同的端口</p>
+<p>运行kafka</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose.exe start</span><br></pre></td></tr></table></figure>
+<ul>
+<li>注意：需要安装docker-compose，并且运行时是在docker-compose.yml文件路径下，这样才能加载配置文件</li>
+</ul>
+<p><img src="/2019/11/23/初识Kafka/20191123035549442.png" alt=""><br>这样kafka就运行了</p>
+<h2 id="运行Kafka生产者和消费者"><a href="#运行Kafka生产者和消费者" class="headerlink" title="运行Kafka生产者和消费者"></a>运行Kafka生产者和消费者</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 进入容器</span><br><span class="line">docker exec -it kafka_kafka_1 bash</span><br><span class="line"><span class="meta">#</span> 切换到kafka bin命令</span><br><span class="line">cd /opt/kafka/bin</span><br><span class="line"><span class="meta">#</span> 生产数据</span><br><span class="line">kafka-console-producer.sh --topic test --broker-list localhost:9092</span><br><span class="line"><span class="meta">#</span> 消费数据</span><br><span class="line">kafka-console-consumer.sh --topic test --bootstrap-list localhost:9092</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/11/23/初识Kafka/20191123040402203.png" alt=""><br><img src="/2019/11/23/初识Kafka/20191123040423457.png" alt=""><br>可以看到通过生产者向test的topic生产一条数据，消费者就可在topic中消费一条数据</p>
+<h1 id="Kotlin代码实现生产者和消费者"><a href="#Kotlin代码实现生产者和消费者" class="headerlink" title="Kotlin代码实现生产者和消费者"></a>Kotlin代码实现生产者和消费者</h1><p>引入依赖<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.kafka<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>kafka-clients<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="生产者"><a href="#生产者" class="headerlink" title="生产者"></a>生产者</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">(args: <span class="type">Array</span>&lt;<span class="type">String</span>&gt;)</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> kafkaProps = Properties()</span><br><span class="line">    kafkaProps[<span class="string">"bootstrap.servers"</span>] = <span class="string">"localhost:9092"</span></span><br><span class="line">    kafkaProps[<span class="string">"key.serializer"</span>] = <span class="string">"org.apache.kafka.common.serialization.StringSerializer"</span></span><br><span class="line">    kafkaProps[<span class="string">"value.serializer"</span>] = <span class="string">"org.apache.kafka.common.serialization.StringSerializer"</span></span><br><span class="line">    <span class="keyword">val</span> producer = KafkaProducer&lt;String, String&gt;(kafkaProps)</span><br><span class="line">    <span class="keyword">val</span> record1 = ProducerRecord(<span class="string">"test"</span>,<span class="string">"Products"</span>, <span class="string">"Hello, I am Java producer 1"</span>)</span><br><span class="line">    <span class="keyword">val</span> record2 = ProducerRecord(<span class="string">"test"</span>,<span class="string">"Products"</span>, <span class="string">"Hello, I am Java producer 5"</span>)</span><br><span class="line">    <span class="comment">// 同步发送</span></span><br><span class="line">    println(producer.send(record2).<span class="keyword">get</span>())</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 异步发送，带上callback</span></span><br><span class="line">    producer.send(record2, DemoProducerCallback()).<span class="keyword">get</span>()</span><br><span class="line">    println(<span class="string">"-----Done-----"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DemoProducerCallback</span>: <span class="type">Callback &#123;</span></span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCompletion</span><span class="params">(metadata: <span class="type">RecordMetadata</span>?, exception: <span class="type">Exception</span>?)</span></span> &#123;</span><br><span class="line">        exception?.printStackTrace()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Java或者Kotlin实现的客户端，在发送消息前都是要对消息实现序列化的，这样能提高传输的效率<br>上面代码的两种发送方式，一种是有带Callback一种是没有带Callback的，在日常工作使用中，建议带上Callback，这样当Kafka发生异常时，方便于我们通过日志追踪</p>
+<h2 id="消费者"><a href="#消费者" class="headerlink" title="消费者"></a>消费者</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">(args: <span class="type">Array</span>&lt;<span class="type">String</span>&gt;)</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> kafkaProps = Properties()</span><br><span class="line">    kafkaProps[<span class="string">"bootstrap.servers"</span>] = <span class="string">"localhost:9092"</span></span><br><span class="line">    kafkaProps[<span class="string">"group.id"</span>] = <span class="string">"helloKafka"</span></span><br><span class="line">    kafkaProps[<span class="string">"key.deserializer"</span>] = <span class="string">"org.apache.kafka.common.serialization.StringDeserializer"</span></span><br><span class="line">    kafkaProps[<span class="string">"value.deserializer"</span>] = <span class="string">"org.apache.kafka.common.serialization.StringDeserializer"</span></span><br><span class="line">    <span class="keyword">val</span> consumer = KafkaConsumer&lt;String, String&gt;(kafkaProps)</span><br><span class="line">    <span class="comment">// 订阅主题</span></span><br><span class="line">    consumer.subscribe(listOf(<span class="string">"test"</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment">// use关键字和自动关闭consumer连接</span></span><br><span class="line">    consumer.use &#123;</span><br><span class="line">        <span class="comment">// 轮询</span></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="keyword">val</span> records = consumer.poll(Duration.ofMillis(<span class="number">100</span>)); <span class="comment">// 消费者必须持续对kafka进行轮询，否则就会被认为死亡</span></span><br><span class="line">            <span class="keyword">for</span> (record <span class="keyword">in</span> records) &#123;</span><br><span class="line">                println(<span class="string">"topic = <span class="subst">$&#123;record.topic()&#125;</span>, partition = <span class="subst">$&#123;record.partition()&#125;</span>, offset = <span class="subst">$&#123;record.offset()&#125;</span>, key = <span class="subst">$&#123;record.key()&#125;</span>, value = <span class="subst">$&#123;record.value()&#125;</span>"</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同生产者一样，也是需要序列化消息，这里也可以通过添加一个group.id参数，来指定对应的消费者群组</p>
+<h3 id="轮询的重要性"><a href="#轮询的重要性" class="headerlink" title="轮询的重要性"></a>轮询的重要性</h3><p>Consumer消费者通过轮询的方式监听消息，轮询还有其他重要作用，除了监听消息，还有<strong>群组的协调、分区再平衡、发送心跳和获取数据</strong><br>consumer.poll就是发送轮询的重要方法，里面的参数，指定一个超时时间，用于控制poll的阻塞时间，它会在指定的毫秒内一直等待broker返回数据<br>而且poll方法返回的是一批数据，这种批量操作有很高的吞吐率</p>
+<h1 id="生产者的分区机制"><a href="#生产者的分区机制" class="headerlink" title="生产者的分区机制"></a>生产者的分区机制</h1><p>这里我们聊聊分区机制<br><img src="/2019/11/23/初识Kafka/20191123042531211.png" alt=""><br>Kafka中消息的组织形式：主题-&gt;分区-&gt;消息，主题下的每条消息都只会被保存在某个分区下，不会在多个分区中保存多份</p>
+<h2 id="为什么要分区"><a href="#为什么要分区" class="headerlink" title="为什么要分区"></a>为什么要分区</h2><p>前面已经讲过，主要是为了<strong>提供负载均衡能力</strong>，或者说为了实现系统的可伸缩性（Scalability）<br>除此之外，还有实现业务级别的消息顺序</p>
+<h2 id="Kafka的分区策略"><a href="#Kafka的分区策略" class="headerlink" title="Kafka的分区策略"></a>Kafka的分区策略</h2><p>1、 轮询（默认的策略）<br>Round-robin策略，也叫做顺序分配。轮询策略具有非常优秀的负载均衡表现，能保证消息最大限度的被平均分配到所有分区上</p>
+<p>2、 随机<br>Randomness策略，随意地将消息放置到一个分区上<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 实现伪代码</span><br><span class="line">List&lt;PartitionInfo&gt; partitions = cluter.partitionsForTopic(topic);</span><br><span class="line">return ThreadLocalRandom.current().nextInt(partitions.size());</span><br></pre></td></tr></table></figure></p>
+<p>3、 按消息键保序策略<br>Key-ordering策略，指定相同的可以存储相同的分区里面（hash），这个key可以是客户代码，部门编号后者业务ID等，这个功能对我们非常有用，如果我们对消息的顺序保证有严格要求时，可以指定此策略，因为我们前面讲过，同一个分区下的消息是有序的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 实现伪代码</span><br><span class="line">List&lt;PartitionInfo&gt; partitions = cluster.partitionsForTopic(topic);</span><br><span class="line">return Math.abs(key.hashCode())%partitions.size());</span><br></pre></td></tr></table></figure></p>
+<p>Kafka默认分区策略同时实现了两种策略：如果指定了key，那么可以默认实现消息键保序策略；如果没有指定key，则使用轮询策略</p>
+<p>4、自定义策略<br>通过实现org.apache.kafka.clients.producer.Partition接口来自定义分区策略</p>
+<h1 id="消费者-1"><a href="#消费者-1" class="headerlink" title="消费者"></a>消费者</h1><p>聊完生产者，我们来聊聊消费者</p>
+<h2 id="消费者组"><a href="#消费者组" class="headerlink" title="消费者组"></a>消费者组</h2><p>前面我们说过，同一个消费者组订阅同一个topic，该topic中的每一条消息只会被消费者组中的一个消费者消费，每个消费者消费一个分区<br>如果只有一个消费时，它就会消费topic下的所有分区（这时单个消费者线的消费速度可能跟不上生产速度）<br><img src="/2019/11/23/初识Kafka/20191123044031994.png" alt=""><br>所以最好的方案就是每个分区都有一个消费者线程，提高吞吐量<br><img src="/2019/11/23/初识Kafka/20191123044111034.png" alt=""><br>但是也不能让消费者的线程数大于分区数，这样只会让多出的消费者做无用功<br><img src="/2019/11/23/初识Kafka/20191123044221995.png" alt=""><br>如上图，消费者5没有获得分区的消费，一直做无用功<br>多个消费者组之间互不影响<br><img src="/2019/11/23/初识Kafka/20191123044307339.png" alt=""><br>互不影响的底层实现是通过<strong>消费者位移</strong>实现</p>
+<h2 id="再平衡"><a href="#再平衡" class="headerlink" title="再平衡"></a>再平衡</h2><p>1、 当一个消费者崩溃或关闭（不可用）时，此时会发生分区重新分配<br>2、 当一个消费者新加入消费者组时（消费者数小于分区数）时，此时会发生分区重新分配<br>3、 当增加一个新的分区是，此时也是会发生分区重新分配</p>
+<p>缺点和危害：<br>1、 当发生分区重新分配时，消费者无法读取消息，造成整个群组不用<br>2、 当分区被重新分配时给另一个消费者时，消费者当前的读取状态可能会丢失<br>对于第二种情况，在代码层面是可以避免的，我们可以实现一个Kafka再分配监听器，当发生再平衡时，触发函数，在consumer中提交目前已经完成消费的消息偏移<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">Handle</span> <span class="keyword">implements</span> <span class="title">ConsumerRebalanceListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 重新分配分区之前，消费者停止读取消息之后</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onPartitionsRevoked</span><span class="params">(<span class="keyword">final</span> Collection&lt;TopicPartition&gt; partitions)</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"Lost partitions in rebalance.Committing current offsets:"</span>+ConsumerWithListener.<span class="keyword">this</span>.currentOffsets);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onPartitionsAssigned</span><span class="params">(<span class="keyword">final</span> Collection&lt;TopicPartition&gt; partitions)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过实现ConsumerRebalanceListener接口可完成对再平衡发生的监听</p>
+<p>分配分区的过程<br>Broker端会有一个<strong>群组协调器</strong>，当一个新的消费者加入时，会向该协调器发送一个<strong>JoinGroup</strong>请求。第一个加入群组的消费者成为<strong>群主</strong>，群主有三个功能：1、能够从协调器获取当前所有的成员列表（活跃的消费者）；2、根据成员列表，将分区平均分配；3、分配完毕后，将分区情况发回给协调器；<br>每个消费者只能看到自己的分配信息，只有群主知道所有消费者的分配信息。这些过程只有在再平衡时发生</p>
+<h1 id="Kafka如何实现消息交付的可靠性"><a href="#Kafka如何实现消息交付的可靠性" class="headerlink" title="Kafka如何实现消息交付的可靠性"></a>Kafka如何实现消息交付的可靠性</h1><p>有这么个问题：如何保证生产者不会重复发送消息，比如因为网络抖动，生产者发送消息失败，等网络好了以后，生产者重复发送了消息，这会出现消费者重复消费的情况 </p>
+<p>Kafka提供了三种承诺：</p>
+<p>1、 最多一次（at most once)：消息可能会丢失，但绝不会被重复发送<br>2、 至少一次（at least once）：消息不会丢失，但可能会被重复发送（<strong>默认</strong>）<br>3、 精确一次（exactly once）：消息不会丢失，也不会被重复发送</p>
+<h2 id="Kafka做到精确一次的技术实现"><a href="#Kafka做到精确一次的技术实现" class="headerlink" title="Kafka做到精确一次的技术实现"></a>Kafka做到精确一次的技术实现</h2><p>Kafka使用分别使用两种技术实现：<strong>幂等性</strong>和<strong>事务</strong></p>
+<h3 id="幂等性（Idempotence）"><a href="#幂等性（Idempotence）" class="headerlink" title="幂等性（Idempotence）"></a>幂等性（Idempotence）</h3><p>在配置Kafka的生产者，可以加上该参数<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">props.put(<span class="string">"enable.idempotence"</span>, <span class="keyword">true</span>);</span><br></pre></td></tr></table></figure></p>
+<p>这种幂等性跟Web实现幂等性是差不多的，服务端Broker多存一些字段，当Producer发送了具有相同的字段（比如一个随机的ID）消息后，Broker就可以知道这些消息有没有被重复消费<br>局限性：只能保证某个主题的一个分区上不会出现重复消息，无法实现多个分区的幂等性。而且只能保证同一个会话的幂等性，当服务端重启后，幂等性保证就消失</p>
+<p>如果要实现多分区以及多会话的消息无重复保证，就是用事务(Transaction)</p>
+<h3 id="事务（Transaction）"><a href="#事务（Transaction）" class="headerlink" title="事务（Transaction）"></a>事务（Transaction）</h3><p>Kafka 0.11版本开始引入了对事务的支持<br><strong>read committed</strong>隔离级别，保证多条消息原子地写入到目标分区，能够保证Consumer只能看到事务成功提交的消息</p>
+<p>事务型Producer能够保证将消息原子性地写入到多个分区中，要么全部写入成功，要么全部写入失败。所以就算是网络发生异常，那条旧的消息是不会发送的</p>
+<p>开启事务型Producer（需要两步）：<br>1、 开启幂等性Idempotence：enabl.idempotence = true<br>2、 设置Producer端陈述transaction.id</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">producer.initTransactions();</span><br><span class="line"><span class="keyword">try</span>&#123;</span><br><span class="line">    producer.beginTransaction();</span><br><span class="line">    producer.send(msg1);</span><br><span class="line">    producer.send(msg2);</span><br><span class="line">    producer.commitTransaction();</span><br><span class="line">&#125;<span class="keyword">catch</span>(Exception e)&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>但发生写入失败时，Kafka也会把消息写入到底层日志，Consumer也可能会看到并消费这条消息，不过这也是可配置的，通过配置隔离级别isolation.level参数：<br>1、 read_uncommitted：这是默认值，Consumer可以读取到Kafka写入消息，不管消息是否被提交<br>2、 read_committed：表明Consumer只可以读取到事务提交的消息</p>
+<p>这里稍微总结一下，Kafka怎么保证生产者不会重复发送相同的消息？<br>1、通过幂等性Producer，但幂等性Producer有局限性，比如智能保证同一个分区下的幂等性<br>2、通过事务型Producer，虽然有很好的可靠性保证，但是性能会很差，吞吐量不高</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/22/浅析ClassLoader/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -402,165 +595,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/08/每日一题——该死的二叉树/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/08/每日一题——该死的二叉树/" itemprop="url">每日一题——该死的二叉树</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-08T08:57:10+08:00">
-                2019-09-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/算法/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>今天趁着周末，来聊聊两道题目。周末做了两家公司的秋招笔试——小米、网易娱乐，虽然笔试类型不同，但最后都有编程题。而且编程题中刚好都考了二叉树的算法题，而且不是正规的二叉树题目，算是二叉树的变种题，惭愧的是小米的那道二叉树想到了解决方案，无奈最后时间有限，只搭了个框架，没有做出来<br>PS：笔试虐我千百遍，我待笔试如初恋</p>
-<h1 id="题目一：中根遍历二叉树"><a href="#题目一：中根遍历二叉树" class="headerlink" title="题目一：中根遍历二叉树"></a>题目一：中根遍历二叉树</h1><p>题目是这样的：输入一个字符串，该字符串是二叉树先根遍历比如输入1(2,3)，输出该二叉树的中根遍历序列<br>输入的先根遍历序列，比如1(2,3)，它对应节点的结构为：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908114105153.png" alt="节点"><br>也就是括号里面代表子节点，括号外面是父节点<br>再来举个例子，例如输入：1(2(4,),3(,5))，对应的树结构为：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908114354580.png" alt="节点2"><br>如果输入：1 ，那么对应的只有1这个节点，没有子节点</p>
-<h2 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h2><p>刚开始看到括号，脑子里立马想到的是使用栈，但比划了许久后发现使用栈行不通，所以改变了一下策略<br>这道题的关键，只要能通过输入的字符串构造二叉树就好办了。先来看下1(2,3）这个字符串怎么构造节点，其实很简单嘛，括号外面就是父节点，逗号左边就是左子节点，右边就是右子节点<br>单个括号很容易解决，那多个括号镶嵌怎么解决？我们就一个一个解决，用分治思想，因为我们解决单个括号后，还要回退回去，跟父节点匹配，所以 <strong>分治法</strong> 就是这道题的关键<br>对于输入：1(2(3,4(,5)),6(7,)) 我画个图分析下：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908020247432.png" alt="分治"><br>构建出来的二叉树为：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908020339403.png" alt="二叉树"><br>整个解题过程大概就是这样，但还有一个关键问题没解决：怎么截取字符串？也就是怎么从1(2(3,4(,5)),6(7,))截取出2(3,4(,5))和6(7,)<br>我们可以写个函数，该函数可以找到括号中分割的逗号下标，这样就可以把字符串划分为左右子串两部分，代表两个节点<br>我的思路是这样的：<br>1、先判断该字符串是否有左节点<br>2、如果没有左节点，例如1(,3(4,5))，那么返回的下标就为2<br>3、如果有左节点，还要在分下情况<br>    3.1、如果左节点没有子节点，返回3，例如1(2,3(4,5))<br>    3.2、如果左节点有子节点，那么就循环一直找。例如1(2(3,4(,5)),6(7,)) 从’3’开始，定义一个sum=1（代表有一个左括号还没匹配），每遇到一个左括号sum++，遇到右括号sum–，直到sum==0终止条件，返回当前下标加一，idx+1</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">/** 找到分割的逗号下标 **/</span><br><span class="line">    public static int findMidComma(String input) &#123;</span><br><span class="line">        // 查看有没有左节点</span><br><span class="line">        // 如果有左节点而且左节点还有子节点</span><br><span class="line">        if (input.charAt(2)!=&apos;,&apos; &amp;&amp; input.charAt(3) == &apos;(&apos;)&#123;</span><br><span class="line">            int sum = 1;</span><br><span class="line">            char[] chars = input.toCharArray();</span><br><span class="line">            int idx = -1;</span><br><span class="line">            for (int i = 4; i &lt; chars.length &amp;&amp; sum!=0; i++) &#123;</span><br><span class="line">                if (chars[i] == &apos;)&apos;)&#123;</span><br><span class="line">                    sum--;</span><br><span class="line">                &#125;</span><br><span class="line">                if (chars[i] == &apos;(&apos;)&#123;</span><br><span class="line">                    sum++;</span><br><span class="line">                &#125;</span><br><span class="line">                idx = i;</span><br><span class="line">            &#125;</span><br><span class="line">            return idx+1;</span><br><span class="line">        &#125;</span><br><span class="line">        // 有左节点但没有左节点的子节点</span><br><span class="line">        else if (input.charAt(2)!=&apos;,&apos; &amp;&amp; input.charAt(3) == &apos;,&apos;)&#123;</span><br><span class="line">            return 3;</span><br><span class="line">        &#125;</span><br><span class="line">        // 如果没有左节点</span><br><span class="line">        return 2;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>画个图就知道了：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908020417216.png" alt="流程1"><br><img src="/2019/09/08/每日一题——该死的二叉树/20190908020526633.png" alt="流程2"><br>可能有人会担心越界问题，但我们只要严格控制调用这个函数时，字符串长度一定到大于6即可<br>好了，只要分割到字符串的个数小于等于6，就能使用开头我们讲的单个括号生成节点的方案，然后递归回溯回去就能构成一棵二叉树<br>但题目要求是求中根遍历，二叉树我们构建出来了，那么中根遍历就很容易了</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">static StringBuilder builder = new StringBuilder();</span><br><span class="line">private static void midOrder(TreeNode root) &#123;</span><br><span class="line">        if (root == null)&#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        midOrder(root.left);</span><br><span class="line">        builder.append(root.val);</span><br><span class="line">        midOrder(root.right);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我们声明一个全局变量，记录遍历的节点值，使用递归的方法就可完成该题目<br>完整代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line">package bishi.xiaomi;</span><br><span class="line"></span><br><span class="line">import java.util.*;</span><br><span class="line"></span><br><span class="line">public class Main2 &#123;</span><br><span class="line"></span><br><span class="line">    static StringBuilder builder = new StringBuilder();</span><br><span class="line"></span><br><span class="line">    /*请完成下面这个函数，实现题目要求的功能</span><br><span class="line">    当然，你也可以不按照下面这个模板来作答，完全按照自己的想法来 ^-^</span><br><span class="line">    ******************************开始写代码******************************/</span><br><span class="line">    static String solution(String input) &#123;</span><br><span class="line">        // 将字符串解析成二叉树</span><br><span class="line">        TreeNode root = resolveStringToTree(input);</span><br><span class="line">        // 中跟遍历</span><br><span class="line">        midOrder(root);</span><br><span class="line">        return builder.toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static void midOrder(TreeNode root) &#123;</span><br><span class="line">        if (root == null)&#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        midOrder(root.left);</span><br><span class="line">        builder.append(root.val);</span><br><span class="line">        midOrder(root.right);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private static TreeNode resolveStringToTree(String input) &#123;</span><br><span class="line">        if (&quot;&quot;.equals(input))&#123;</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line">        TreeNode root = new TreeNode(input.charAt(0) - &apos;0&apos;);</span><br><span class="line">        // 终止条件，当字符串长度最长为6时，例如：1(2,3)</span><br><span class="line">        if (input.length()&lt;=6)&#123;</span><br><span class="line">            // 没有子节点</span><br><span class="line">            if (input.length() == 1)&#123;</span><br><span class="line">                return root;</span><br><span class="line">            &#125;</span><br><span class="line">            // 有左节点 3(4,)</span><br><span class="line">            else if (input.charAt(2) != &apos;,&apos;)&#123;</span><br><span class="line">                root.left = new TreeNode(input.charAt(2)-&apos;0&apos;);</span><br><span class="line">            &#125;</span><br><span class="line">            // 有右节点 3(,4)</span><br><span class="line">            else &#123;</span><br><span class="line">                root.right = new TreeNode(input.charAt(3) - &apos;0&apos;);</span><br><span class="line">            &#125;</span><br><span class="line">            return root;</span><br><span class="line">        &#125;</span><br><span class="line">        // 还可以继续划分</span><br><span class="line">        int idx = findMidComma(input);</span><br><span class="line">        root.left = resolveStringToTree(input.substring(2,idx));</span><br><span class="line">        root.right = resolveStringToTree(input.substring(idx+1, input.length()-1));</span><br><span class="line">        return root;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /** 找到分割的逗号下标 **/</span><br><span class="line">    public static int findMidComma(String input) &#123;</span><br><span class="line">        // 查看有没有左节点</span><br><span class="line">        // 如果有左节点而且左节点还有子节点</span><br><span class="line">        if (input.charAt(2)!=&apos;,&apos; &amp;&amp; input.charAt(3) == &apos;(&apos;)&#123;</span><br><span class="line">            int sum = 1;</span><br><span class="line">            char[] chars = input.toCharArray();</span><br><span class="line">            int idx = -1;</span><br><span class="line">            for (int i = 4; i &lt; chars.length &amp;&amp; sum!=0; i++) &#123;</span><br><span class="line">                if (chars[i] == &apos;)&apos;)&#123;</span><br><span class="line">                    sum--;</span><br><span class="line">                &#125;</span><br><span class="line">                if (chars[i] == &apos;(&apos;)&#123;</span><br><span class="line">                    sum++;</span><br><span class="line">                &#125;</span><br><span class="line">                idx = i;</span><br><span class="line">            &#125;</span><br><span class="line">            return idx+1;</span><br><span class="line">        &#125;</span><br><span class="line">        // 有左节点但没有左节点的子节点</span><br><span class="line">        else if (input.charAt(2)!=&apos;,&apos; &amp;&amp; input.charAt(3) == &apos;,&apos;)&#123;</span><br><span class="line">            return 3;</span><br><span class="line">        &#125;</span><br><span class="line">        // 如果没有左节点</span><br><span class="line">        return 2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /******************************结束写代码******************************/</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public static void main(String[] args)&#123;</span><br><span class="line">        Scanner in = new Scanner(System.in);</span><br><span class="line">        String res;</span><br><span class="line"></span><br><span class="line">        String _input;</span><br><span class="line">        try &#123;</span><br><span class="line">            _input = in.nextLine();</span><br><span class="line">        &#125; catch (Exception e) &#123;</span><br><span class="line">            _input = null;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        res = solution(_input);</span><br><span class="line">        System.out.println(res);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    static class TreeNode&#123;</span><br><span class="line">        int val;</span><br><span class="line">        TreeNode left;</span><br><span class="line">        TreeNode right;</span><br><span class="line">        public TreeNode(int val)&#123;</span><br><span class="line">            this.val = val;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 测试用例：</span><br><span class="line">//1(2(3,4(,5)),6(7,)) 324176</span><br><span class="line"></span><br><span class="line">//1(2(3(4,),),)  4321</span><br><span class="line"></span><br><span class="line">//1(,2(,3(,4)))  1234</span><br></pre></td></tr></table></figure>
-<h1 id="题目二：递增树"><a href="#题目二：递增树" class="headerlink" title="题目二：递增树"></a>题目二：递增树</h1><p>这道题是网易娱乐的笔试题，题目是这样的，输入整数n，代表n个节点，然后接下来的n行，每行代表第k个节点（k从0开始），每行输入3个数，第一个数代表节点的值，第二个值代表左子节点的序号，第三个值代表右子节点的序号，如果没有子节点就输入-1，这样输入的就是一棵二叉树。判断这颗二叉树是不是递增树，递增树：树的每一层值的和比下一层值的和小<br>是不是看到题目描述看不懂，没关系，我也就看了十几分钟才看得懂他到底想说什么。<br>比如输入：n=3，接下来输入3行<br>1 1 2<br>2 -1 -1<br>3 -1 -1<br>一行代表一个节点，第一个数代表该节点的值，第二个数为左子树的序号，也就是1代表下面一行的值为2的节点，第三个数代表右子树的序号，也就是2代表白值为3的节点，画图如下<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908022255871.png" alt="2.1"><br>关键是理解每行输入的后面两个数，对应输入的行数的第n+1行</p>
-<h2 id="方案-1"><a href="#方案-1" class="headerlink" title="方案"></a>方案</h2><p>要判断这棵树是不是递增树，我们也要首先把输入的节点构造成一个二叉树<br>我们先声明树节点的Class类</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">static class TreeNode&#123;</span><br><span class="line">        int val;</span><br><span class="line">        TreeNode left; //左节点</span><br><span class="line">        TreeNode right; // 右节点</span><br><span class="line">        int leftIdx;   // 左节点下标</span><br><span class="line">        int rightIdx;  // 右节点下标</span><br><span class="line">        int maxDepth;  // 该节点的最深度</span><br><span class="line">        public TreeNode(int val)&#123;</span><br><span class="line">            this.val = val;</span><br><span class="line">        &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<p>前三个属性很好理解，后面三个是为了后续操作加上的。<br>因为我想先用TreeNode[] 数组存放输入的各个节点，所以leftIdx和rightIdx分别对应在数组中的下标。<br>然后遍历一遍数组，让数组中的各个节点左右指针连接起来<br>如图：<br><img src="/2019/09/08/每日一题——该死的二叉树/20190908030304451.png" alt="2.2"><br>经过步骤1后形成了数组TreeNode[]，已经可以构成一棵二叉树了，但是我们不知道哪个是根节点，所以TreeNode的属性maxDepth派上用场了。<br>我们写个函数maxDepth(TreeNode node)，计算数组中每个节点的最大深度，然后从数组中找出最大的maxDepth，该节点就是根节点了<br>求每个节点的最深度这个函数也不难写</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/** 求每个节点的深度 **/</span><br><span class="line">    private static int maxDepth(TreeNode treeNode) &#123;</span><br><span class="line">        if (treeNode == null)&#123;</span><br><span class="line">            return 0;</span><br><span class="line">        &#125;</span><br><span class="line">        int left = maxDepth(treeNode.left);</span><br><span class="line">        int right = maxDepth(treeNode.right);</span><br><span class="line">        return Math.max(left, right)+1;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<p>只要得到根节点，二叉树就算构建完成了，回到题目，判断树是否为递增树，我的思路是：我们维护一个maxDepth大小的int[]数组res，每个值代表该层的总和值。我们如果能将这个res计算处理，遍历一遍就知道是不是递增树了<br>这个函数也不难写，我们可以通过深度搜索DFS，函数接受三个值——节点，res数组，当前层数i。dfs(TreeNode root,int[] res, int i)， 递归搜索知道叶节点即可</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/** 深度搜索，计算每一层的和 **/</span><br><span class="line">    private static void dfs(TreeNode root, int[] res, int i) &#123;</span><br><span class="line">        if (root == null)&#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        res[i] += root.val;</span><br><span class="line">        // left</span><br><span class="line">        dfs(root.left, res,i+1);</span><br><span class="line">        // right</span><br><span class="line">        dfs(root.right, res,i+1);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>完整代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line">package bishi.wangyiyouxi;</span><br><span class="line"></span><br><span class="line">import java.util.Scanner;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 测试用例</span><br><span class="line"> * n=8</span><br><span class="line"> * 2 -1 -1</span><br><span class="line"> * 1 5 3</span><br><span class="line"> * 4 -1 6</span><br><span class="line"> * 2 -1 -1</span><br><span class="line"> * 3 0 2</span><br><span class="line"> * 2 4 7</span><br><span class="line"> * 7 -1 -1</span><br><span class="line"> * 2 -1 -1</span><br><span class="line"> * @author SouthLight-Lin on 2019/9/7</span><br><span class="line"> */</span><br><span class="line">public class Main2 &#123;</span><br><span class="line">    static class TreeNode&#123;</span><br><span class="line">        int val;</span><br><span class="line">        TreeNode left; //左节点</span><br><span class="line">        TreeNode right; // 右节点</span><br><span class="line">        int leftIdx;   // 左节点下标</span><br><span class="line">        int rightIdx;  // 右节点下标</span><br><span class="line">        int maxDepth;  // 该节点的最深度</span><br><span class="line">        public TreeNode(int val)&#123;</span><br><span class="line">            this.val = val;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        Scanner  in = new Scanner(System.in);</span><br><span class="line">        int n = in.nextInt();</span><br><span class="line">        for (int i = 0; i &lt; n; i++) &#123;</span><br><span class="line">            int nodeSum = in.nextInt();</span><br><span class="line">            TreeNode[] treeNodes = new TreeNode[nodeSum];</span><br><span class="line">            for (int j = 0; j &lt; nodeSum; j++) &#123;</span><br><span class="line">                treeNodes[j] = new TreeNode(in.nextInt());</span><br><span class="line">                treeNodes[j].leftIdx = in.nextInt();</span><br><span class="line">                treeNodes[j].rightIdx = in.nextInt();</span><br><span class="line">            &#125;</span><br><span class="line">            TreeNode root = buildBinaryTree(treeNodes);</span><br><span class="line">            boolean flag = judge(root);</span><br><span class="line">            if (flag)&#123;</span><br><span class="line">                System.out.println(&quot;YES&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            else &#123;</span><br><span class="line">                System.out.println(&quot;NO&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    /** 判断 **/</span><br><span class="line">    private static boolean judge(TreeNode root) &#123;</span><br><span class="line">        int[] res = new int[root.maxDepth];</span><br><span class="line">        dfs(root, res, 0);</span><br><span class="line">        for (int i = 0; i &lt; root.maxDepth-1; i++) &#123;</span><br><span class="line">            if (res[i] &gt; res[i+1])&#123;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    /** 深度搜索，计算每一层的和 **/</span><br><span class="line">    private static void dfs(TreeNode root, int[] res, int i) &#123;</span><br><span class="line">        if (root == null)&#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        res[i] += root.val;</span><br><span class="line">        // left</span><br><span class="line">        dfs(root.left, res,i+1);</span><br><span class="line">        // right</span><br><span class="line">        dfs(root.right, res,i+1);</span><br><span class="line">    &#125;</span><br><span class="line">    /** 构造二叉树 **/</span><br><span class="line">    private static TreeNode buildBinaryTree(TreeNode[] treeNodes) &#123;</span><br><span class="line">        // 先遍历一遍，让数组中的各个节点的指针连接起来</span><br><span class="line">        for (TreeNode treeNode : treeNodes) &#123;</span><br><span class="line">            if (treeNode.leftIdx != -1)&#123;</span><br><span class="line">                treeNode.left = treeNodes[treeNode.leftIdx];</span><br><span class="line">            &#125;</span><br><span class="line">            if (treeNode.rightIdx != -1)&#123;</span><br><span class="line">                treeNode.right = treeNodes[treeNode.rightIdx];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 计算每个节点的最深度</span><br><span class="line">        for (TreeNode treeNode : treeNodes) &#123;</span><br><span class="line">            treeNode.maxDepth = maxDepth(treeNode);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        TreeNode root = treeNodes[0];</span><br><span class="line"></span><br><span class="line">        for (int i = 1; i &lt; treeNodes.length; i++) &#123;</span><br><span class="line">            if (root.maxDepth &lt; treeNodes[i].maxDepth)&#123;</span><br><span class="line">                root = treeNodes[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return root;</span><br><span class="line">    &#125;</span><br><span class="line">    /** 求每个节点的深度 **/</span><br><span class="line">    private static int maxDepth(TreeNode treeNode) &#123;</span><br><span class="line">        if (treeNode == null)&#123;</span><br><span class="line">            return 0;</span><br><span class="line">        &#125;</span><br><span class="line">        int left = maxDepth(treeNode.left);</span><br><span class="line">        int right = maxDepth(treeNode.right);</span><br><span class="line">        return Math.max(left, right)+1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这两道算法题都是很有代表性的，一方面考察我们构造二叉树的能力，第二方面考察我们对递归和分治法运用。说实话大厂的笔试是真的难，前几次笔试的题没有一道能跑通过，笔试完就挂了，连面试的机会都没有，我不服气，我就不信没一道能跑通过！终于，昨晚的笔试，四道算法题终于跑过了三道，算是一种鼓励吧。算法这种东西，还是得多学多练才能掌握~~~</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -611,7 +645,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-count">32</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -622,7 +656,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -633,7 +667,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">16</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

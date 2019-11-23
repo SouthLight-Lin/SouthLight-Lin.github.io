@@ -259,6 +259,162 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/25/一段String代码引发的思考/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SouthLight Lin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SouthLight's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/02/25/一段String代码引发的思考/" itemprop="url">一段String代码引发的思考</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-25T20:19:08+08:00">
+                2019-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="问题的出现"><a href="#问题的出现" class="headerlink" title="问题的出现"></a>问题的出现</h1><p>  String对象我们写Java的不可能没用过吧，但是你知道字符串常量池吗？今天就来聊聊JVM底层的字符串常量池，什么时候把字符串放进常量池？JDK1.6跟JDK1.7的常量池有什么变化？除了字符串常量池还有没有其他的常量池<br>先来看一段代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">String s1 = new String(&quot;1&quot;);</span><br><span class="line">s1.intern();</span><br><span class="line">String s2 = &quot;1&quot;;</span><br><span class="line">System.out.println(s1==s2);   // false</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">String  s3 = new String(&quot;2&quot;) + new String(&quot;2&quot;);</span><br><span class="line">s3.intern();</span><br><span class="line">String s4 = &quot;22&quot;;</span><br><span class="line">System.out.println(s3 == s4);  // true</span><br></pre></td></tr></table></figure></p>
+<p>总共有两句输出，你知道两句输出的结果是什么吗？虽然注释第一个为false，第二个为true。但是在JDK1.6里面，两个都为false，你知道为什么吗？请开始我的表演。</p>
+<h1 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>  说白了，字符串常量池就是用来存放字符串数据（在内存中）。但是注意，字符串常量池只是JVM中的一种常量池，其他的还有<strong> class文件常量池 </strong> ，<strong> 运行时常量池 </strong><br>  一时间也说不清楚其他两种常量池的作用和关系，只知道运行时常量池包含class文件常量池和字符串常量池，而且运行时常量池都存在于<strong> 方法区 </strong><br>  在JDK1.6及以前版本，字符串常量池是存在于运行时常量池，也就是存在于方法区中的。但是，JDK1.7以后，字符串常量池就被移出到<strong> 堆 </strong> 里面了。</p>
+<h2 id="什么时候才可以向字符串常量池添加数据"><a href="#什么时候才可以向字符串常量池添加数据" class="headerlink" title="什么时候才可以向字符串常量池添加数据"></a>什么时候才可以向字符串常量池添加数据</h2><ul>
+<li>1、常量的字符串，就是被关键字final修饰的字符串，会在编译时添加进字符串常量池</li>
+<li>2、显示声明的时候。比如String s=”1”，这时，当执行这段代码的时候，就会向字符串常量池里面添加数据，叫做字面量</li>
+<li>3、调用String类的intern方法时（这个方法在JDK1.6和1.7里面有差异，等下面再说）</li>
+</ul>
+<h1 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h1><p>  经过上面的一番操作，我们应该理解常量池（在方法区中）和堆是两个不同的东西。所以，我们可以推测，上面的代码之所以输出的结果会不一样，原因应该是有些对象是在堆里面，有些对象是常量池里面的。</p>
+<h2 id="首先看第一个输出那段代码"><a href="#首先看第一个输出那段代码" class="headerlink" title="首先看第一个输出那段代码"></a>首先看第一个输出那段代码</h2><p>String s1 = new String(“1”);请问这句代码一共创建了多少个对象？1个？错！是两个。s1是一个，还有一个就是上面说过的字面量，”1”就是字面量，此时会在字符串常量池里面创建一个”1”的对象，所以总共两个。<strong> s1指向的是堆里面的”1”对象 </strong> ，接下来调用intern方法，下面就来解释下该方法的作用</p>
+<h2 id="intern（）方法的作用"><a href="#intern（）方法的作用" class="headerlink" title="intern（）方法的作用"></a>intern（）方法的作用</h2><p>简单的讲，intern方法就是<strong> 向常量池里面添加数据 </strong> ，前提是<strong> 该数据还不在常量池里面 </strong> ，然后返回一个String对象<br>  JDK1.6里面，intern方法向字符串常量池里面添加的是对象，也就是比如s1.intern（s1是String对象，值为1），如果常量池里面还没有”1”这个对象，就会将”1”这个对象添加到常量池里面。如果常量池里面已经有”1”这个对象了，则返回<strong> 常量池里面的对象 </strong> 。<br>  JDK1.7里面，如果常量池里面有”1”这个对象，做法跟1.6时一样，返回<strong> 常量池里面的对象 </strong> ，但是，如果常量池里面没有该值的对象，则添加的是<strong> 对s1在堆中的对象的引用 </strong> （说得有点绕口，说白了就是添加在堆中的对象）。<br>  我们看下代码就知道了<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String s1 = new String(&quot;1&quot;);</span><br><span class="line">String s2 = s1.intern();</span><br><span class="line">System.out.println(s1 == s2); // false</span><br><span class="line"></span><br><span class="line">String s3 = &quot;1&quot;;</span><br><span class="line">System.out.println(s2 == s3); // true</span><br></pre></td></tr></table></figure></p>
+<p>  执行s1.intern返回的是常量池里面的对象，因为上一句代码已经创建了两个对象，一个在堆里面，一个在常量池里面。所以intern方法会发现常量池里面已经有”1”这个对象了，则返回该对象。s3也是常量池里面的”1”对象，所以一个输出false，一个输出true.</p>
+<h2 id="继续分析"><a href="#继续分析" class="headerlink" title="继续分析"></a>继续分析</h2><p>  我们前面说到intern方法只是检查常量池里面有没有该值，有则返回（返回的是常量池里面的对象），没有则添加（JDK1.6和1.7的添加规则不同）。接下来String s2=”1”；因为s2是字面量，也就是显示声明，而且常量池里面已经有”1”这个对象了。所以答案就很明显了，s1是在堆里面的”1”对象，s2是在字符串常量池里面的”1”对象，所以两者是不会相等的，结果为false。</p>
+<h2 id="继续分析第二段代码"><a href="#继续分析第二段代码" class="headerlink" title="继续分析第二段代码"></a>继续分析第二段代码</h2><p>  String s3 = new String(“2”) + new String(“2”);这里虽然也是创建了两个对象，一个是”22”的堆对象，一个是”2”的常量池对象，注意：没有”22”常量池对象。<br>  接下来调用intern方法，因为字符串常量池还没有”22”这个对象，所以重点来了，如果是JDK1.7，添加的是<strong> 堆里面”22”这个对象的引用（说白了就是堆里面”22”这个对象）</strong> ，所以常量池里面的”22”这个对象会指向堆里面”22”这个对象。所以下一句代码String s4=”22”，貌似是常量池里面的”22”对象，但是因为此时常量池的”22”对象已经指向了堆里面的”22”对象，所以说s4也是堆里面的对象。所以输出结果为true。<br>  但是如果是JDK1.6，在调用intern方法的时候，因为常量池的”22”这个对象还不存在，所以就添加了”22”这个常量池对象，注意：<strong> 是常量池对象 </strong> ，所以下一句的String s4=”22”就是常量池对象了，结果就输出了false。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>说了那么多，其实就一句——常量池对象跟堆里面的对象时不一样的（只是简单理解，不要当真）<br>贴出总代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.stringpool;</span><br><span class="line"></span><br><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        /**</span><br><span class="line">         * 第一条代码一运行，会创建两个对象。</span><br><span class="line">         * 一个对象是常量池 &quot;1&quot;的对象，存储在字符串常量池中</span><br><span class="line">         * 另一个对象是 String 对象s1</span><br><span class="line">         * 这里s1因为是new出来的，所以s1是堆里面的String对象</span><br><span class="line">         */</span><br><span class="line">        String s1 = new String(&quot;1&quot;);</span><br><span class="line">        /**</span><br><span class="line">         * 调用intern方法，如果&quot;1&quot;不在字符串常量池中，则将s1对象的引用（内存中的地址）添加到字符串常量池中</span><br><span class="line">         * JDK1.7以上就是添加对象的引用，但是1.7以下是直接将&quot;1&quot;添加到常量池</span><br><span class="line">         * 但是如果存在这个&quot;1&quot;值的对象，则返回该对象</span><br><span class="line">         * 返回的常量池里面的对象</span><br><span class="line">         */</span><br><span class="line">        String s5 = s1.intern();</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s5是返回常量池里面的&quot;1&quot;对象</span><br><span class="line">         * s1是堆里面的对象</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s1 == s5);  // false</span><br><span class="line">        /**</span><br><span class="line">         * 第三条代码运行时，因为上面第一条代码已经将&quot;1&quot;放进了字符串常量池了</span><br><span class="line">         * 所以s2是字符创常量池里面的&quot;1&quot;对象</span><br><span class="line">         */</span><br><span class="line">        String s2 = &quot;1&quot;;</span><br><span class="line">        /**</span><br><span class="line">         * 因为s1是堆里面String对象，s2是字符串常量池&quot;1&quot;的对象，所以为false</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s1==s2);   // false</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s5是返回常量池里面的&quot;1&quot;对象</span><br><span class="line">         * s2也是常量池里面&quot;1&quot;的对象</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s5 == s2); // true</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 这里的s3显然是&quot;22&quot;，但是，&quot;22&quot;还没有进入字符串常量</span><br><span class="line">         * 也就是说，目前字符串常量里面只有&quot;2&quot;这个对象</span><br><span class="line">         * 但是，堆中有&quot;22&quot;这个对象</span><br><span class="line">         * s3就是指向&quot;22&quot;这个堆中的对象的引用</span><br><span class="line">         */</span><br><span class="line">        String  s3 = new String(&quot;2&quot;) + new String(&quot;2&quot;);</span><br><span class="line">        /**</span><br><span class="line">         * 因为&quot;22&quot;还没有进入字符串常量，所以把s3这个对象对应的在堆中&quot;22&quot;这个对象的引用推入字符串常量池</span><br><span class="line">         * 也就是说字符串常量池的&quot;22&quot;会指向堆里面&quot;22&quot;这个对象</span><br><span class="line">         * 如果值已经存在，则返回常量池里面值&quot;22&quot;的对象</span><br><span class="line">         */</span><br><span class="line">        String s6 = s3.intern();</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s6和s3都是堆里面&quot;22&quot;这个对象的引用，所以为true</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s6 == s3);  // true</span><br><span class="line">        /**</span><br><span class="line">         * 因为上面的intern方法已经将&quot;22&quot;这个对象的引用放进字符创常量池</span><br><span class="line">         * 所以s4指向的堆里面&quot;22&quot;这个对象</span><br><span class="line">         */</span><br><span class="line">        String s4 = &quot;22&quot;;</span><br><span class="line">        /**</span><br><span class="line">         * 因为s4和s3引用的都是堆里面的对象，所以为true</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s3 == s4);  // true</span><br><span class="line"></span><br><span class="line">        System.out.println(s6 == s4);  // true</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/24/git学习/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -405,179 +561,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/23/使用redis的分布式锁实现一个简单的秒杀系统/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/02/23/使用redis的分布式锁实现一个简单的秒杀系统/" itemprop="url">使用redis的分布式锁实现一个简单的秒杀系统</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-23T16:03:51+08:00">
-                2019-02-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/实战/" itemprop="url" rel="index">
-                    <span itemprop="name">实战</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>实现秒杀系统时，为了控制并发造成商品数量的不一致，我们可能会在程序中使用锁，比如一般会用synchronized关键字或者ReentrantLock的Lock锁来加锁，但是这种加锁的最细粒子程度只能到代码段，按照我们的想法，当发生对同一个商品（比如id）执行操作时，才需要加锁；但是如果此时进来两个不同的商品（比如id为100和200），我们可以不用加锁，因为两个不同的商品互不干扰，就算不加锁也不会出现并发问题。而我们如果使用synchronized或者Lock实现加锁时，当两个并发访问两个不同的商品时，还是会对我们的代码段加锁。<br>这时，我们可以使用redis的setnx（set if not exists)来实现加锁的功能，setnx（key, value)就是如果key不存在redis，就运行设置（key，value）值。如果key值已经存在，就不允许操作。我们可以利用这个特性，在程序对商品进行操作时，可以向redis进行setnx，key值可以为商品的id比如gId:10092，value值随意。如果redis成功设置了gId:10092则证明目前除了当前操作还没有人对商品进行修改，当我们完成了对商品的操作完，记得一定要<strong> 把key值删除掉（del key) </strong> 。 如果redis设置gId:10092失败了，则说明当前有人正在修改商品的属性，我们可以先放弃操作，休息一小段时间后再请求。这样就差不多是占“茅坑”，茅坑有很多个，当你想要蹲的茅坑已经被别人占时，你只好先放弃然后稍后再尝试。<br>可能有人会问，为什么要绕这么大的弯子去请求redis服务器再操作了呢？主要有两个原因：第一、上面已经说了，如果用Synchronized或者Lock锁，就算是不同的商品，都会对核心代码段产生竞争。第二、Redis足够快，它是纯内存操作的，速度很快，就算是发送请求访问redis，延迟可以忽略不计。</p>
-<h1 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h1><h2 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h2><p>Maven，Spring环境，SpringAOP环境，Jedis包，junti测试包<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependencies&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-context&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;5.0.3.RELEASE&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.aspectj&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;aspectjweaver&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;1.8.11&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;!-- https://mvnrepository.com/artifact/redis.clients/jedis --&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;redis.clients&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;jedis&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;3.0.1&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;junit&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;junit&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;4.11&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">    &lt;/dependencies&gt;</span><br></pre></td></tr></table></figure></p>
-<h2 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h2><h3 id="秒杀的逻辑"><a href="#秒杀的逻辑" class="headerlink" title="秒杀的逻辑"></a>秒杀的逻辑</h3><p>假设我们就只有一个服务——秒杀商品，我们先定义一个接口，然后写一个实现类，接口里面只有一个秒杀方法<br>秒杀接口<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">package workspace;</span><br><span class="line">public interface SecKill &#123;</span><br><span class="line">    public void seckill(String userId, Long gId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>秒杀实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">package workspace;</span><br><span class="line">import org.springframework.stereotype.Service;</span><br><span class="line">import java.util.HashMap;</span><br><span class="line">import java.util.Map;</span><br><span class="line">@Service</span><br><span class="line">public class SecKillImpl implements SecKill &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 模拟数据库</span><br><span class="line">     */</span><br><span class="line">    static Map&lt;Long, Long&gt; inventory ;</span><br><span class="line">    static &#123;</span><br><span class="line">        inventory = new HashMap&lt;&gt;();</span><br><span class="line">        // 插入两条数据</span><br><span class="line">        inventory.put(10001L, 1000L);</span><br><span class="line">        inventory.put(10002L, 1000L);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void seckill(String userId, Long gId) &#123;</span><br><span class="line">        if (null!=userId)&#123;</span><br><span class="line">            reduceInventory(gId);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    /**</span><br><span class="line">     * 库存减一</span><br><span class="line">     * @param gId</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    public Long reduceInventory(Long gId)&#123;</span><br><span class="line">        inventory.put(gId, inventory.get(gId)-1);</span><br><span class="line">        return  inventory.get(gId);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这里我们用HashMap模拟数据库，数据里面有两条数据，库存都是1000，秒杀的逻辑就是让库存减一</p>
-<h3 id="AOP切面实现加锁解锁"><a href="#AOP切面实现加锁解锁" class="headerlink" title="AOP切面实现加锁解锁"></a>AOP切面实现加锁解锁</h3><p>接下来，我用AOP对seckill方法进行增强，在不改变seckill方法的前提下，利用AOP的环绕通知对seckill进行加锁和解锁，所以需要配置AOP环境<br>配置切面切点和方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">package config;</span><br><span class="line"></span><br><span class="line">import org.aspectj.lang.ProceedingJoinPoint;</span><br><span class="line">import org.aspectj.lang.annotation.Around;</span><br><span class="line">import org.aspectj.lang.annotation.Aspect;</span><br><span class="line">import org.aspectj.lang.annotation.Pointcut;</span><br><span class="line">import org.springframework.beans.BeansException;</span><br><span class="line">import org.springframework.beans.factory.BeanFactory;</span><br><span class="line">import org.springframework.beans.factory.BeanFactoryAware;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">import workspace.JedisLock;</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">@Aspect</span><br><span class="line">public class AOPConfig implements BeanFactoryAware &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 客户端获取锁失败后轮询获取锁的时间30秒</span><br><span class="line">     */</span><br><span class="line">    final static Long TIME_OUT = 90L;</span><br><span class="line">    /**</span><br><span class="line">     * Redis中键的过期时间10秒</span><br><span class="line">     */</span><br><span class="line">    final static int EXPIRE = 10;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 记录失败操作的次数</span><br><span class="line">     */</span><br><span class="line">    public static Long ERROR_COUNT = 0L;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 执行秒杀方法时(载点)</span><br><span class="line">     */</span><br><span class="line">    @Pointcut(&quot;execution(* workspace.SecKillImpl.seckill(..))&quot;)</span><br><span class="line">    public void pointCut()&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    @Around(&quot;pointCut()&quot;)</span><br><span class="line">    public boolean around(ProceedingJoinPoint pjp) throws Throwable &#123;</span><br><span class="line">        Object[] objects = pjp.getArgs();</span><br><span class="line">        Long gId = (Long) objects[1];</span><br><span class="line">        JedisLock lock = null;</span><br><span class="line">        try &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getId()+&quot; before executing--&quot;);</span><br><span class="line">            lock = createJedisLock();</span><br><span class="line">            if (lock.lock(gId,TIME_OUT, EXPIRE)) &#123;</span><br><span class="line">                pjp.proceed();</span><br><span class="line">                System.out.println(&quot;--after executing--&quot;);</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line">            else &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getId()+&quot;  操作失败--&quot;);</span><br><span class="line">                ERROR_COUNT++;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;catch (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            return false;</span><br><span class="line">        &#125;finally &#123;</span><br><span class="line">            lock.unlock(gId);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void setBeanFactory(BeanFactory beanFactory) throws BeansException &#123;</span><br><span class="line">        this.beanFactory = beanFactory;</span><br><span class="line">    &#125;</span><br><span class="line">    BeanFactory beanFactory;</span><br><span class="line">    public JedisLock createJedisLock()&#123;</span><br><span class="line">        return this.beanFactory.getBean(JedisLock.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>说明：</p>
-<ul>
-<li>1、使用around环绕通知，是为了在执行seckill秒杀方法前对其进行加锁，在方法执行完成后进行解锁。如果获取不到锁，就不能执行seckill秒杀方法</li>
-<li>2、实现BeanFactoryAware接口的原因是，为了获取原型的JedisLock，JedisLock是操作Jedis的封装，每个JedisLock代表一条Jedis连接，操作完需要关闭Jedis。而且JedisLock需要注明是prototype原型对象</li>
-<li>3、必须设置KEY的过期时间，也就是加锁在redis的有效时间，这必须设置，防止因为突发原因比如服务器忽然宕机忘记解锁导致其他客户端获取不到锁</li>
-</ul>
-<h3 id="JedisLock实现加解锁"><a href="#JedisLock实现加解锁" class="headerlink" title="JedisLock实现加解锁"></a>JedisLock实现加解锁</h3><p>接下来说下JedisLock的实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">package workspace;</span><br><span class="line"></span><br><span class="line">import config.JedisFactory;</span><br><span class="line">import org.springframework.beans.factory.InitializingBean;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.context.annotation.Scope;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">import redis.clients.jedis.Jedis;</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">@Scope(&quot;prototype&quot;)</span><br><span class="line">public class JedisLock implements InitializingBean &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    JedisFactory jedisFactory;</span><br><span class="line">    </span><br><span class="line">    Jedis jedis;</span><br><span class="line">    </span><br><span class="line">    /**</span><br><span class="line">     * 该标志用于判断是否需要删除锁</span><br><span class="line">     */</span><br><span class="line">    boolean flag = false;</span><br><span class="line"></span><br><span class="line">    public boolean isFlag() &#123;</span><br><span class="line">        return flag;</span><br><span class="line">    &#125;</span><br><span class="line">    public void setFlag(boolean flag) &#123;</span><br><span class="line">        this.flag = flag;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void afterPropertiesSet() throws Exception &#123;</span><br><span class="line">        // 每个Jedis锁对应一个Jedis连接</span><br><span class="line">        // 只有最后调用unlock，才释放Jedis连接</span><br><span class="line">        this.jedis = jedisFactory.getJedis();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public boolean lock(Long gId, long timeout, int expire) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            Long startTime = System.currentTimeMillis() / 1000;</span><br><span class="line">            // 在限定时间内有限循环轮询</span><br><span class="line">            while (System.currentTimeMillis() / 1000 - startTime &lt; timeout) &#123;</span><br><span class="line">                // 如果获取锁成功</span><br><span class="line">                Long result = 0L;</span><br><span class="line">                try &#123;</span><br><span class="line">                    // 调用redis的setnx</span><br><span class="line">                    result = jedis.setnx(gId.toString(), &quot;1&quot;);</span><br><span class="line">                &#125;catch (Exception e)&#123;</span><br><span class="line">                    continue;</span><br><span class="line">                &#125;</span><br><span class="line">                if (result == 1) &#123;</span><br><span class="line">                    System.out.println(Thread.currentThread().getId() + &quot;获取&quot;+ gId +&quot;锁成功&quot;);</span><br><span class="line">                    // 设置过期时间</span><br><span class="line">                    jedis.expire(gId + &quot;&quot;, expire);</span><br><span class="line">                    this.flag = true;</span><br><span class="line">                    return true;</span><br><span class="line">                &#125;</span><br><span class="line">                // 如果获取不到锁</span><br><span class="line">                System.out.println(Thread.currentThread().getId() + &quot;出现锁等待&quot;);</span><br><span class="line">                // 短暂休眠，尽可能的避免活锁</span><br><span class="line">                Thread.sleep(200);</span><br><span class="line">            &#125;</span><br><span class="line">            return false;</span><br><span class="line">        &#125; catch (Exception e) &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getId()+ &quot;获取锁&quot;+gId+&quot;错误&quot;);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void unlock(Long gId) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            if (this.flag)&#123;</span><br><span class="line">                // 直接删除</span><br><span class="line">                jedis.del(gId + &quot;&quot;);</span><br><span class="line">                System.out.println(Thread.currentThread().getId()+ &quot;删除&quot; + gId +&quot;锁成功&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; catch (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        finally &#123;</span><br><span class="line">            if (jedis.isConnected()) &#123;</span><br><span class="line">                jedis.close();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>主要是通过JedisFactory获取Jedis连接，JedisFactory也是自己实现，等下会有说明。这里需要特别注意两点</p>
-<ul>
-<li>1、JedisLock必须是原型模式，因为并发操作时，每个操作代表一个用户，每个用户需要对应一条Redis连接，避免多个用户公用一条Jedis连接，防止其中一个用户关闭了连接导致另一个不能用</li>
-<li>2、实现InitializingBean方法，每生成一个Bean就初始化一条Jedis连接</li>
-</ul>
-<h3 id="JedisFactory创建Jedis连接"><a href="#JedisFactory创建Jedis连接" class="headerlink" title="JedisFactory创建Jedis连接"></a>JedisFactory创建Jedis连接</h3><p>跟数据库连接池一样，这里需要使用一JedisPool创建Jedis连接池<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">package config;</span><br><span class="line"></span><br><span class="line">import org.apache.commons.pool2.impl.GenericObjectPoolConfig;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">import redis.clients.jedis.Jedis;</span><br><span class="line">import redis.clients.jedis.JedisPool;</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">public class JedisFactory &#123;</span><br><span class="line">    JedisPool jedisPool;</span><br><span class="line">    </span><br><span class="line">    public JedisFactory() &#123;</span><br><span class="line">        GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();</span><br><span class="line">        poolConfig.setMaxIdle(100);</span><br><span class="line">        poolConfig.setMinIdle(1);</span><br><span class="line">        poolConfig.setMaxTotal(1000);</span><br><span class="line">        poolConfig.setMaxWaitMillis(5000);</span><br><span class="line">        this.jedisPool = new JedisPool(poolConfig, &quot;127.0.0.1&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public Jedis getJedis() &#123;</span><br><span class="line">        Jedis jedis = jedisPool().getResource();</span><br><span class="line">        return jedis;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public JedisPool jedisPool() &#123;</span><br><span class="line">        if (this.jedisPool != null) &#123;</span><br><span class="line">            return this.jedisPool;</span><br><span class="line">        &#125;</span><br><span class="line">        GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();</span><br><span class="line">        poolConfig.setMaxIdle(100);</span><br><span class="line">        poolConfig.setMinIdle(1);</span><br><span class="line">        poolConfig.setMaxTotal(1000);</span><br><span class="line">        JedisPool jedisPool = new JedisPool(poolConfig, &quot;127.0.0.1&quot;);</span><br><span class="line">        this.jedisPool = jedisPool;</span><br><span class="line">        return this.jedisPool;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这里主要是创建一个JedisPool的连接池，设置连接池大小和每条连接的最长连接时间，getJedis方法就是从JedisPool里面获取一条Jedis连接<br>逻辑大概就是这样，接下来就来测试一下</p>
-<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>因为是使用Spring，所以需要配置Spring环境<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">package config;</span><br><span class="line">import org.springframework.context.annotation.ComponentScan;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line">import org.springframework.context.annotation.EnableAspectJAutoProxy;</span><br><span class="line">@Configuration</span><br><span class="line">@ComponentScan(&#123;&quot;config&quot;, &quot;workspace&quot;&#125;)</span><br><span class="line">@EnableAspectJAutoProxy</span><br><span class="line">public class AppConfig &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>注解扫描指定的包，开启AOP功能</p>
-<p>开始测试<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line">package workspace;</span><br><span class="line">import config.AOPConfig;</span><br><span class="line">import config.AppConfig;</span><br><span class="line">import config.JedisFactory;</span><br><span class="line">import org.junit.Test;</span><br><span class="line">import org.springframework.context.ApplicationContext;</span><br><span class="line">import org.springframework.context.annotation.AnnotationConfigApplicationContext;</span><br><span class="line">import redis.clients.jedis.Jedis;</span><br><span class="line">import java.util.concurrent.CountDownLatch;</span><br><span class="line">public class App </span><br><span class="line">&#123;</span><br><span class="line">    @Test</span><br><span class="line">    public void testSecKill()&#123;</span><br><span class="line"></span><br><span class="line">        final ApplicationContext ac = new AnnotationConfigApplicationContext();</span><br><span class="line">        ((AnnotationConfigApplicationContext) ac).register(AppConfig.class);</span><br><span class="line">        ((AnnotationConfigApplicationContext) ac).refresh();</span><br><span class="line">        System.out.println(&quot;获取SecKill  Bean&quot;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        int threadCount = 100;</span><br><span class="line">        int splitPoint = threadCount / 2;</span><br><span class="line">         final CountDownLatch endCount = new CountDownLatch(threadCount);</span><br><span class="line">         final CountDownLatch beginCount = new CountDownLatch(1);</span><br><span class="line"></span><br><span class="line">        Thread[] threads = new Thread[threadCount];</span><br><span class="line">        //起500个线程，秒杀第一个商品</span><br><span class="line">        for(int i= 0;i &lt; splitPoint;i++)&#123;</span><br><span class="line">            threads[i] = new Thread(new  Runnable() &#123;</span><br><span class="line">                @Override</span><br><span class="line">                public void run() &#123;</span><br><span class="line">                    try &#123;</span><br><span class="line">                        //等待在一个信号量上，挂起</span><br><span class="line">                        beginCount.await();</span><br><span class="line">                        SecKill secKill = ac.getBean(SecKill.class);</span><br><span class="line">                        // 该方法会被AOP代理</span><br><span class="line">                        secKill.seckill(&quot;1&quot;, 10001L);</span><br><span class="line"></span><br><span class="line">                    &#125;catch (Exception e)&#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;finally &#123;</span><br><span class="line">                        endCount.countDown();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            threads[i].start();</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        //再起500个线程，秒杀第二件商品</span><br><span class="line">        for(int i= splitPoint;i &lt; threadCount;i++)&#123;</span><br><span class="line">            threads[i] = new Thread(new  Runnable() &#123;</span><br><span class="line">                @Override</span><br><span class="line">                public void run() &#123;</span><br><span class="line">                    try &#123;</span><br><span class="line">                        //等待在一个信号量上，挂起</span><br><span class="line">                        beginCount.await();</span><br><span class="line">                        SecKill secKill = ac.getBean(SecKill.class);</span><br><span class="line">                        // 该方法会被AOP代理</span><br><span class="line">                        secKill.seckill(&quot;1&quot;, 10002L);</span><br><span class="line"></span><br><span class="line">                    &#125;catch (Exception e)&#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;finally &#123;</span><br><span class="line">                        endCount.countDown();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            threads[i].start();</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        long startTime = System.currentTimeMillis()/1000;</span><br><span class="line">        //主线程释放开始信号量，并等待结束信号量，这样做保证1000个线程做到完全同时执行，保证测试的正确性</span><br><span class="line">        // 也就说开始让线程工作</span><br><span class="line">        beginCount.countDown();</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            //主线程等待结束信号量，也就是等待其他线程的工作全部做完</span><br><span class="line">            endCount.await();</span><br><span class="line">            //观察秒杀结果是否正确</span><br><span class="line">            System.out.println(SecKillImpl.inventory.get(10001L));</span><br><span class="line">            System.out.println(SecKillImpl.inventory.get(10002L));</span><br><span class="line">            System.out.println(&quot;error count&quot; + AOPConfig.ERROR_COUNT);</span><br><span class="line">            System.out.println(&quot;total cost &quot; + (System.currentTimeMillis()/1000 - startTime));</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>简单的说明一下</p>
-<ul>
-<li>1、先让Spring跑起来，把我们写的AppConfig注册进去</li>
-<li>2、声明CountDownLatch（阀），是为了最后数据的正确性校验，等所有线程跑完了再输出最后库存里的剩余数量是否正确</li>
-<li>3、我们开启100个线程测试，50个操作10001商品，50个操作10002商品，如果操作正确的话，最后两个商品的库存应该都是950</li>
-</ul>
-<p>最后结果：<br><img src="/2019/02/23/使用redis的分布式锁实现一个简单的秒杀系统/20190224021815748.png" alt=""><br>库存跟我们预想的一致</p>
-<h1 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h1><p>当线程很多的时候，比如有1000个线程，为了顺利通过测试，需要延长每个操作循环等待锁的时间。我使用1000个线程并发时，需要延长时间至60秒（不知道是不是我电脑的问题…）<br>或者你可以使用另一个Redis的连接池——lettuce，我测试过了，lettuce比以往的JedisPool更快，1000个并发使用JedisPool需要60秒，而使用lettuce则需要不到40秒</p>
-<h1 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h1><p><a href="https://github.com/SouthLight-Lin/redis-in-seckill" target="_blank" rel="noopener">https://github.com/SouthLight-Lin/redis-in-seckill</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -628,7 +611,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-count">32</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -639,7 +622,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -650,7 +633,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">16</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
