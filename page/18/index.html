@@ -81,7 +81,7 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="SouthLight&#39;s Blog">
-<meta property="og:url" content="http://yoursite.com/page/11/index.html">
+<meta property="og:url" content="http://yoursite.com/page/18/index.html">
 <meta property="og:site_name" content="SouthLight&#39;s Blog">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
@@ -115,7 +115,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/page/11/">
+  <link rel="canonical" href="http://yoursite.com/page/18/">
 
 
 
@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/17/Redis线程模型/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/21/类的加载时候的初始化顺序/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/17/Redis线程模型/" itemprop="url">Redis线程模型</a></h1>
+                <a class="post-title-link" href="/2019/02/21/类的加载时候的初始化顺序/" itemprop="url">类的加载时候的初始化顺序</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-17T20:10:54+08:00">
-                2019-03-17
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-21T21:23:21+08:00">
+                2019-02-21
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
                   </a>
                 </span>
 
@@ -352,14 +352,12 @@
       
         
           
-            <h1 id="Redis为什么这么快？"><a href="#Redis为什么这么快？" class="headerlink" title="Redis为什么这么快？"></a>Redis为什么这么快？</h1><ul>
-<li>1、纯内存操作：我们的数据都是存储在内存中的，所以跟存储在硬盘相比，写入读取速度快很多倍</li>
-<li>2、丰富的数据结构：redis基础的五种数据结构（string、hash、list、set、zset）是我们日常使用存储数据的结构（当然还有其他的结构，比如geo、hyperloglog），这些结构的性能非常优越，比如基础数据结构（除了set），刚开始是用压缩列表的结构存储数据，不仅读取速度快，而且占用内存也少。    （关于压缩列表可以查看，<a href="https://southlight-lin.github.io/2019/03/09/通过优化降低Redis的内存占用/" target="_blank" rel="noopener">通过优化降低Redis的内存占用</a> 这篇博客)</li>
-<li>3、I/O多路复用模型——本篇博客就是为了讲解这个模型</li>
-<li>4、单线程操作：减少多核CPU上下文切换引起的开销</li>
-</ul>
-<h1 id="Redis的IO多路复用模型"><a href="#Redis的IO多路复用模型" class="headerlink" title="Redis的IO多路复用模型"></a>Redis的IO多路复用模型</h1><p>借助网上的例子说明情况：比如有很多个水龙头（就是我们客户端的请求），但这些水龙头都不知道什么时候来水。当水来的时候，要把这些水接住，所以需要人（redis的线程）负责，但是我们需要多少个人？难道要每个水龙头都站一个人？这样的话当请求很多时，创建很多线程，肯定内存不够用。所以Redis采用一个线程（相当于一个人）来循环试探这些水龙头，当拧开水龙头发现有水时就处理。</p>
-<p>I/O多路复用模块是操作系统底层的东西，进程只要告诉操作系统需要监听哪个端口的Socket，当这些端口有套接字的可读或可写（Socket）事件时，操作系统就会通知进程（Redis）。而I/O监听这些端口，就是使用<strong>select</strong> ，<strong>poll</strong> ，<strong>epoll</strong> ，<strong>kqueue</strong> 这些I/O多路复用函数。这些函数可以同时监控多个流的I/O事件能力，如果没有Socket连接（没有请求过来时）的时候，当前主线程会阻塞；当有一个或者多个流过来时，操作系统就会通知程序（Redis），Redis就会轮询一遍所有的流，对这些流进行处理，这过程是有顺序的，先来先服务FIFS。所以“多路”指的是有多个请求连接，“复用”指的是复用一个线程，这个线程负责把请求监听请求，当有请求到来时，就传递给程序处理。<strong>这样的模型，提高了单个线程的处理能力，一个线程就可以高效的处理多个连接请求，尽量减少网络IO的开销</strong> 。<br>跟传统的阻塞IO相比，在计算机网络中，我们的请求可能被分成许多包，经过不同的路由器传递，如果有些包到达了服务器，有些还没到，那么服务器就要等到这些包全都收集齐了才能处理。如果请求很多，那么等待的时间就会很长，这就是网络开销之一。如果使用IO多路复用模型，把监听这些包有没有准备好的事情交给操作系统，我们只需调用轮询api（select、poll、epoll..）不断的询问操作系统就行了。当没有请求或者请求还没准备好时，Redis就可以做其他事情。<br>来看张图<br><img src="/2019/03/17/Redis线程模型/20190317092104769.png" alt=""><br>在Linux中，Socket也是文件！<br>类似上面的例子，当有很多请求到来时（一个Socket就相当于一个请求），操作系统就会跟踪这些请求 ，而且是有顺序的存入，先来先服务FIFO的原则。接下来，<strong>文件事件分配器</strong> 循环扫描指令队列，将不同类型请求的Socket交给不同的处理器（比如有些请求时get、有些是set）。循环扫描的过程就叫<strong>事件轮询</strong> ，这种事件轮询是操作实现的，常见的事件轮询api有：<strong>select</strong> ，<strong>poll</strong> ，<strong>epoll</strong> ，<strong>kqueue</strong> 。<br>select是最早出现的多路复用api，但是有一些缺点，比如最大只能有1024个线程，线程不安全；接着poll就修复了select的一些问题，解决了1024的问题，但还是线程不安全；最后epoll出现了，他解决了select的所有问题，现在的Linux都是使用它完成多路复用模型，但epoll只能在Linux上实现。kqueue是macos系统的东西。</p>
+            <p>在牛客网上刷题时，一直做错类的加载时初始化这些题，不懂静态方法什么时候执行，初始化代码块什么时候执行，构造方法什么执行，今天在这里谨记，下次要是再做错，我….</p>
+<h1 id="题型一"><a href="#题型一" class="headerlink" title="题型一"></a>题型一</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class A&#123;</span><br><span class="line"></span><br><span class="line">	static &#123;</span><br><span class="line">		System.out.println(&quot;静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public A()&#123;</span><br><span class="line">		System.out.println(&quot;构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">        System.out.println(&quot;A的静态main方法&quot;);</span><br><span class="line">		new A();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出执行顺序，执行结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">静态代码块</span><br><span class="line">A的静态main方法</span><br><span class="line">初始化块</span><br><span class="line">构造方法</span><br></pre></td></tr></table></figure></p>
+<h1 id="题型二"><a href="#题型二" class="headerlink" title="题型二"></a>题型二</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">class A&#123;</span><br><span class="line"></span><br><span class="line">	static &#123;</span><br><span class="line">		System.out.println(&quot;父类静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public A()&#123;</span><br><span class="line">		System.out.println(&quot;父类构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;父类初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">public class B extends A&#123;</span><br><span class="line">	static&#123;</span><br><span class="line">		System.out.println(&quot;子类静态代码块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public B()&#123;</span><br><span class="line">		System.out.println(&quot;子类构造方法&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(&quot;子类初始化块&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public static void main(String[] args)&#123;</span><br><span class="line">		new B();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出执行过程，结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">父类静态代码块</span><br><span class="line">子类静态代码块</span><br><span class="line">父类初始化块</span><br><span class="line">父类构造方法</span><br><span class="line">子类初始化块</span><br><span class="line">子类构造方法</span><br></pre></td></tr></table></figure></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>对于题型一，谨记：静态的修饰变量（static）总是先于构造方法和普通代码块执行。static中又有static静态变量，static静态初始化块，static静态方法，里面静态方法是最后执行的，所以题型一中先执行静态代码块再执行静态方法。（原因：用static修饰的地方在编译器编译时就已经开始执行）<br>对于题型二，谨记：<strong> 先执行父类的静态代码块，然后执行子类的静态代码块 </strong> ，因为在编译时就开始执行。接着调用main方法，里面开始new B，所以 <strong> 执行父类的普通初始化块-&gt;父类的构造方法快-&gt;最后执行子类的普通初始化块-&gt;子类的构造块 </strong> </p>
 
           
         
@@ -399,7 +397,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/17/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><span class="page-number current">18</span><a class="page-number" href="/page/19/">19</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/19/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 

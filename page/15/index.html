@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/31/Java基础之Error、Exception/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/25/一段String代码引发的思考/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/01/31/Java基础之Error、Exception/" itemprop="url">Java基础之Error、Exception</a></h1>
+                <a class="post-title-link" href="/2019/02/25/一段String代码引发的思考/" itemprop="url">一段String代码引发的思考</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-31T22:30:48+08:00">
-                2019-01-31
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-25T20:19:08+08:00">
+                2019-02-25
               </time>
             
 
@@ -352,194 +352,21 @@
       
         
           
-            <p>只要是程序，就会有错误跟异常，Java程序也不例外！<br>那什么是错误，什么是异常？Java异常又可分为哪两类？</p>
-<h1 id="Error"><a href="#Error" class="headerlink" title="Error"></a>Error</h1><h2 id="VirtualMachineError（虚拟机错误）"><a href="#VirtualMachineError（虚拟机错误）" class="headerlink" title="VirtualMachineError（虚拟机错误）"></a>VirtualMachineError（虚拟机错误）</h2><p>错误一般是程序在正常条件下，是系统内部的错误或者资源耗尽的错误！常见的错误主要有两种，内存溢出和栈溢出！</p>
-<ul>
-<li>OutOfMemoryError（内存溢出）：一般是虚拟机分配的内存不能容下程序所需的数据，或者new 出的对象太多太多了（主要是堆内存或者方法区内存的不足）</li>
-<li>StackOverFlowError（栈溢出）：常见的就是递归循环没有出口，导致虚拟机栈记录太多东西导致溢出</li>
+            <h1 id="问题的出现"><a href="#问题的出现" class="headerlink" title="问题的出现"></a>问题的出现</h1><p>  String对象我们写Java的不可能没用过吧，但是你知道字符串常量池吗？今天就来聊聊JVM底层的字符串常量池，什么时候把字符串放进常量池？JDK1.6跟JDK1.7的常量池有什么变化？除了字符串常量池还有没有其他的常量池<br>先来看一段代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">String s1 = new String(&quot;1&quot;);</span><br><span class="line">s1.intern();</span><br><span class="line">String s2 = &quot;1&quot;;</span><br><span class="line">System.out.println(s1==s2);   // false</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">String  s3 = new String(&quot;2&quot;) + new String(&quot;2&quot;);</span><br><span class="line">s3.intern();</span><br><span class="line">String s4 = &quot;22&quot;;</span><br><span class="line">System.out.println(s3 == s4);  // true</span><br></pre></td></tr></table></figure></p>
+<p>总共有两句输出，你知道两句输出的结果是什么吗？虽然注释第一个为false，第二个为true。但是在JDK1.6里面，两个都为false，你知道为什么吗？请开始我的表演。</p>
+<h1 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>  说白了，字符串常量池就是用来存放字符串数据（在内存中）。但是注意，字符串常量池只是JVM中的一种常量池，其他的还有<strong> class文件常量池 </strong> ，<strong> 运行时常量池 </strong><br>  一时间也说不清楚其他两种常量池的作用和关系，只知道运行时常量池包含class文件常量池和字符串常量池，而且运行时常量池都存在于<strong> 方法区 </strong><br>  在JDK1.6及以前版本，字符串常量池是存在于运行时常量池，也就是存在于方法区中的。但是，JDK1.7以后，字符串常量池就被移出到<strong> 堆 </strong> 里面了。</p>
+<h2 id="什么时候才可以向字符串常量池添加数据"><a href="#什么时候才可以向字符串常量池添加数据" class="headerlink" title="什么时候才可以向字符串常量池添加数据"></a>什么时候才可以向字符串常量池添加数据</h2><ul>
+<li>1、常量的字符串，就是被关键字final修饰的字符串，会在编译时添加进字符串常量池</li>
+<li>2、显示声明的时候。比如String s=”1”，这时，当执行这段代码的时候，就会向字符串常量池里面添加数据，叫做字面量</li>
+<li>3、调用String类的intern方法时（这个方法在JDK1.6和1.7里面有差异，等下面再说）</li>
 </ul>
-<h2 id="AWTError"><a href="#AWTError" class="headerlink" title="AWTError"></a>AWTError</h2><p>一般是调用AWT包下的类，使用操作系统的资源时出现的错误</p>
-<h1 id="Exception"><a href="#Exception" class="headerlink" title="Exception"></a>Exception</h1><h2 id="RuntimeExcept（运行时异常，非检查异常）"><a href="#RuntimeExcept（运行时异常，非检查异常）" class="headerlink" title="RuntimeExcept（运行时异常，非检查异常）"></a>RuntimeExcept（运行时异常，非检查异常）</h2><p>这种异常在我们的程序中是最常见的：</p>
-<ol>
-<li>NullPointException（空指针异常）</li>
-<li>IndexOutOfBoundsException （数组下表越界）</li>
-<li>ClassCastException （强转类型是异常）</li>
-<li>ClassNotFoundException （找不到指定类）</li>
-<li>ArithmeticException （算数运算异常 如除0）</li>
-<li>NumberFormatException （String类型装数字类型异常）<br>…<h2 id="IOException-（其他异常，也叫做检查异常，必须处理的异常）"><a href="#IOException-（其他异常，也叫做检查异常，必须处理的异常）" class="headerlink" title="IOException （其他异常，也叫做检查异常，必须处理的异常）"></a>IOException （其他异常，也叫做检查异常，必须处理的异常）</h2></li>
-<li>FileNotFoundException （文件未找到异常）</li>
-<li>EOFException （文件已经结束异常）</li>
-<li>SQLException （SQL异常）</li>
-</ol>
-<h1 id="关于检查异常跟非异常"><a href="#关于检查异常跟非异常" class="headerlink" title="关于检查异常跟非异常"></a>关于检查异常跟非异常</h1><p>非检查异常（unchecked exception）： 包括RuntimeException和Error类的异常，对于运行时的异常，编译器不要求程序员强制捕获异常处理或者抛出异常声明<br>检查异常（checked exception） ： 编译器强制要求程序员对异常进行捕获，比如常见的IOException和SQLException！！</p>
-<h1 id="总结图："><a href="#总结图：" class="headerlink" title="总结图："></a>总结图：</h1><p>最后给一张大图完整的说明Exception和Error：<br><img src="/2019/01/31/Java基础之Error、Exception/20190131104704989.png" alt=""></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/01/31/解决跨域问题/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="SouthLight Lin">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SouthLight's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/01/31/解决跨域问题/" itemprop="url">解决跨域问题</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-31T22:07:53+08:00">
-                2019-01-31
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/问题/" itemprop="url" rel="index">
-                    <span itemprop="name">问题</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="什么是跨域问题？"><a href="#什么是跨域问题？" class="headerlink" title="什么是跨域问题？"></a>什么是跨域问题？</h1><p>跨域，指浏览器从一个域名的网页去请求另一个域名的资源（比如请求API）时，由于域名或者端口不同，导致资源不能访问，这就是跨域问题。<br>比如：网页<strong><a href="http://www.lnw.com/index.html" target="_blank" rel="noopener">www.lnw.com/index.html</a></strong>  请求接口—-&gt;  <strong><a href="http://www.api.com/get" target="_blank" rel="noopener">www.api.com/get</a></strong>，此时由于域名的不同就会有跨域问题的出现</p>
-<p>或者  <strong>localhost:8081/index.html</strong> 请求接口—–&gt;  <strong>localhost:8082/get</strong> ，此时由于端口的不同也会有跨域问题的出现</p>
-<h1 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h1><h2 id="Spring项目的解决办法："><a href="#Spring项目的解决办法：" class="headerlink" title="Spring项目的解决办法："></a>Spring项目的解决办法：</h2><h3 id="一、使用-CrossOrigin"><a href="#一、使用-CrossOrigin" class="headerlink" title="一、使用@CrossOrigin"></a>一、使用@CrossOrigin</h3><p>在controller加上该注解，即可解决</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@CrossOrigin</span>(origins = &#123;<span class="string">"http://localhost"</span>&#125;)</span><br><span class="line"><span class="meta">@Controller</span> </span><br><span class="line"><span class="comment">// 加上注解</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StudentController</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>允许80端口跨域<br>但这样的每个Controller都要加上该注解，有点麻烦</p>
-<h3 id="二、实现WebMvcConfigurer的addCrosMappings方法"><a href="#二、实现WebMvcConfigurer的addCrosMappings方法" class="headerlink" title="二、实现WebMvcConfigurer的addCrosMappings方法"></a>二、实现WebMvcConfigurer的addCrosMappings方法</h3><p>实现该方法可以让所有的Controller能够允许跨域</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* SpringMVC  配置类</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> SouthLight</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebMvc</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MVCApplicationConfig</span>  <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addCorsMappings</span><span class="params">(CorsRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addMapping(<span class="string">"http://localhost"</span>)</span><br><span class="line">                .allowedOrigins(<span class="string">"*"</span>)</span><br><span class="line">                .allowCredentials(<span class="keyword">true</span>)</span><br><span class="line">                .allowedMethods(<span class="string">"GET"</span>, <span class="string">"POST"</span>, <span class="string">"DELETE"</span>, <span class="string">"PUT"</span>)</span><br><span class="line">                .maxAge(<span class="number">3600</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="三、配置Filter过滤器"><a href="#三、配置Filter过滤器" class="headerlink" title="三、配置Filter过滤器"></a>三、配置Filter过滤器</h3><p>上诉两种方法好像不能解决Cookie传递的问题，因为Cookie的跨域传递需要前后两端都要规定头部的协议：Access-Control-<br>设置过滤器不仅可以对请求进行拦截，还可以对请求的request和response进行修改<br>自己实现Filter</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.helper.config;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.*;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Filter过滤器</span></span><br><span class="line"><span class="comment">* 解决跨域问题</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> SouthLight-Lin</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"---初始化----"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        HttpServletResponse response = (HttpServletResponse) servletResponse;</span><br><span class="line">        HttpServletRequest request = (HttpServletRequest)servletRequest;</span><br><span class="line">        System.out.println(<span class="string">"MyFilter拦截："</span>+request.getServletPath());</span><br><span class="line">        String origin = request.getHeader(<span class="string">"Origin"</span>);</span><br><span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Origin"</span>, origin);</span><br><span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Methods"</span>, <span class="string">"*"</span>);</span><br><span class="line">        response.setHeader(<span class="string">"Access-Control-Max-Age"</span>, <span class="string">"3600"</span>);</span><br><span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Headers"</span>, <span class="string">"*"</span>);</span><br><span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Credentials"</span>, <span class="string">"true"</span>);</span><br><span class="line">        String method = request.getMethod();</span><br><span class="line">        <span class="keyword">if</span>(method.equalsIgnoreCase(<span class="string">"OPTIONS"</span>))&#123;</span><br><span class="line">            servletResponse.getOutputStream().write(<span class="string">"Success"</span>.getBytes(<span class="string">"utf-8"</span>));</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            filterChain.doFilter(servletRequest, servletResponse);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>前端的请求需要设置头部Access-Control-，后端的response也需要设置相同的头部，不然的话也还是不能访问</p>
-<p>添加Filter</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* SpringMVC  配置类</span></span><br><span class="line"><span class="comment">* <span class="doctag">@author</span> SouthLight</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebMvc</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MVCApplicationConfig</span>  <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> FilterRegistrationBean <span class="title">filterRegistrationBean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 将Filter注册</span></span><br><span class="line">        FilterRegistrationBean registration = <span class="keyword">new</span> FilterRegistrationBean();</span><br><span class="line">        registration.setFilter(<span class="keyword">new</span> MyFilter());</span><br><span class="line">        registration.addUrlPatterns(<span class="string">"/*"</span>);</span><br><span class="line">        registration.addInitParameter(<span class="string">"paramName"</span>, <span class="string">"paramValue"</span>);</span><br><span class="line">        registration.setName(<span class="string">"myFilter"</span>);</span><br><span class="line">        registration.setOrder(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> registration;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这样就可以解决跨域以及Cookie的传递了</p>
-<h2 id="使用Nginx解决跨域问题"><a href="#使用Nginx解决跨域问题" class="headerlink" title="使用Nginx解决跨域问题"></a>使用Nginx解决跨域问题</h2><p>因为前端项目一般都是部署在Nginx的服务器上，我们可以让Nginx代理我们请求资源的接口，比如我有一个前端项目，部署端口80的根目录“/”，后端接口8080部署Nginx代理路径“/api”<br>nginx.conf</p>
-<pre><code>location / {
-    root   html/homework-helper-frontend/html;
-    index  index.html index.htm;
-}
-
-# 服务器访问路径
-location /api{
-    # 将/api代理到下面的地址
-    proxy_pass http://localhost:8080/api;
-}
-</code></pre><p>如此一来，我们输入localhost/index.html就可以访问网页<br>输入localhost/api/get，Nginx就会代理，转成请求localhost:8080/api这个地址，完美的解决了跨域的问题，而且cookie也可以正常传递</p>
-<p>美滋滋·~~~~</p>
+<h1 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h1><p>  经过上面的一番操作，我们应该理解常量池（在方法区中）和堆是两个不同的东西。所以，我们可以推测，上面的代码之所以输出的结果会不一样，原因应该是有些对象是在堆里面，有些对象是常量池里面的。</p>
+<h2 id="首先看第一个输出那段代码"><a href="#首先看第一个输出那段代码" class="headerlink" title="首先看第一个输出那段代码"></a>首先看第一个输出那段代码</h2><p>String s1 = new String(“1”);请问这句代码一共创建了多少个对象？1个？错！是两个。s1是一个，还有一个就是上面说过的字面量，”1”就是字面量，此时会在字符串常量池里面创建一个”1”的对象，所以总共两个。<strong> s1指向的是堆里面的”1”对象 </strong> ，接下来调用intern方法，下面就来解释下该方法的作用</p>
+<h2 id="intern（）方法的作用"><a href="#intern（）方法的作用" class="headerlink" title="intern（）方法的作用"></a>intern（）方法的作用</h2><p>简单的讲，intern方法就是<strong> 向常量池里面添加数据 </strong> ，前提是<strong> 该数据还不在常量池里面 </strong> ，然后返回一个String对象<br>  JDK1.6里面，intern方法向字符串常量池里面添加的是对象，也就是比如s1.intern（s1是String对象，值为1），如果常量池里面还没有”1”这个对象，就会将”1”这个对象添加到常量池里面。如果常量池里面已经有”1”这个对象了，则返回<strong> 常量池里面的对象 </strong> 。<br>  JDK1.7里面，如果常量池里面有”1”这个对象，做法跟1.6时一样，返回<strong> 常量池里面的对象 </strong> ，但是，如果常量池里面没有该值的对象，则添加的是<strong> 对s1在堆中的对象的引用 </strong> （说得有点绕口，说白了就是添加在堆中的对象）。<br>  我们看下代码就知道了<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String s1 = new String(&quot;1&quot;);</span><br><span class="line">String s2 = s1.intern();</span><br><span class="line">System.out.println(s1 == s2); // false</span><br><span class="line"></span><br><span class="line">String s3 = &quot;1&quot;;</span><br><span class="line">System.out.println(s2 == s3); // true</span><br></pre></td></tr></table></figure></p>
+<p>  执行s1.intern返回的是常量池里面的对象，因为上一句代码已经创建了两个对象，一个在堆里面，一个在常量池里面。所以intern方法会发现常量池里面已经有”1”这个对象了，则返回该对象。s3也是常量池里面的”1”对象，所以一个输出false，一个输出true.</p>
+<h2 id="继续分析"><a href="#继续分析" class="headerlink" title="继续分析"></a>继续分析</h2><p>  我们前面说到intern方法只是检查常量池里面有没有该值，有则返回（返回的是常量池里面的对象），没有则添加（JDK1.6和1.7的添加规则不同）。接下来String s2=”1”；因为s2是字面量，也就是显示声明，而且常量池里面已经有”1”这个对象了。所以答案就很明显了，s1是在堆里面的”1”对象，s2是在字符串常量池里面的”1”对象，所以两者是不会相等的，结果为false。</p>
+<h2 id="继续分析第二段代码"><a href="#继续分析第二段代码" class="headerlink" title="继续分析第二段代码"></a>继续分析第二段代码</h2><p>  String s3 = new String(“2”) + new String(“2”);这里虽然也是创建了两个对象，一个是”22”的堆对象，一个是”2”的常量池对象，注意：没有”22”常量池对象。<br>  接下来调用intern方法，因为字符串常量池还没有”22”这个对象，所以重点来了，如果是JDK1.7，添加的是<strong> 堆里面”22”这个对象的引用（说白了就是堆里面”22”这个对象）</strong> ，所以常量池里面的”22”这个对象会指向堆里面”22”这个对象。所以下一句代码String s4=”22”，貌似是常量池里面的”22”对象，但是因为此时常量池的”22”对象已经指向了堆里面的”22”对象，所以说s4也是堆里面的对象。所以输出结果为true。<br>  但是如果是JDK1.6，在调用intern方法的时候，因为常量池的”22”这个对象还不存在，所以就添加了”22”这个常量池对象，注意：<strong> 是常量池对象 </strong> ，所以下一句的String s4=”22”就是常量池对象了，结果就输出了false。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>说了那么多，其实就一句——常量池对象跟堆里面的对象时不一样的（只是简单理解，不要当真）<br>贴出总代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.stringpool;</span><br><span class="line"></span><br><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        /**</span><br><span class="line">         * 第一条代码一运行，会创建两个对象。</span><br><span class="line">         * 一个对象是常量池 &quot;1&quot;的对象，存储在字符串常量池中</span><br><span class="line">         * 另一个对象是 String 对象s1</span><br><span class="line">         * 这里s1因为是new出来的，所以s1是堆里面的String对象</span><br><span class="line">         */</span><br><span class="line">        String s1 = new String(&quot;1&quot;);</span><br><span class="line">        /**</span><br><span class="line">         * 调用intern方法，如果&quot;1&quot;不在字符串常量池中，则将s1对象的引用（内存中的地址）添加到字符串常量池中</span><br><span class="line">         * JDK1.7以上就是添加对象的引用，但是1.7以下是直接将&quot;1&quot;添加到常量池</span><br><span class="line">         * 但是如果存在这个&quot;1&quot;值的对象，则返回该对象</span><br><span class="line">         * 返回的常量池里面的对象</span><br><span class="line">         */</span><br><span class="line">        String s5 = s1.intern();</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s5是返回常量池里面的&quot;1&quot;对象</span><br><span class="line">         * s1是堆里面的对象</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s1 == s5);  // false</span><br><span class="line">        /**</span><br><span class="line">         * 第三条代码运行时，因为上面第一条代码已经将&quot;1&quot;放进了字符串常量池了</span><br><span class="line">         * 所以s2是字符创常量池里面的&quot;1&quot;对象</span><br><span class="line">         */</span><br><span class="line">        String s2 = &quot;1&quot;;</span><br><span class="line">        /**</span><br><span class="line">         * 因为s1是堆里面String对象，s2是字符串常量池&quot;1&quot;的对象，所以为false</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s1==s2);   // false</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s5是返回常量池里面的&quot;1&quot;对象</span><br><span class="line">         * s2也是常量池里面&quot;1&quot;的对象</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s5 == s2); // true</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 这里的s3显然是&quot;22&quot;，但是，&quot;22&quot;还没有进入字符串常量</span><br><span class="line">         * 也就是说，目前字符串常量里面只有&quot;2&quot;这个对象</span><br><span class="line">         * 但是，堆中有&quot;22&quot;这个对象</span><br><span class="line">         * s3就是指向&quot;22&quot;这个堆中的对象的引用</span><br><span class="line">         */</span><br><span class="line">        String  s3 = new String(&quot;2&quot;) + new String(&quot;2&quot;);</span><br><span class="line">        /**</span><br><span class="line">         * 因为&quot;22&quot;还没有进入字符串常量，所以把s3这个对象对应的在堆中&quot;22&quot;这个对象的引用推入字符串常量池</span><br><span class="line">         * 也就是说字符串常量池的&quot;22&quot;会指向堆里面&quot;22&quot;这个对象</span><br><span class="line">         * 如果值已经存在，则返回常量池里面值&quot;22&quot;的对象</span><br><span class="line">         */</span><br><span class="line">        String s6 = s3.intern();</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s6和s3都是堆里面&quot;22&quot;这个对象的引用，所以为true</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s6 == s3);  // true</span><br><span class="line">        /**</span><br><span class="line">         * 因为上面的intern方法已经将&quot;22&quot;这个对象的引用放进字符创常量池</span><br><span class="line">         * 所以s4指向的堆里面&quot;22&quot;这个对象</span><br><span class="line">         */</span><br><span class="line">        String s4 = &quot;22&quot;;</span><br><span class="line">        /**</span><br><span class="line">         * 因为s4和s3引用的都是堆里面的对象，所以为true</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s3 == s4);  // true</span><br><span class="line"></span><br><span class="line">        System.out.println(s6 == s4);  // true</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 
           
         
@@ -579,7 +406,7 @@ location /api{
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/14/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" href="/page/16/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/14/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/16/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 

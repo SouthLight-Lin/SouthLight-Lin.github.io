@@ -81,7 +81,7 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="SouthLight&#39;s Blog">
-<meta property="og:url" content="http://yoursite.com/page/11/index.html">
+<meta property="og:url" content="http://yoursite.com/page/25/index.html">
 <meta property="og:site_name" content="SouthLight&#39;s Blog">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
@@ -115,7 +115,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/page/11/">
+  <link rel="canonical" href="http://yoursite.com/page/25/">
 
 
 
@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/17/Redis线程模型/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/03/HTTP的GET跟POST的区别/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/17/Redis线程模型/" itemprop="url">Redis线程模型</a></h1>
+                <a class="post-title-link" href="/2019/02/03/HTTP的GET跟POST的区别/" itemprop="url">HTTP的GET跟POST的区别</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-17T20:10:54+08:00">
-                2019-03-17
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-03T23:12:26+08:00">
+                2019-02-03
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
+                  <a href="/categories/http/" itemprop="url" rel="index">
+                    <span itemprop="name">http</span>
                   </a>
                 </span>
 
@@ -352,14 +352,16 @@
       
         
           
-            <h1 id="Redis为什么这么快？"><a href="#Redis为什么这么快？" class="headerlink" title="Redis为什么这么快？"></a>Redis为什么这么快？</h1><ul>
-<li>1、纯内存操作：我们的数据都是存储在内存中的，所以跟存储在硬盘相比，写入读取速度快很多倍</li>
-<li>2、丰富的数据结构：redis基础的五种数据结构（string、hash、list、set、zset）是我们日常使用存储数据的结构（当然还有其他的结构，比如geo、hyperloglog），这些结构的性能非常优越，比如基础数据结构（除了set），刚开始是用压缩列表的结构存储数据，不仅读取速度快，而且占用内存也少。    （关于压缩列表可以查看，<a href="https://southlight-lin.github.io/2019/03/09/通过优化降低Redis的内存占用/" target="_blank" rel="noopener">通过优化降低Redis的内存占用</a> 这篇博客)</li>
-<li>3、I/O多路复用模型——本篇博客就是为了讲解这个模型</li>
-<li>4、单线程操作：减少多核CPU上下文切换引起的开销</li>
+            <h1 id="基本区别"><a href="#基本区别" class="headerlink" title="基本区别"></a>基本区别</h1><ul>
+<li>GET 比 POST更不安全，因为参数直接暴露在URL上，所以不能用来传递敏感信息</li>
+<li>GET 参数通过URL传递，而POST则放在request body中（这就解释了上一条规则</li>
+<li>GET在浏览器回退时是无害的，而POST会再次提交请求</li>
+<li>GET请求会被浏览器主动缓存（cache），而POST不会，除非手动设置</li>
+<li>GET 请求只会进行URL编码，而POST支持多种编码方式</li>
+<li>GET请求在URL中有参数限制（一般是2K），而POST没有限制</li>
 </ul>
-<h1 id="Redis的IO多路复用模型"><a href="#Redis的IO多路复用模型" class="headerlink" title="Redis的IO多路复用模型"></a>Redis的IO多路复用模型</h1><p>借助网上的例子说明情况：比如有很多个水龙头（就是我们客户端的请求），但这些水龙头都不知道什么时候来水。当水来的时候，要把这些水接住，所以需要人（redis的线程）负责，但是我们需要多少个人？难道要每个水龙头都站一个人？这样的话当请求很多时，创建很多线程，肯定内存不够用。所以Redis采用一个线程（相当于一个人）来循环试探这些水龙头，当拧开水龙头发现有水时就处理。</p>
-<p>I/O多路复用模块是操作系统底层的东西，进程只要告诉操作系统需要监听哪个端口的Socket，当这些端口有套接字的可读或可写（Socket）事件时，操作系统就会通知进程（Redis）。而I/O监听这些端口，就是使用<strong>select</strong> ，<strong>poll</strong> ，<strong>epoll</strong> ，<strong>kqueue</strong> 这些I/O多路复用函数。这些函数可以同时监控多个流的I/O事件能力，如果没有Socket连接（没有请求过来时）的时候，当前主线程会阻塞；当有一个或者多个流过来时，操作系统就会通知程序（Redis），Redis就会轮询一遍所有的流，对这些流进行处理，这过程是有顺序的，先来先服务FIFS。所以“多路”指的是有多个请求连接，“复用”指的是复用一个线程，这个线程负责把请求监听请求，当有请求到来时，就传递给程序处理。<strong>这样的模型，提高了单个线程的处理能力，一个线程就可以高效的处理多个连接请求，尽量减少网络IO的开销</strong> 。<br>跟传统的阻塞IO相比，在计算机网络中，我们的请求可能被分成许多包，经过不同的路由器传递，如果有些包到达了服务器，有些还没到，那么服务器就要等到这些包全都收集齐了才能处理。如果请求很多，那么等待的时间就会很长，这就是网络开销之一。如果使用IO多路复用模型，把监听这些包有没有准备好的事情交给操作系统，我们只需调用轮询api（select、poll、epoll..）不断的询问操作系统就行了。当没有请求或者请求还没准备好时，Redis就可以做其他事情。<br>来看张图<br><img src="/2019/03/17/Redis线程模型/20190317092104769.png" alt=""><br>在Linux中，Socket也是文件！<br>类似上面的例子，当有很多请求到来时（一个Socket就相当于一个请求），操作系统就会跟踪这些请求 ，而且是有顺序的存入，先来先服务FIFO的原则。接下来，<strong>文件事件分配器</strong> 循环扫描指令队列，将不同类型请求的Socket交给不同的处理器（比如有些请求时get、有些是set）。循环扫描的过程就叫<strong>事件轮询</strong> ，这种事件轮询是操作实现的，常见的事件轮询api有：<strong>select</strong> ，<strong>poll</strong> ，<strong>epoll</strong> ，<strong>kqueue</strong> 。<br>select是最早出现的多路复用api，但是有一些缺点，比如最大只能有1024个线程，线程不安全；接着poll就修复了select的一些问题，解决了1024的问题，但还是线程不安全；最后epoll出现了，他解决了select的所有问题，现在的Linux都是使用它完成多路复用模型，但epoll只能在Linux上实现。kqueue是macos系统的东西。</p>
+<h1 id="更加深入一点："><a href="#更加深入一点：" class="headerlink" title="更加深入一点："></a>更加深入一点：</h1><p>HTTP底层是TCP/IP实现的，所以GET和POST底层都是用TCP/IP，所以理论上我们可以在GET带上request body，也可以让POST带上URL参数，只是这样做违反了HTTP的规定而已</p>
+<h2 id="还有一个重大的区别："><a href="#还有一个重大的区别：" class="headerlink" title="还有一个重大的区别："></a>还有一个重大的区别：</h2><p>GET会产生一个TCP数据包，而POST产生两个TCP数据包<br>GET请求会把header头部和data数据一起发送过去，服务器返回200<br>POST请求，浏览器会先发送header，服务器返回100 continue，浏览器再发送data，服务器返回200<br>即使是这样，发送一次包的时间和发送两次包的时间其实是差不多的，所以POST请求也不必GET请求差</p>
 
           
         
@@ -399,7 +401,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/24/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><span class="page-number current">25</span><a class="page-number" href="/page/26/">26</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/26/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
