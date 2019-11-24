@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/15/MySQL存储数据的格式/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/15/TCP跟UDP/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/04/15/MySQL存储数据的格式/" itemprop="url">MySQL存储数据的格式</a></h1>
+                <a class="post-title-link" href="/2019/06/15/TCP跟UDP/" itemprop="url">TCP跟UDP</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-15T20:56:26+08:00">
-                2019-04-15
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-15T15:18:42+08:00">
+                2019-06-15
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/MySQL/" itemprop="url" rel="index">
-                    <span itemprop="name">MySQL</span>
+                  <a href="/categories/计算机网络/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机网络</span>
                   </a>
                 </span>
 
@@ -352,183 +352,34 @@
       
         
           
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我们都知道MySQL的数据有表的结构，一条数据在表中就是一行，但是实际上MySQL存储数据的真正形式不是表结构，因为数据都是存储硬盘这种类型的物理结构，需要某种数据结构来存储数据，比如像链表啊，数组啊，树啊..想了解MySQL存储数据的形式，需要知道一条数据在MySQL中的<strong>行格式</strong> ，还有MySQL管理数据的<strong>页结构</strong> 。（基于InnoDB引擎）<br>简单的讲，MySQL操作数据时，也就是内存跟磁盘交互时，MySQL是以<strong>页</strong>为单位交互的，<strong>一个页的大小是16KB</strong>，页中包含了若干条<strong>行数据</strong>，你就把页想象成一个固定大小的桶，每次去井里打水只能乘固定的水量。所以在一般情况下，一次最少从磁盘中读取16KB的内容到内存，一次最少把内存中的16KB内容刷新到磁盘中。</p>
-<h1 id="InnoDB的行格式"><a href="#InnoDB的行格式" class="headerlink" title="InnoDB的行格式"></a>InnoDB的行格式</h1><p>表中的一条数据，是我们定义的列的值。比如a表中有(id, name)两列，所以存储的数据可以是(1, ‘AA’), (2, ‘BB’)的数据，显示的时候是这样，存储的时候可不止有这两个属性，还有记录这条数据的大小是多少，有没有null值，下一条数据的地址是多少（数据不是连续存储的）….所以为了更快查询数据和更节省空间的存储数据，就设计出了<strong>行格式</strong>或者<strong>记录格式</strong>。<strong>InnoDB</strong>的行格式有四种：<strong>Compact</strong>，<strong>Redundant</strong>，<strong>Dynamic</strong>和<strong>Compressed</strong>。</p>
-<h2 id="COMPACT行格式"><a href="#COMPACT行格式" class="headerlink" title="COMPACT行格式"></a>COMPACT行格式</h2><p><img src="/2019/04/15/MySQL存储数据的格式/20190416113324980.png" alt=""><br>一条行数据可以分为<strong>记录的额外信息</strong>和<strong>记录的真实数据</strong><br>为了演示，我们需要创建一张表<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE TABLE record_format_demo (</span><br><span class="line">    -&gt;     c1 VARCHAR(10),</span><br><span class="line">    -&gt;     c2 VARCHAR(10) NOT NULL,</span><br><span class="line">    -&gt;     c3 CHAR(10),</span><br><span class="line">    -&gt;     c4 VARCHAR(10)</span><br><span class="line">    -&gt; ) CHARSET=ascii ROW_FORMAT=COMPACT;</span><br><span class="line">Query OK, 0 rows affected (0.03 sec)</span><br></pre></td></tr></table></figure></p>
-<p>插入数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO record_format_demo(c1, c2, c3, c4) VALUES(&apos;aaaa&apos;, &apos;bbb&apos;, &apos;cc&apos;, &apos;d&apos;), (&apos;eeee&apos;, &apos;fff&apos;, NULL, NULL);</span><br><span class="line">Query OK, 2 rows affected (0.02 sec)</span><br><span class="line">Records: 2  Duplicates: 0  Warnings: 0</span><br></pre></td></tr></table></figure></p>
-<p>查询<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT * FROM record_format_demo;</span><br><span class="line">+------+-----+------+------+</span><br><span class="line">| c1   | c2  | c3   | c4   |</span><br><span class="line">+------+-----+------+------+</span><br><span class="line">| aaaa | bbb | cc   | d    |</span><br><span class="line">| eeee | fff | NULL | NULL |</span><br><span class="line">+------+-----+------+------+</span><br><span class="line">2 rows in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt;</span><br></pre></td></tr></table></figure></p>
-<h3 id="记录的额外信息"><a href="#记录的额外信息" class="headerlink" title="记录的额外信息"></a>记录的额外信息</h3><p>这些信息是<strong>服务器为了描述这条记录而不得不额外添加的一些信息</strong>， 这些额外的信息分为三类<strong>可变字段长度列表</strong>、<strong>NULL值列表</strong>和<strong>记录头信息</strong></p>
-<h4 id="可变字段长度列表"><a href="#可变字段长度列表" class="headerlink" title="可变字段长度列表"></a>可变字段长度列表</h4><p>MySQL支持一些变长的数据，比如Varchar（N）、TEXT类型的数据等，变长数据存储多少字节的数据不是固定的，所以我们需要把<strong>存储可变数据的时候把数据占用的字节存储到可变字段长度列表</strong>。<br>在Compact行格式中，把所有可变长字段的真实数据占用的字节长度都存放在记录的开头部位，从而形成一个可变长度列表，各变长字段数据占用的字节数是按<strong>逆序</strong>的顺序存放的。<br>比如record表，c1、c2、c4列都是VARCHAR（10）类型，除了c3是CHAR（10），也就是可变长的数据类型，所以这三列的值长都需要保存在记录开头</p>
-<table>
-<thead>
-<tr>
-<th>列名</th>
-<th>存储内容</th>
-<th>内容长度（十进制）</th>
-<th>内容长度（十六进制）</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>c1</td>
-<td>‘aaaa’</td>
-<td>4</td>
-<td>0x04</td>
-</tr>
-<tr>
-<td>c2</td>
-<td>‘bbb’</td>
-<td>3</td>
-<td>0x03</td>
-</tr>
-<tr>
-<td>c4</td>
-<td>‘d’</td>
-<td>1</td>
-<td>0x01</td>
-</tr>
-</tbody>
-</table>
-<p>这样行格式为<br><img src="/2019/04/15/MySQL存储数据的格式/20190416100741868.png" alt=""></p>
-<ul>
-<li>可变长度列表中只存储为非NULL的列内容长度，值为NULL的列长度是不存储的。</li>
+            <h1 id="UDP"><a href="#UDP" class="headerlink" title="UDP"></a>UDP</h1><h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>不可靠的传输协议，面向无连接，随时发送数据。即使是出现网络拥堵，UDP也无法进行流量控制等避免网络拥塞的行为，也就是说部分控制转移给程序自己实现</p>
+<h2 id="常用于"><a href="#常用于" class="headerlink" title="常用于"></a>常用于</h2><ul>
+<li>包重量较少的通信（DNS、SNMP等）</li>
+<li>视频、音频等多媒体通信（即时通信）</li>
+<li>现定于LAN等特定网络中的应用通信</li>
+<li>广播通信（广播、多播）</li>
 </ul>
-<h4 id="NULL值列表"><a href="#NULL值列表" class="headerlink" title="NULL值列表"></a>NULL值列表</h4><p>表中有些列可能会有NULL值，如果把NULL值放在记录数据的真实地方中存储会很占地方，所以Compact行格式把这些NULL的列统一管理起来，放在NULL值列表中<br>NULL值列表值存储允许NULL值的列，那些主键列或者NOT NULL是不可以存储的，存储的顺序也是<strong>逆序</strong>存储的。<strong>1表示为NULL值，0表示为非NULL值</strong>。如果行记录中没有NULL值，那么NULL值列表就不存在<br>当插入数据1后<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO record_format_demo(c1, c2, c3, c4) VALUES(&apos;aaaa&apos;, &apos;bbb&apos;, &apos;cc&apos;, &apos;d&apos;)</span><br></pre></td></tr></table></figure></p>
-<p>NULL列表为<br><img src="/2019/04/15/MySQL存储数据的格式/20190416102022886.png" alt=""><br>当插入数据2后<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO record_format_demo(c1, c2, c3, c4) VALUES(&apos;eeee&apos;, &apos;fff&apos;, NULL, NULL);</span><br></pre></td></tr></table></figure></p>
-<p>NULL列表为<br><img src="/2019/04/15/MySQL存储数据的格式/20190416102035076.png" alt=""><br>所以第二条记录的NULL值列表用十六进制表示就是：0x06<br><img src="/2019/04/15/MySQL存储数据的格式/20190416102055470.png" alt=""></p>
-<h4 id="记录头信息"><a href="#记录头信息" class="headerlink" title="记录头信息"></a>记录头信息</h4><p>该描述用于记录行格式的一些通用信息，比如是否被删除、当前记录的类型、下一条记录的位置（数据不是连续存储的）…<strong>固定由5个字节组成</strong><br><img src="/2019/04/15/MySQL存储数据的格式/20190416102414461.png" alt=""><br>各个部分的作用如下：<br>| 名称 | 大小（单位：bit） | 描述 |<br>| — | — | — |<br>| 预留位1 | 1 | 没有使用 |<br>| 预留位1 | 1 | 没有使用 |<br>| delete_mask | 1 | 标记该记录是否被删除 |<br>| min_rec_mask | 1 | B+ tree的每层非叶子节点的最小记录都会添加该标记 |<br>| n_owned | 4 | 表示当前记录拥有的记录数 |<br>| heap_no | 13 | 表示当前记录的类型，0表示普通记录，1表示B+数非叶子节点记录，2表示最小记录，3表示最大记录 |<br>| next_record | 16 | 表示下一条记录的相对位置 |</p>
-<ul>
-<li>delete_mask 主要用于被删除的数据，因为我们delete数据后，重新排列这些数据需要消耗性能，所以数据并不是马上被删除，而只是做个标记，然后把被删除的数据连接成一个链表。</li>
+<h2 id="UDP首部格式"><a href="#UDP首部格式" class="headerlink" title="UDP首部格式"></a>UDP首部格式</h2><p><img src="/2019/06/15/TCP跟UDP/20190615035231957.png" alt=""></p>
+<h1 id="TCP"><a href="#TCP" class="headerlink" title="TCP"></a>TCP</h1><h2 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h2><p>面向连接的、可靠的流协议</p>
+<h2 id="TCP首部格式"><a href="#TCP首部格式" class="headerlink" title="TCP首部格式"></a>TCP首部格式</h2><p><img src="/2019/06/15/TCP跟UDP/20190615035248679.png" alt=""></p>
+<h1 id="TCP跟UDP的区分"><a href="#TCP跟UDP的区分" class="headerlink" title="TCP跟UDP的区分"></a>TCP跟UDP的区分</h1><ul>
+<li>TCP用于传输层实现可靠传输，面向连接并具备顺序控制、重发控制等机制；UDP虽然也是作用域传输层，但是它不提供可靠的传输</li>
+<li>UDP主要用于对高速传输和实时性有较高要求的通信或广播通信</li>
+<li>TCP充分实现了数据传输时的各种控制功能，可以进行丢包时的重发控制，还可以对次序乱掉的分包进行顺序控制</li>
 </ul>
-<h3 id="记录真实的数据"><a href="#记录真实的数据" class="headerlink" title="记录真实的数据"></a>记录真实的数据</h3><p>比如record表，记录真实的数据除了c1、c2、c3、c4这几个我们定义的列的数据以外，MySQL会为每个记录默认的添加一些<strong>隐藏列</strong><br>| 列名 | 是否必须 | 占用空间 | 描述 |<br>| — | — | — | — |<br>| row_id | 否 | 6字节 | 行ID，唯一的表示一条记录 |<br>| transaction_id | 是 | 6字节 | 事务ID |<br>| roll_pointer | 是 | 7字节 | 回滚指针 |</p>
-<ul>
-<li>实际上这几个列的真正名称其实是：DB_ROW_ID、DB_TRX_ID、DB_ROLL_PTR，我们为了美观才写成了row_id、transaction_id和roll_pointer。<br>这里需要提一下InnoDB表对主键的生成策略：优先使用用户自定义主键作为主键，如果用户没有定义主键，则选取一个Unique键作为主键，如果表中连Unique键都没有定义的话，则InnoDB会为表默认添加一个名为row_id的隐藏列作为主键。所以我们从上表中可以看出：InnoDB存储引擎会为每条记录都添加 transaction_id 和 roll_pointer 这两个列，但是 row_id 是可选的（在没有自定义主键以及Unique键的情况下才会添加该列）。这些隐藏列的值不用我们操心，InnoDB存储引擎会自己帮我们生成的。<br>插入一些数据后大概是这样<br><img src="/2019/04/15/MySQL存储数据的格式/20190416103630585.png" alt=""></li>
-</ul>
-<h2 id="Redundant行格式"><a href="#Redundant行格式" class="headerlink" title="Redundant行格式"></a>Redundant行格式</h2><p>这是一种很老的行格式了<br><img src="/2019/04/15/MySQL存储数据的格式/20190416103901614.png" alt=""></p>
-<h2 id="VARCHAR-M-最多能存储的数据"><a href="#VARCHAR-M-最多能存储的数据" class="headerlink" title="VARCHAR(M)最多能存储的数据"></a>VARCHAR(M)最多能存储的数据</h2><p>VARCHAR(M)最多能存储65535个字节，其中M代表该类型最多存储的字符数量，如果我们使用ASCII字符集的话，一个字符就是代表一个字节。但是我们存储一个VARCHAR(M)的类型列，其实需要三个部分的空间：</p>
-<ul>
-<li>1、真实数据</li>
-<li>2、真实数据占用字节的长度（需要2个字节）</li>
-<li>3、NULL值标识，如果该列有NOT NULL属性则可以没有这部分空间（需要1个字节）<br>所以说VARCHAR(M)最多不是存储65535个字节，而是65532个字节<br>但是如果是别的编码，比如gbk（一个字符最多需要2个字节）最多存储65532/2=32776个字符、utf8(一个3字符最多需要3个字节)65532/3=21844个字符<h2 id="记录中的数据太多产生的溢出"><a href="#记录中的数据太多产生的溢出" class="headerlink" title="记录中的数据太多产生的溢出"></a>记录中的数据太多产生的溢出</h2>在Compact和Redundant行格式中，对于占用存储空间非常大的列，在记录真实数据出只会存储该列的一部分数据，把剩余数据分散存储在几个其他也中，然后记录真实数据处用20个字节存储指向这些页的地方，从而可以找到剩余数据所在的页，比如：<br><img src="/2019/04/15/MySQL存储数据的格式/20190416105111071.png" alt=""></li>
-</ul>
-<h2 id="Dynamic和Compressed行格式"><a href="#Dynamic和Compressed行格式" class="headerlink" title="Dynamic和Compressed行格式"></a>Dynamic和Compressed行格式</h2><p>Dynamic是MySQL5.7以后<strong>默认的行格式</strong>，这两种形式的行格式跟Compact差不多，不同的是<strong>处理行溢出</strong>时有分歧，他们不会在记录的真实数据存储字段真实数据的一些数据，而是把所有的字节数据都存储到其他页面中，只在记录真实数据存储到其他页面的地址<br><img src="/2019/04/15/MySQL存储数据的格式/20190416105425865.png" alt=""><br>Compressed行格式和Dynamic不同的一点是，Compressed行格式会采用压缩算法对页面进行压缩</p>
-<h2 id="指定和修改行格式的语法"><a href="#指定和修改行格式的语法" class="headerlink" title="指定和修改行格式的语法"></a>指定和修改行格式的语法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE 表名 (列的信息) ROW_FORMAT=行格式名称</span><br><span class="line"></span><br><span class="line">ALTER TABLE 表名 ROW_FORMAT=行格式名称</span><br></pre></td></tr></table></figure>
-<h1 id="InnoDB数据页结构"><a href="#InnoDB数据页结构" class="headerlink" title="InnoDB数据页结构"></a>InnoDB数据页结构</h1><p><strong>页</strong>是管理存储空间的基本单位，一般大小是16KB。InnoDB为了不同的目的而设计了许多种不同类型的页，比如存放表空间头部信息的页，存放Insert Buffer信息的页，存放INODE信息的页，存放undo日志信息的页等等等等。下面讲的是我们存放表中记录的那种类型的页，官方称为<strong>索引（index）页</strong>，我们也可以叫<strong>数据页</strong>。</p>
-<h2 id="InnoDB数据页的整体结构"><a href="#InnoDB数据页的整体结构" class="headerlink" title="InnoDB数据页的整体结构"></a>InnoDB数据页的整体结构</h2><p><img src="/2019/04/15/MySQL存储数据的格式/20190417093300316.png" alt=""><br>先简单的阐述一下各个部分的作用</p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>中文名</th>
-<th>占用空间大小</th>
-<th>简单描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>File Header</td>
-<td>文件头部</td>
-<td>38字节</td>
-<td>页的一些通用信息</td>
-</tr>
-<tr>
-<td>Page Header</td>
-<td>页面头部</td>
-<td>56字节</td>
-<td>数据页专有的一些信息</td>
-</tr>
-<tr>
-<td>Infimum+Supremun</td>
-<td>最小记录和最大记录</td>
-<td>26字节</td>
-<td>两个虚拟的行记录</td>
-</tr>
-<tr>
-<td>User Records</td>
-<td>用户记录</td>
-<td>不确定</td>
-<td>实际存储的行记录内容</td>
-</tr>
-<tr>
-<td>Free Space</td>
-<td>空闲空间</td>
-<td>不确定</td>
-<td>页中尚未使用的空间</td>
-</tr>
-<tr>
-<td>Page Directory</td>
-<td>页面目录</td>
-<td>不确定</td>
-<td>页中某些记录的相对位置</td>
-</tr>
-<tr>
-<td>File Trailer</td>
-<td>文件尾部</td>
-<td>8字节</td>
-<td>校验页是否完整</td>
-</tr>
-</tbody>
-</table>
-<p>在这7个部分中，我们上面提到的行格式就是存储到<strong>User Records</strong>里面。但是在一开始生成页的时候，其实并没有User Records这个部分，每当我们插入一条记录，都会从<strong>Free Space</strong>部分，也就是尚未使用的存储空间中申请一个记录大小的空间划分到User Records部分，当Free Space部分的空间全部被User Records部分替代掉之后，也就意味着这个页使用完了，如果还有新的记录插入的话，就需要去申请新的页了，这个过程的图示如下：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417094048030.png" alt=""></p>
-<h2 id="记录头的秘密"><a href="#记录头的秘密" class="headerlink" title="记录头的秘密"></a>记录头的秘密</h2><p>我们先模拟一个表：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE TABLE page_demo(</span><br><span class="line">    -&gt;     c1 INT,</span><br><span class="line">    -&gt;     c2 INT,</span><br><span class="line">    -&gt;     c3 VARCHAR(10000),</span><br><span class="line">    -&gt;     PRIMARY KEY (c1)</span><br><span class="line">    -&gt; ) CHARSET=ascii ROW_FORMAT=Compact;</span><br><span class="line">Query OK, 0 rows affected (0.03 sec)</span><br></pre></td></tr></table></figure></p>
-<p>我们只列出行格式的记录头信息和真实记录信息<br><img src="/2019/04/15/MySQL存储数据的格式/20190417094435733.png" alt=""><br>我们往表里面插入几条数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO page_demo VALUES(1, 100, &apos;aaaa&apos;), (2, 200, &apos;bbbb&apos;), (3, 300, &apos;cccc&apos;), (4, 400, &apos;dddd&apos;);</span><br><span class="line">Query OK, 4 rows affected (0.00 sec)</span><br><span class="line">Records: 4  Duplicates: 0  Warnings: 0</span><br></pre></td></tr></table></figure></p>
-<p>插入后的数据如下（里面本来是二进制，这里用十进制）：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417094518959.png" alt=""></p>
-<ul>
-<li><strong>n_owned</strong><br>该组的主键才有值，记录该组拥有多少条记录（下面说）</li>
-<li>**delete_mask<br>这个属性标记着当前记录是否被删除，占用1个二进制位，值为0的时候代表记录并没有被删除，为1的时候代表记录被删除掉了。</li>
-</ul>
-<p>啥？被删除的记录还在页中么？是的，摆在台面上的和背地里做的可能大相径庭，你以为它删除了，可它还在真实的磁盘上。这些被删除的记录之所以不立即从磁盘上移除，是因为移除它们之后把其他的记录在磁盘上重新排列需要性能消耗，所以只是打一个删除标记而已，所有被删除掉的记录都会组成一个所谓的垃圾链表，在这个链表中的记录占用的空间称之为所谓的可重用空间，之后如果有新记录插入到表中的话，可能把这些被删除的记录占用的存储空间覆盖掉。</p>
-<ul>
-<li><strong>heap_no</strong><br>这个属性表示当前记录在本页中的位置，从图中可以看出来，我们插入的4条记录在本页中的位置分别是：2、3、4、5。是不是少了点啥？是的，怎么不见heap_no值为0和1的记录呢？</li>
-</ul>
-<p>这其实是设计InnoDB的大叔们玩的一个小把戏，他们自动给每个页里边儿加了两个记录，由于这两个记录并不是我们自己插入的，所以有时候也称为伪记录或者虚拟记录。这两个伪记录一个代表最小记录，一个代表最大记录，等一下哈~，记录可以比大小么？</p>
-<p>是的，记录也可以比大小，对于一条完整的记录来说，比较记录的大小就是比较主键的大小。比方说我们插入的4行记录的主键值分别是：1、2、3、4，这也就意味着这4条记录的大小从小到大依次递增。</p>
-<p>Infimum和Supremum虽然是两条记录，但是它们是在inifmum+supremum这部分，也就是我们上边说的7层结构的第三层。<br>由于这两条记录不是我们自己定义的记录，所以它们并不存放在页的User Records部分，他们被单独放在一个称为Infimum + Supremum的部分，如图所示：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417095023692.png" alt=""><br>从图中我们可以看出来，最小记录和最大记录的heap_no值分别是0和1，也就是说它们的位置最靠前。</p>
-<ul>
-<li>**record_type<br>这个属性表示当前记录的类型，一共有4种类型的记录，0表示普通记录，1表示B+树非叶节点记录，2表示最小记录，3表示最大记录。从图中我们也可以看出来，我们自己插入的记录就是普通记录，它们的record_type值都是0，而最小记录和最大记录的record_type值分别为2和3。</li>
-</ul>
-<p>至于record_type为1的情况，我们之后在说索引的时候会重点强调的。</p>
-<ul>
-<li><strong>next_record<br>这玩意儿非常重要，它表示从当前记录的真实数据到下一条记录的</strong>真实数据的地址偏移量<strong>。比方说第一条记录的</strong>next_record<strong>值为</strong>32<strong>，意味着从第一条记录的真实数据的地址处向后找</strong>32个字节<strong>便是下一条记录的真实数据。如果你熟悉数据结构的话，就立即明白了，这其实是个</strong>链表<strong>，可以通过一条记录找到它的下一条记录。但是需要注意注意再注意的一点是，</strong>下一条记录指得并不是按照我们插入顺序的下一条记录，而是按照主键值由小到大的顺序的下一条记录<strong>。而且规定 </strong>Infimum记录（也就是最小记录）<strong> 的下一条记录就是本页中主键值最小的用户记录，而本页中主键值最大的用户记录的下一条记录就是 </strong>Supremum记录（也就是最大记录）** ，为了更形象的表示一下这个next_record起到的作用，我们用箭头来替代一下next_record中的地址偏移量：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417095423739.png" alt=""><br>从图中可以看出来，我们的记录按照主键从小到大的顺序形成了一个单链表。最大记录的next_record的值为0，这也就是说最大记录是没有下一条记录了，它是这个单链表中的最后一个节点。如果从中删除掉一条记录，这个链表也是会跟着变化的，比如我们把第2条记录删掉,删掉第2条记录后的示意图就是：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417095446849.png" alt=""><br>再来看一个有意思的事情，因为主键值为2的记录被我们删掉了，但是存储空间却没有回收，如果我们再次把这条记录插入到表中，会发生什么事呢？<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO page_demo VALUES(2, 200, &apos;bbbb&apos;);</span><br><span class="line">Query OK, 1 row affected (0.00 sec)</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>我们看一下记录的存储情况：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417095550722.png" alt=""><br>从图中可以看到，InnoDB并没有因为新记录的插入而为它申请新的存储空间，而是直接复用了原来被删除记录的存储空间。</p>
-<h2 id="Page-Directory页目录"><a href="#Page-Directory页目录" class="headerlink" title="Page Directory页目录"></a>Page Directory页目录</h2><p>该结构的存在是为了快速查找数据设立的，我们前面说过数据存储的顺序不是插入时的顺序，而是按照主键的顺序插入，没有主键时就把unique列作为主键，如果连unique都没有，那么MySQL就会添加隐藏的row_id列作为主键。如果我们查询数据时，通过遍历数据来查询，那肯定不可能。如果我们此时想一下，数据现在的存储是<strong>有序</strong>的，那么我们能想到的一种快速查找算法——<strong>二分法</strong>。<br>所以Page Directory页目录的出现，是为了加快二分查找法，MySQL将页中的数据分组，每组的最后一条记录的地址偏移量取出来放进Page Directory中（这样就相当于它是这个组的代表），划分是这样的：</p>
-<ol>
-<li>将所有正常的记录（包括最大和最小记录，不包括标记为已删除的记录）划分为几个组。</li>
-<li>每个组的最后一条记录（也就是组内最大的那条记录）的头信息中的n_owned属性表示该记录拥有多少条记录，也就是该组内共有几条记录。</li>
-<li>将每个组的最后一条记录的地址偏移量单独提取出来按顺序存储到靠近页的尾部的地方，这个地方就是所谓的Page Directory，也就是页目录（此时应该返回头看看页面各个部分的图）。页面目录中的这些地址偏移量被称为槽（英文名：Slot），所以这个页面目录就是由槽组成的。<br>比方说现在的page_demo表中正常的记录共有6条，InnoDB会把它们分成两组，第一组中只有一个最小记录，第二组中是剩余的5条记录，看下边的示意图：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417101337532.png" alt=""><br>现在页目录部分中有两个槽，也就意味着我们的记录被分成了两个组，槽1中的值是112，代表最大记录的地址偏移量（就是从页面的0字节开始数，数112个字节）；槽0中的值是99，代表最小记录的地址偏移量。<br>最小记录的n_owned值为1，这就代表着以最小记录结尾的这个分组中只有1条记录，也就是最小记录本身。<br>最大记录的n_owned值为5，这就代表着以最大记录结尾的这个分组中只有5条记录，包括最大记录本身还有我们自己插入的4条记录。<br>这样画好看点<br><img src="/2019/04/15/MySQL存储数据的格式/20190417101408389.png" alt=""></li>
-</ol>
-<p>分组也是有规则的：<br>设计InnoDB的大叔们对每个分组中的记录条数是有规定的：对于最小记录所在的分组只能有 1 条记录，最大记录所在的分组拥有的记录条数只能在 1~8 条之间，剩下的分组中记录的条数范围只能在是 4~8 条之间。所以分组是按照下边的步骤进行的：<br>初始情况下一个数据页里只有最小记录和最大记录两条记录，它们分属于两个分组。<br>之后每插入一条记录，都会从页目录中找到主键值比本记录的主键值大并且差值最小的槽，然后把该槽对应的记录的n_owned值加1，表示本组内又添加了一条记录，直到该组中的记录数等于8个。<br>在一个组中的记录数等于8个后再插入一条记录时，会将组中的记录拆分成两个组，一个组中4条记录，另一个5条记录。这个过程会在页目录中新增一个槽来记录这个新增分组中最大的那条记录的偏移量。</p>
-<p>我们插入12条数据后<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; INSERT INTO page_demo VALUES(5, 500, &apos;eeee&apos;), (6, 600, &apos;ffff&apos;), (7, 700, &apos;gggg&apos;), (8, 800, &apos;hhhh&apos;), (9, 900, &apos;iiii&apos;), (10, 1000, &apos;jjjj&apos;), (11, 1100, &apos;kkkk&apos;), (12, 1200, &apos;llll&apos;), (13, 1300, &apos;mmmm&apos;), (14, 1400, &apos;nnnn&apos;), (15, 1500, &apos;oooo&apos;), (16, 1600, &apos;pppp&apos;);</span><br><span class="line">Query OK, 12 rows affected (0.00 sec)</span><br><span class="line">Records: 12  Duplicates: 0  Warnings: 0</span><br></pre></td></tr></table></figure></p>
-<p>分为5个组，分组情况如下：<br><img src="/2019/04/15/MySQL存储数据的格式/20190417101549689.png" alt=""><br>这样当查找主键为6的值的过程如下：<br>计算中间槽的位置：(0+4)/2=2，所以查看槽2对应记录的主键值为8，又因为8 &gt; 6，所以设置high=2，low保持不变。</p>
-<p>重新计算中间槽的位置：(0+2)/2=1，所以查看槽1对应的主键值为4，又因为4 &lt; 6，所以设置low=1，high保持不变。</p>
-<p>因为high - low的值为1，所以确定主键值为5的记录在槽2对应的组中。此刻我们需要找到槽2中主键值最小的那条记录，然后沿着单向链表遍历槽2中的记录。但是我们前边又说过，每个槽对应的记录都是该组中主键值最大的记录，这里槽2对应的记录是主键值为8的记录，怎么定位一个组中最小的记录呢？别忘了各个槽都是挨着的，我们可以很轻易的拿到槽1对应的记录（主键值为4），该条记录的下一条记录就是槽2中主键值最小的记录，该记录的主键值为5。所以我们可以从这条主键值为5的记录出发，遍历槽2中的各条记录，直到找到主键值为6的那条记录即可。由于一个组中包含的记录条数只能是1~8条，所以遍历一个组中的记录的代价是很小的。</p>
-<p>所以在一个数据页中查找指定主键值的记录的过程分为两步：</p>
-<ol>
-<li><p>通过二分法确定该记录所在的槽，并找到该槽中主键值最小的那条记录。</p>
-</li>
-<li><p>通过记录的next_record属性遍历该槽所在的组中的各个记录。</p>
-</li>
-</ol>
-<h2 id="Page-Header"><a href="#Page-Header" class="headerlink" title="Page Header"></a>Page Header</h2><p>MySQL为了直观、快速地得到这个数据页的一些常用信息，比如本页存储了多少数据、第一条记录的地址、页目录有多少个槽..所以设立了Page Header</p>
-<h2 id="File-Header（文件头部）"><a href="#File-Header（文件头部）" class="headerlink" title="File Header（文件头部）"></a>File Header（文件头部）</h2><p>上边唠叨的Page Header是专门针对数据页记录的各种状态信息，比方说页里头有多少个记录了呀，有多少个槽了呀。我们现在描述的File Header针对各种类型的页都通用，也就是说不同类型的页都会以File Header作为第一个组成部分，它描述了一些针对各种页都通用的一些信息，比方说这个页的编号是多少，它的上一个页、下一个页是谁啦吧啦吧啦～ 这个部分占用固定的38个字节<br>比较重要的属性有</p>
-<ul>
-<li>FIL_PAGE_SPACE_OR_CHKSUM  页的校验和（checksum值）需要跟下面的page trailer一起使用才能起效果</li>
-<li>FIL_PAGE_OFFSET  页号</li>
-<li>FIL_PAGE_PREV  上一个页的页号</li>
-<li>FIL_PAGE_NEXT  下一个页的页号</li>
-<li>FIL_PAGE_TYPE  当前页的类型，页的类型有很多，比如数据页、系统页、Undo日志页…</li>
-</ul>
-<h2 id="File-Trailer"><a href="#File-Trailer" class="headerlink" title="File Trailer"></a>File Trailer</h2><p>我们知道InnoDB存储引擎会把数据存储到磁盘上，但是磁盘速度太慢，需要以页为单位把数据加载到内存中处理，如果该页中的数据在内存中被修改了，那么在修改后的某个时间需要把数据同步到磁盘中。但是在同步了一半的时候中断电了咋办，这不是莫名尴尬么？为了检测一个页是否完整（也就是在同步的时候有没有发生只同步一半的尴尬情况），设计InnoDB的大叔们在每个页的尾部都加了一个File Trailer部分，这个部分由8个字节组成，可以分成2个小部分：</p>
-<ul>
-<li><p>前4个字节代表页的校验和<br>这个部分是和File Header中的校验和相对应的。每当一个页面在内存中修改了，在同步之前就要把它的校验和算出来，因为File Header在页面的前边，所以校验和会被首先同步到磁盘，当完全写完时，校验和也会被写到页的尾部，如果完全同步成功，则页的首部和尾部的校验和应该是一致的。如果写了一半儿断电了，那么在File Header中的校验和就代表着已经修改过的页，而在File Trialer中的校验和代表着原先的页，二者不同则意味着同步中间出了错。</p>
-</li>
-<li><p>后4个字节代表页面被最后修改时对应的日志序列位置（LSN）</p>
-</li>
-</ul>
-<p>这个部分也是为了校验页的完整性的，只不过我们目前还没说LSN是个什么意思，所以大家可以先不用管这个属性。</p>
-<p>喜欢的可以看原文作者，超级详细<br><img src="/2019/04/15/MySQL存储数据的格式/20190416110319769.png" alt=""></p>
+<h1 id="TCP怎么保证可靠性"><a href="#TCP怎么保证可靠性" class="headerlink" title="TCP怎么保证可靠性"></a>TCP怎么保证可靠性</h1><p>1、序列号和校验号</p>
+<p>2、ACK确认机制</p>
+<p>3、超时重传</p>
+<p>4、连接管理（TCP三次握手和四次挥手）</p>
+<p>5、滑动窗口</p>
+<p>6、拥塞控制</p>
+<p>7、流控制</p>
+<p>下面稍微做一下解释：<br>1、 通过序列号和确认应答提高可靠性<br><img src="/2019/06/15/TCP跟UDP/20190615035323575.png" alt=""><br>2、超时重发刚开始设置时为6秒左右<br>3、连接管理：三次握手和四次挥手，实现方式是通过TCP首部字段的控制域字段实现<br><img src="/2019/06/15/TCP跟UDP/20190615035510842.png" alt=""><br>4、MSS：TCP以段位单位发送数据的，在建立TCP连接的同时，也可以确定发送数据包的单位，称为“最大消息长度”，MSS（Maximum Segment Size)<br><img src="/2019/06/15/TCP跟UDP/20190615035552099.png" alt=""><br>5、 利用窗口控制提高速度（针对发送端而言）：发送一个段以后不必一直等待确认应答，而是继续发送<br><img src="/2019/06/15/TCP跟UDP/20190615035613598.png" alt=""><br>6、 滑动窗口控制（针对发送端而言）：收到确认应答的情况下，将窗口滑动到确认应答中的序列号的位置，这样可以顺序地将多个段同时发送提高通信性能<br><img src="/2019/06/15/TCP跟UDP/20190615035641032.png" alt=""><br>7、 窗口控制下的重发控制：使用<strong>高速重发控制</strong>，如果发送端连续3次收到同一个确认应答，就会对数据进行重发<br><img src="/2019/06/15/TCP跟UDP/20190615035710189.png" alt=""></p>
+<h2 id="流控制"><a href="#流控制" class="headerlink" title="流控制"></a>流控制</h2><p>出现的原因：方式接收端在高负荷（比如内存满了）的情况下，将本应该接受的数据丢弃，触发重发机制，浪费网络流量，所以TCP提供一种机制可以让发送端根据接收端的实际接收能力控制发送的数据量，这就是——流控制</p>
+<p>具体操作：发送端向接收端发送自己可以接收数据的大小，于是发送端将发送不超过这个限度的数据，该大小限度就称为<strong>窗口大小</strong>，而且在TCP首部中，有专门一个字段来通知窗口大小。如果接收端主机缓存区满了，会暂时停止接收数据，在接收端发送<strong>窗口更新通知</strong>才能继续通信</p>
+<p>窗口探测：如果窗口更新发生丢失，可能会导致无法继续通信。为避免此类问题，发送端会时不时的发送一个叫做<strong>窗口探测</strong>的数据段，此数据段仅含一个字节以获取最新的窗口大小的信息<br><img src="/2019/06/15/TCP跟UDP/20190615035739120.png" alt=""></p>
+<h1 id="拥塞机制"><a href="#拥塞机制" class="headerlink" title="拥塞机制"></a>拥塞机制</h1><p>在网络出现拥堵时，如果突然发送一个较大量的数据，极有可能导致整个网络瘫痪，为了避免在刚开始通信是发送大量的数据引发其他问题，通信刚开始时采用一个叫做<strong>慢启动</strong>的算法对发送数据量进行控制<br><img src="/2019/06/15/TCP跟UDP/20190615035816116.png" alt=""></p>
+<p>做法：调节发送端发送的数据量，定义了一个“拥塞窗口”的概念，在“慢启动”的时候将窗口设置为1个数据段（1MSS），之后每收到一次确认应答（ACK），拥塞窗口的值就加1.如果发生超市重发，就将拥塞窗口重新设置成1，再进行慢启动修正，有了上述这些机制，就可以有效的减少通信开始时的连续发包导致网络拥堵。但是也不能无限的增长窗口值，引入了慢启动阀值的概念</p>
 
           
         
@@ -568,7 +419,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -614,7 +465,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">32</span>
+                  <span class="site-state-item-count">33</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
