@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/25/一段String代码引发的思考/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/24/git学习/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/02/25/一段String代码引发的思考/" itemprop="url">一段String代码引发的思考</a></h1>
+                <a class="post-title-link" href="/2019/02/24/git学习/" itemprop="url">git学习</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-25T20:19:08+08:00">
-                2019-02-25
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-24T20:29:20+08:00">
+                2019-02-24
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
+                  <a href="/categories/git/" itemprop="url" rel="index">
+                    <span itemprop="name">git</span>
                   </a>
                 </span>
 
@@ -352,21 +352,24 @@
       
         
           
-            <h1 id="问题的出现"><a href="#问题的出现" class="headerlink" title="问题的出现"></a>问题的出现</h1><p>  String对象我们写Java的不可能没用过吧，但是你知道字符串常量池吗？今天就来聊聊JVM底层的字符串常量池，什么时候把字符串放进常量池？JDK1.6跟JDK1.7的常量池有什么变化？除了字符串常量池还有没有其他的常量池<br>先来看一段代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">String s1 = new String(&quot;1&quot;);</span><br><span class="line">s1.intern();</span><br><span class="line">String s2 = &quot;1&quot;;</span><br><span class="line">System.out.println(s1==s2);   // false</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">String  s3 = new String(&quot;2&quot;) + new String(&quot;2&quot;);</span><br><span class="line">s3.intern();</span><br><span class="line">String s4 = &quot;22&quot;;</span><br><span class="line">System.out.println(s3 == s4);  // true</span><br></pre></td></tr></table></figure></p>
-<p>总共有两句输出，你知道两句输出的结果是什么吗？虽然注释第一个为false，第二个为true。但是在JDK1.6里面，两个都为false，你知道为什么吗？请开始我的表演。</p>
-<h1 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>  说白了，字符串常量池就是用来存放字符串数据（在内存中）。但是注意，字符串常量池只是JVM中的一种常量池，其他的还有<strong> class文件常量池 </strong> ，<strong> 运行时常量池 </strong><br>  一时间也说不清楚其他两种常量池的作用和关系，只知道运行时常量池包含class文件常量池和字符串常量池，而且运行时常量池都存在于<strong> 方法区 </strong><br>  在JDK1.6及以前版本，字符串常量池是存在于运行时常量池，也就是存在于方法区中的。但是，JDK1.7以后，字符串常量池就被移出到<strong> 堆 </strong> 里面了。</p>
-<h2 id="什么时候才可以向字符串常量池添加数据"><a href="#什么时候才可以向字符串常量池添加数据" class="headerlink" title="什么时候才可以向字符串常量池添加数据"></a>什么时候才可以向字符串常量池添加数据</h2><ul>
-<li>1、常量的字符串，就是被关键字final修饰的字符串，会在编译时添加进字符串常量池</li>
-<li>2、显示声明的时候。比如String s=”1”，这时，当执行这段代码的时候，就会向字符串常量池里面添加数据，叫做字面量</li>
-<li>3、调用String类的intern方法时（这个方法在JDK1.6和1.7里面有差异，等下面再说）</li>
+            <h1 id="git-init"><a href="#git-init" class="headerlink" title="git init"></a>git init</h1><p>git init 就是把当前文件夹初始化为git仓库，这个文件夹就会被git所托管，文件夹里面的文件发生的所有改变都会被git所发现，而且该文件夹下就会多了一个.git的目录。<br>我们创建Git版本库时，Git自动为我们创建了唯一一个master分支</p>
+<h1 id="git-add"><a href="#git-add" class="headerlink" title="git add"></a>git add</h1><p>git add就是告诉Git，把文件添加到仓库（只是添加到暂存区）。即使有个文件已经在当前文件夹，但是没有使用git add 文件名 命令，该文件也还是不存在git仓库<br>可以使用git add . 一下子添加当前目录下的所有文件</p>
+<h1 id="git-commit-m"><a href="#git-commit-m" class="headerlink" title="git commit -m"></a>git commit -m</h1><p>git commit告诉Git，把文件提交到仓库先将文件添加给Git托管，只有调用commit才算是正在的添加到仓库中。git commit后面要加上 -m参数，-m 参数代表本次提交的说明，最好输入的是有意义的内容，以便以后可以在历史中方便找到改动的记录</p>
+<h1 id="git-status"><a href="#git-status" class="headerlink" title="git status"></a>git status</h1><p>git status可以查看当前文件夹下有哪些文件被修改或者哪些文件没有被Git锁管理</p>
+<h1 id="git-diff"><a href="#git-diff" class="headerlink" title="git diff"></a>git diff</h1><p>git diff 可以查看当前目录下的文件跟上次提交的文件具体做了哪些修改</p>
+<h1 id="git-log"><a href="#git-log" class="headerlink" title="git log"></a>git log</h1><p>git log 列出了我们往期提交的所有历史记录。如果感觉输出的内容太多，可以加上–pretty=oneline命令</p>
+<h1 id="版本回退"><a href="#版本回退" class="headerlink" title="版本回退"></a>版本回退</h1><p>如果我们提交过多个版本，但是如果我们想回退到上一个版本，可以使用git reset命令<br>回退到上一个版本 git reset –hard HEAD^<br>回退到上上一个版本 git reset –hard HEAD^^<br>回退到上100个版本 git reset –hard HEAD~100<br>但是回退版本最好使用版本号，版本号可是使用git log查看，每次提交都会生成一个版本号，版本号不用全写，只需写前面几位就可以，git会自动识别。</p>
+<p>深入进去了解的话，我们每次提交，git里面会有一条链表记录，而且会有指针指向当前版本<br><img src="/2019/02/24/git学习/20190224085606485.png" alt=""><br>当版本回退时，比如回退到上一个版本，只需修改指针即可<br><img src="/2019/02/24/git学习/20190224085649620.png" alt=""></p>
+<ul>
+<li>图来自廖雪峰老师讲的Git课程<a href="https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/0013744142037508cf42e51debf49668810645e02887691000" target="_blank" rel="noopener">https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/0013744142037508cf42e51debf49668810645e02887691000</a></li>
 </ul>
-<h1 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h1><p>  经过上面的一番操作，我们应该理解常量池（在方法区中）和堆是两个不同的东西。所以，我们可以推测，上面的代码之所以输出的结果会不一样，原因应该是有些对象是在堆里面，有些对象是常量池里面的。</p>
-<h2 id="首先看第一个输出那段代码"><a href="#首先看第一个输出那段代码" class="headerlink" title="首先看第一个输出那段代码"></a>首先看第一个输出那段代码</h2><p>String s1 = new String(“1”);请问这句代码一共创建了多少个对象？1个？错！是两个。s1是一个，还有一个就是上面说过的字面量，”1”就是字面量，此时会在字符串常量池里面创建一个”1”的对象，所以总共两个。<strong> s1指向的是堆里面的”1”对象 </strong> ，接下来调用intern方法，下面就来解释下该方法的作用</p>
-<h2 id="intern（）方法的作用"><a href="#intern（）方法的作用" class="headerlink" title="intern（）方法的作用"></a>intern（）方法的作用</h2><p>简单的讲，intern方法就是<strong> 向常量池里面添加数据 </strong> ，前提是<strong> 该数据还不在常量池里面 </strong> ，然后返回一个String对象<br>  JDK1.6里面，intern方法向字符串常量池里面添加的是对象，也就是比如s1.intern（s1是String对象，值为1），如果常量池里面还没有”1”这个对象，就会将”1”这个对象添加到常量池里面。如果常量池里面已经有”1”这个对象了，则返回<strong> 常量池里面的对象 </strong> 。<br>  JDK1.7里面，如果常量池里面有”1”这个对象，做法跟1.6时一样，返回<strong> 常量池里面的对象 </strong> ，但是，如果常量池里面没有该值的对象，则添加的是<strong> 对s1在堆中的对象的引用 </strong> （说得有点绕口，说白了就是添加在堆中的对象）。<br>  我们看下代码就知道了<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String s1 = new String(&quot;1&quot;);</span><br><span class="line">String s2 = s1.intern();</span><br><span class="line">System.out.println(s1 == s2); // false</span><br><span class="line"></span><br><span class="line">String s3 = &quot;1&quot;;</span><br><span class="line">System.out.println(s2 == s3); // true</span><br></pre></td></tr></table></figure></p>
-<p>  执行s1.intern返回的是常量池里面的对象，因为上一句代码已经创建了两个对象，一个在堆里面，一个在常量池里面。所以intern方法会发现常量池里面已经有”1”这个对象了，则返回该对象。s3也是常量池里面的”1”对象，所以一个输出false，一个输出true.</p>
-<h2 id="继续分析"><a href="#继续分析" class="headerlink" title="继续分析"></a>继续分析</h2><p>  我们前面说到intern方法只是检查常量池里面有没有该值，有则返回（返回的是常量池里面的对象），没有则添加（JDK1.6和1.7的添加规则不同）。接下来String s2=”1”；因为s2是字面量，也就是显示声明，而且常量池里面已经有”1”这个对象了。所以答案就很明显了，s1是在堆里面的”1”对象，s2是在字符串常量池里面的”1”对象，所以两者是不会相等的，结果为false。</p>
-<h2 id="继续分析第二段代码"><a href="#继续分析第二段代码" class="headerlink" title="继续分析第二段代码"></a>继续分析第二段代码</h2><p>  String s3 = new String(“2”) + new String(“2”);这里虽然也是创建了两个对象，一个是”22”的堆对象，一个是”2”的常量池对象，注意：没有”22”常量池对象。<br>  接下来调用intern方法，因为字符串常量池还没有”22”这个对象，所以重点来了，如果是JDK1.7，添加的是<strong> 堆里面”22”这个对象的引用（说白了就是堆里面”22”这个对象）</strong> ，所以常量池里面的”22”这个对象会指向堆里面”22”这个对象。所以下一句代码String s4=”22”，貌似是常量池里面的”22”对象，但是因为此时常量池的”22”对象已经指向了堆里面的”22”对象，所以说s4也是堆里面的对象。所以输出结果为true。<br>  但是如果是JDK1.6，在调用intern方法的时候，因为常量池的”22”这个对象还不存在，所以就添加了”22”这个常量池对象，注意：<strong> 是常量池对象 </strong> ，所以下一句的String s4=”22”就是常量池对象了，结果就输出了false。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>说了那么多，其实就一句——常量池对象跟堆里面的对象时不一样的（只是简单理解，不要当真）<br>贴出总代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">package com.lnw.stringpool;</span><br><span class="line"></span><br><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        /**</span><br><span class="line">         * 第一条代码一运行，会创建两个对象。</span><br><span class="line">         * 一个对象是常量池 &quot;1&quot;的对象，存储在字符串常量池中</span><br><span class="line">         * 另一个对象是 String 对象s1</span><br><span class="line">         * 这里s1因为是new出来的，所以s1是堆里面的String对象</span><br><span class="line">         */</span><br><span class="line">        String s1 = new String(&quot;1&quot;);</span><br><span class="line">        /**</span><br><span class="line">         * 调用intern方法，如果&quot;1&quot;不在字符串常量池中，则将s1对象的引用（内存中的地址）添加到字符串常量池中</span><br><span class="line">         * JDK1.7以上就是添加对象的引用，但是1.7以下是直接将&quot;1&quot;添加到常量池</span><br><span class="line">         * 但是如果存在这个&quot;1&quot;值的对象，则返回该对象</span><br><span class="line">         * 返回的常量池里面的对象</span><br><span class="line">         */</span><br><span class="line">        String s5 = s1.intern();</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s5是返回常量池里面的&quot;1&quot;对象</span><br><span class="line">         * s1是堆里面的对象</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s1 == s5);  // false</span><br><span class="line">        /**</span><br><span class="line">         * 第三条代码运行时，因为上面第一条代码已经将&quot;1&quot;放进了字符串常量池了</span><br><span class="line">         * 所以s2是字符创常量池里面的&quot;1&quot;对象</span><br><span class="line">         */</span><br><span class="line">        String s2 = &quot;1&quot;;</span><br><span class="line">        /**</span><br><span class="line">         * 因为s1是堆里面String对象，s2是字符串常量池&quot;1&quot;的对象，所以为false</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s1==s2);   // false</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s5是返回常量池里面的&quot;1&quot;对象</span><br><span class="line">         * s2也是常量池里面&quot;1&quot;的对象</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s5 == s2); // true</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 这里的s3显然是&quot;22&quot;，但是，&quot;22&quot;还没有进入字符串常量</span><br><span class="line">         * 也就是说，目前字符串常量里面只有&quot;2&quot;这个对象</span><br><span class="line">         * 但是，堆中有&quot;22&quot;这个对象</span><br><span class="line">         * s3就是指向&quot;22&quot;这个堆中的对象的引用</span><br><span class="line">         */</span><br><span class="line">        String  s3 = new String(&quot;2&quot;) + new String(&quot;2&quot;);</span><br><span class="line">        /**</span><br><span class="line">         * 因为&quot;22&quot;还没有进入字符串常量，所以把s3这个对象对应的在堆中&quot;22&quot;这个对象的引用推入字符串常量池</span><br><span class="line">         * 也就是说字符串常量池的&quot;22&quot;会指向堆里面&quot;22&quot;这个对象</span><br><span class="line">         * 如果值已经存在，则返回常量池里面值&quot;22&quot;的对象</span><br><span class="line">         */</span><br><span class="line">        String s6 = s3.intern();</span><br><span class="line"></span><br><span class="line">        /**</span><br><span class="line">         * 因为s6和s3都是堆里面&quot;22&quot;这个对象的引用，所以为true</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s6 == s3);  // true</span><br><span class="line">        /**</span><br><span class="line">         * 因为上面的intern方法已经将&quot;22&quot;这个对象的引用放进字符创常量池</span><br><span class="line">         * 所以s4指向的堆里面&quot;22&quot;这个对象</span><br><span class="line">         */</span><br><span class="line">        String s4 = &quot;22&quot;;</span><br><span class="line">        /**</span><br><span class="line">         * 因为s4和s3引用的都是堆里面的对象，所以为true</span><br><span class="line">         */</span><br><span class="line">        System.out.println(s3 == s4);  // true</span><br><span class="line"></span><br><span class="line">        System.out.println(s6 == s4);  // true</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>一张图解释add、commit、跟HEAD之间的关系<br><img src="/2019/02/24/git学习/20190224085857433.png" alt=""></p>
+<p>此外，还可以使用git checkout – file 直接丢弃工作区的修改</p>
+<h1 id="git-rm"><a href="#git-rm" class="headerlink" title="git rm"></a>git rm</h1><p>git rm用于删除文件，这里的删除只是从版本库里面删除</p>
+<h1 id="添加项目到GitHub"><a href="#添加项目到GitHub" class="headerlink" title="添加项目到GitHub"></a>添加项目到GitHub</h1><p>要将项目提交到GitHub，首先需要在GitHub上建一个仓库，然后复制仓库的地址，在本地将仓库clone下来，然后把你Java项目或者其他项目放进你从GitHub上clone下来的文件夹，接下来就是用git命令了<br>命令<br>1、使用 git status 查看文件夹下有哪些没有被git所管理</p>
+<p>2、 git add . 将当前文件夹下的所有文件托管给git 的仓库</p>
+<p>3、 git commit -m “提交项目”  告诉git 将项目提交到仓库， -m 后面是说明，内容随意，只是最好是有意义的说明，以便后面可以从历史上看到变动的记录</p>
+<p>4、git push -u origin master  最后将当前的master分支推送到远程仓库，也就是将当前被git管理的所有东西添加到远程仓库</p>
 
           
         
@@ -406,7 +409,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/15/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><a class="extend next" rel="next" href="/page/17/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/15/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/17/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -452,7 +455,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">32</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
