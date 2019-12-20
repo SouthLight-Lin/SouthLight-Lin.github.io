@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/09/通过优化降低Redis的内存占用/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/17/Redis线程模型/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/09/通过优化降低Redis的内存占用/" itemprop="url">通过优化降低Redis的内存占用</a></h1>
+                <a class="post-title-link" href="/2019/03/17/Redis线程模型/" itemprop="url">Redis线程模型</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-09T20:40:33+08:00">
-                2019-03-09
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-17T20:10:54+08:00">
+                2019-03-17
               </time>
             
 
@@ -352,16 +352,14 @@
       
         
           
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我们都知道Redis是直接将数据存储在内存里面着，但是一般我们的内存的容量是有限的，小则一两个G，最多也就十多个G，而且内存都很贵，在数据量大的话导致Redis服务器的内存严重不足，是非常头疼的事，要么加内存解决，要么使用集群解决，两者都会引起资金上的开销。我们可以使用另一种方法来降低Redis存储数据的空间，以此来降低内存的开销，解决内存不足的问题。本篇博客主要讲解 <strong>短结构</strong>  和 <strong>分片技术（sharding)</strong> 。</p>
-<h1 id="短结构"><a href="#短结构" class="headerlink" title="短结构"></a>短结构</h1><p>Redis默认为列表、集合、散列和有序集合提供了一种配置，当这四种结构存储的数据不是很大时，Redis使用更加节约空间的方式存储数据，这种结构称为 <strong>短结构</strong> 。<br>在列表、散列和有序集合的长度较短的时候，Redis会选择一种名为 <strong>压缩列表（ziplist）</strong> 来存储（集合是另一种形式，等下再说）。通常情况下Redis使用双链表表示列表、使用散列表（类似于HashMap）表示散列、使用散列表加跳跃表（skiplist）表示有序集合的做法不同，压缩列表会以序列化的方式存储数据，这些序列化数据每次被读取的时候都需要进行解码，写入的时候也要局部重新编码，并且可能会对内存中的数据进行移动。<br>当存储的列表过长时，就会使用双向链表，比如列表中有”one”,”two”,”ten”这三个值，存储形式如下图<br><img src="/2019/03/09/通过优化降低Redis的内存占用/20190309092425331.png" alt=""><br>前面的4表示存储的字符创的长度，0表示存储字符串值中剩余可用的字节数量，最后一部分就是字符串本身，除此之外剩余的就是指针的存在，因此，指针带来了额外的开销。在32位平台上，每存储这样3字节长的字符串，需要付出21字节的额外开销。<br>而压缩列表由节点组成的序列（sequence），每个节点都由两个长度值和一个字符串组成。长度值记录前一个节点的长度（这样当下一个节点需要读取上一个节点的值时，因为空间是连续的，直接通过长度就可读取上一个节点的值），第二个长度值记录当前节点的长度，最后存储字符串。<br>在redis.conf配置文件中，就有规定在数据大小多大的范围内使用短结构（压缩列表不是越长越好）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># Hashes are encoded using a memory efficient data structure when they have a</span><br><span class="line"># small number of entries, and the biggest entry does not exceed a given</span><br><span class="line"># threshold. These thresholds can be configured using the following directives.</span><br><span class="line">hash-max-ziplist-entries 512</span><br><span class="line">hash-max-ziplist-value 64</span><br><span class="line"></span><br><span class="line"># Similarly to hashes and lists, sorted sets are also specially encoded in</span><br><span class="line"># order to save a lot of space. This encoding is only used when the length and</span><br><span class="line"># elements of a sorted set are below the following limits:</span><br><span class="line">zset-max-ziplist-entries 128</span><br><span class="line">zset-max-ziplist-value 64</span><br></pre></td></tr></table></figure></p>
-<p>上面规定了hash或者zset的大小超过64字节或者元素超过规定的大小时，就会从压缩列表转变为原来的数据结构（这里没有给出list列表的规定原因是：新的Redis中已经更改了list压缩列表的条件，但是我还不是很懂规定的形式，所以没贴出来），而且要注意， <strong>如果从压缩列表转变为普通的数据结构比如转变为双向列表，即使后面把双向列表的大小减小到小于64字节，也不能够重新转变为压缩列表，也就是说转变是不可逆的</strong> </p>
-<h2 id="集合的整数编码"><a href="#集合的整数编码" class="headerlink" title="集合的整数编码"></a>集合的整数编码</h2><p>上面之所以没有提到集合，是因为集合跟上面三种数据结构不同，但是体积较小的集合也还是有自己紧凑形式表现，Redis就会以有序集合整数的形式存储集合，称为 <strong>整数集合（intset）</strong><br>redis.conf中作了这样的限制<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># Sets have a special encoding in just one case: when a set is composed</span><br><span class="line"># of just strings that happen to be integers in radix 10 in the range</span><br><span class="line"># of 64 bit signed integers.</span><br><span class="line"># The following configuration setting sets the limit in the size of the</span><br><span class="line"># set in order to use this special memory saving encoding.</span><br><span class="line">set-max-intset-entries 512</span><br></pre></td></tr></table></figure></p>
-<h2 id="并不是说压缩列表或者整数集合越大越好"><a href="#并不是说压缩列表或者整数集合越大越好" class="headerlink" title="并不是说压缩列表或者整数集合越大越好"></a>并不是说压缩列表或者整数集合越大越好</h2><p>当一个结构突破了用户为压缩列表或者整数集合设置的限制条件时，Redis就会自动将它转换为更为经典的底层数据结构，这样做的主要原因在于，随着紧凑结构的体积越来越大，操作这些结构的速度就会越来越慢。<br>主要将压缩列表的长度限制在500~2000个元素内，并将每个元素的体积限制在128字节或以下，那么压缩列表的性能就会处于合理范围之内。</p>
-<p>压缩列表一般要配合分片结构才能发挥降低内存的作用</p>
-<h1 id="分片结构"><a href="#分片结构" class="headerlink" title="分片结构"></a>分片结构</h1><p>分片是基于某种简单的规则将数据划分为更小的部分，然后根据数据所属的部分来决定将数据存储到哪个位置上，很多集群时的数据可以通过分片结构将数据平分到不同的Redis服务器上<br>比如当我们有一个很大的Hash结构时，里面的数据只是一个简单的key-value，你可以想象成  学号-姓名的对应，这个Hash里面存储了上万条数据（学号是唯一的），这样的话Redis底层的就不是用压缩列表存储了，因为数据大小已经远远超过了entry或者size了。<br>这个分片结构就派上用场了，我们可以把里面的key-value平分到多个Hash结构上，使每个Hash的大小都不超过entry和size的规定，这样每个Hash就还是压缩列表的结构。<br>这种实现方式也很简单， 只要设置预计元素的总数量以及请求的分片数量，然后对键通过算法进行计算，得出这个键应该存储在哪个位置即可。</p>
-<p>java———使用Jedis<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">public String shardKey(String base, String key, long totalElements, int shardSize) &#123;</span><br><span class="line">        long shardId = 0;</span><br><span class="line">        // 判断是否为整数</span><br><span class="line">        if (isDigit(key)) &#123;</span><br><span class="line">            shardId = Integer.parseInt(key, 10) / shardSize;</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">            // 如果不为整数，通过CRC32算法计算出该键的模来得出位置</span><br><span class="line">            CRC32 crc = new CRC32();</span><br><span class="line">            crc.update(key.getBytes());</span><br><span class="line">            long shards = 2 * totalElements / shardSize;</span><br><span class="line">            shardId = Math.abs(((int)crc.getValue()) % shards);</span><br><span class="line">        &#125;</span><br><span class="line">        return base + &apos;:&apos; + shardId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Long shardHset(</span><br><span class="line">        Jedis conn, String base, String key, String value, long totalElements, int shardSize)</span><br><span class="line">    &#123;</span><br><span class="line">        String shard = shardKey(base, key, totalElements, shardSize);</span><br><span class="line">        return conn.hset(shard, key, value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public String shardHget(</span><br><span class="line">        Jedis conn, String base, String key, int totalElements, int shardSize)</span><br><span class="line">    &#123;</span><br><span class="line">        String shard = shardKey(base, key, totalElements, shardSize);</span><br><span class="line">        return conn.hget(shard, key);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<p>java——使用RedisTemplate<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public String shardKey(String base, String key, long totalElements, int shardSize) &#123;</span><br><span class="line">       long shardId = 0;</span><br><span class="line"></span><br><span class="line">       CRC32 crc = new CRC32();</span><br><span class="line">       crc.update(key.getBytes());</span><br><span class="line">       long shards = 2 * totalElements / shardSize;</span><br><span class="line">       shardId = Math.abs(((int)crc.getValue()) % shards);</span><br><span class="line"></span><br><span class="line">       return base + &apos;:&apos; + shardId;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   public void shardHset(</span><br><span class="line">           String base, String key, String value, long totalElements, int shardSize)</span><br><span class="line">   &#123;</span><br><span class="line">       String shard = shardKey(base, key, totalElements, shardSize);</span><br><span class="line">       redisTemplate.opsForHash().put(shard, key, value);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   public String shardHget(</span><br><span class="line">           String base, String key, int totalElements, int shardSize)</span><br><span class="line">   &#123;</span><br><span class="line">       String shard = shardKey(base, key, totalElements, shardSize);</span><br><span class="line">       return (String) redisTemplate.opsForHash().get(shard, key);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
-<p>实现的方式其实挺简单的，就是通过求键的模，通过不同的模把数据存储到不同的Hash中。<br>集群也是同样的道理，将不同的模的数据存储到不同的服务器，比如模0~4存储到1服务器，其他存储到2服务器</p>
+            <h1 id="Redis为什么这么快？"><a href="#Redis为什么这么快？" class="headerlink" title="Redis为什么这么快？"></a>Redis为什么这么快？</h1><ul>
+<li>1、纯内存操作：我们的数据都是存储在内存中的，所以跟存储在硬盘相比，写入读取速度快很多倍</li>
+<li>2、丰富的数据结构：redis基础的五种数据结构（string、hash、list、set、zset）是我们日常使用存储数据的结构（当然还有其他的结构，比如geo、hyperloglog），这些结构的性能非常优越，比如基础数据结构（除了set），刚开始是用压缩列表的结构存储数据，不仅读取速度快，而且占用内存也少。    （关于压缩列表可以查看，<a href="https://southlight-lin.github.io/2019/03/09/通过优化降低Redis的内存占用/" target="_blank" rel="noopener">通过优化降低Redis的内存占用</a> 这篇博客)</li>
+<li>3、I/O多路复用模型——本篇博客就是为了讲解这个模型</li>
+<li>4、单线程操作：减少多核CPU上下文切换引起的开销</li>
+</ul>
+<h1 id="Redis的IO多路复用模型"><a href="#Redis的IO多路复用模型" class="headerlink" title="Redis的IO多路复用模型"></a>Redis的IO多路复用模型</h1><p>借助网上的例子说明情况：比如有很多个水龙头（就是我们客户端的请求），但这些水龙头都不知道什么时候来水。当水来的时候，要把这些水接住，所以需要人（redis的线程）负责，但是我们需要多少个人？难道要每个水龙头都站一个人？这样的话当请求很多时，创建很多线程，肯定内存不够用。所以Redis采用一个线程（相当于一个人）来循环试探这些水龙头，当拧开水龙头发现有水时就处理。</p>
+<p>I/O多路复用模块是操作系统底层的东西，进程只要告诉操作系统需要监听哪个端口的Socket，当这些端口有套接字的可读或可写（Socket）事件时，操作系统就会通知进程（Redis）。而I/O监听这些端口，就是使用<strong>select</strong> ，<strong>poll</strong> ，<strong>epoll</strong> ，<strong>kqueue</strong> 这些I/O多路复用函数。这些函数可以同时监控多个流的I/O事件能力，如果没有Socket连接（没有请求过来时）的时候，当前主线程会阻塞；当有一个或者多个流过来时，操作系统就会通知程序（Redis），Redis就会轮询一遍所有的流，对这些流进行处理，这过程是有顺序的，先来先服务FIFS。所以“多路”指的是有多个请求连接，“复用”指的是复用一个线程，这个线程负责把请求监听请求，当有请求到来时，就传递给程序处理。<strong>这样的模型，提高了单个线程的处理能力，一个线程就可以高效的处理多个连接请求，尽量减少网络IO的开销</strong> 。<br>跟传统的阻塞IO相比，在计算机网络中，我们的请求可能被分成许多包，经过不同的路由器传递，如果有些包到达了服务器，有些还没到，那么服务器就要等到这些包全都收集齐了才能处理。如果请求很多，那么等待的时间就会很长，这就是网络开销之一。如果使用IO多路复用模型，把监听这些包有没有准备好的事情交给操作系统，我们只需调用轮询api（select、poll、epoll..）不断的询问操作系统就行了。当没有请求或者请求还没准备好时，Redis就可以做其他事情。<br>来看张图<br><img src="/2019/03/17/Redis线程模型/20190317092104769.png" alt=""><br>在Linux中，Socket也是文件！<br>类似上面的例子，当有很多请求到来时（一个Socket就相当于一个请求），操作系统就会跟踪这些请求 ，而且是有顺序的存入，先来先服务FIFO的原则。接下来，<strong>文件事件分配器</strong> 循环扫描指令队列，将不同类型请求的Socket交给不同的处理器（比如有些请求时get、有些是set）。循环扫描的过程就叫<strong>事件轮询</strong> ，这种事件轮询是操作实现的，常见的事件轮询api有：<strong>select</strong> ，<strong>poll</strong> ，<strong>epoll</strong> ，<strong>kqueue</strong> 。<br>select是最早出现的多路复用api，但是有一些缺点，比如最大只能有1024个线程，线程不安全；接着poll就修复了select的一些问题，解决了1024的问题，但还是线程不安全；最后epoll出现了，他解决了select的所有问题，现在的Linux都是使用它完成多路复用模型，但epoll只能在Linux上实现。kqueue是macos系统的东西。</p>
 
           
         
@@ -401,7 +399,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -447,7 +445,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">32</span>
+                  <span class="site-state-item-count">33</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -458,7 +456,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -469,7 +467,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

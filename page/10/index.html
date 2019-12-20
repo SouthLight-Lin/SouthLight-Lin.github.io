@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/23/Spring的事务/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/28/Java的线程IO模型/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/23/Spring的事务/" itemprop="url">Spring的事务</a></h1>
+                <a class="post-title-link" href="/2019/03/28/Java的线程IO模型/" itemprop="url">Java的线程IO模型</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-23T19:43:13+08:00">
-                2019-03-23
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-28T21:14:04+08:00">
+                2019-03-28
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spring/" itemprop="url" rel="index">
-                    <span itemprop="name">Spring</span>
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
                   </a>
                 </span>
 
@@ -352,27 +352,22 @@
       
         
           
-            <h1 id="使用Spring事务的两种方式"><a href="#使用Spring事务的两种方式" class="headerlink" title="使用Spring事务的两种方式"></a>使用Spring事务的两种方式</h1><p>spring使用事务有两种方式：编程式事务（自己写代码）和声明式事务（注解）<br>注意： 关于编程式事务，一般用得很少，因为事务的代码会散落在我们的逻辑代码中，如果你真的想要使用编程式事务，就得使用<a href="https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/data-access.html#tx-prog-template" target="_blank" rel="noopener">TransactionTemplate</a></p>
-<h2 id="编程式事务"><a href="#编程式事务" class="headerlink" title="编程式事务"></a>编程式事务</h2><p><img src="/2019/03/23/Spring的事务/20190324113149114.png" alt=""></p>
-<h2 id="声明式事务"><a href="#声明式事务" class="headerlink" title="声明式事务"></a>声明式事务</h2><p>Spring中的声明式事务其实是通过AOP实现的，通过Spring官网的一张图可以看到AOP代理的过程<br><img src="/2019/03/23/Spring的事务/20190324101047878.png" alt=""></p>
-<h3 id="声明式事务的代码"><a href="#声明式事务的代码" class="headerlink" title="声明式事务的代码"></a>声明式事务的代码</h3><p><img src="/2019/03/23/Spring的事务/20190324011843914.png" alt=""></p>
-<h2 id="PlatformTransactionManager"><a href="#PlatformTransactionManager" class="headerlink" title="PlatformTransactionManager"></a>PlatformTransactionManager</h2><p>接口，主要实现事务的提交回滚<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public interface PlatformTransactionManager &#123;</span><br><span class="line"></span><br><span class="line">    TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;</span><br><span class="line"></span><br><span class="line">    void commit(TransactionStatus status) throws TransactionException;</span><br><span class="line"></span><br><span class="line">    void rollback(TransactionStatus status) throws TransactionException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>PlatformTransactionManager需要引入数据源DataSource（一般SpringBoot会自动帮你解决），我们用的最多的TransactionManager是DataSourceTransactionManager，它是JDBC包下（还有其他的，比如Hibernate或者JTA的）</p>
-<h2 id="TransactionStatus"><a href="#TransactionStatus" class="headerlink" title="TransactionStatus"></a>TransactionStatus</h2><p>接口，标明事务的状态，比如是否为可读，控制事务的执行</p>
-<h2 id="TransactionDefinition"><a href="#TransactionDefinition" class="headerlink" title="TransactionDefinition"></a>TransactionDefinition</h2><p>接口，标明事务的定义，比如事务的传播性、隔离性、timeout、可读性..</p>
-<h2 id="TransactionAttribute"><a href="#TransactionAttribute" class="headerlink" title="TransactionAttribute"></a>TransactionAttribute</h2><p>接口，获取@Transactional注解的value值、rollbackOn，然后添加进TransactionDefintion</p>
-<h2 id="Transactional"><a href="#Transactional" class="headerlink" title="@Transactional"></a>@Transactional</h2><p>注解，可以在类、接口、方法上注解，表示该类或方法需要事务代理<br>该注解的属性详解：<br><img src="/2019/03/23/Spring的事务/20190324105826403.png" alt=""></p>
-<h1 id="事务的特性"><a href="#事务的特性" class="headerlink" title="事务的特性"></a>事务的特性</h1><ul>
-<li>1、传播性</li>
-<li>2、隔离性</li>
-<li>3、超时性</li>
-<li>4、只读性</li>
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我们的IO操作：文件的操作，网络请求的操作都跟IO有关，我们需要了解下目前的IO模型有哪些。在这之前我们需要了解<strong>缓存IO</strong> </p>
+<h1 id="缓存IO"><a href="#缓存IO" class="headerlink" title="缓存IO"></a>缓存IO</h1><p>缓存IO又叫做标准IO，所有的IO写入都会先写向操作系统内核的缓存，再由操作系统刷新到硬盘。返回来也是一样，读取文件也是先读取到操作系统的缓存，然后再给程序。<br>缓存I/O的缺点是数据在传输过程中需要在应用程序地址空间和内核进行多次数据拷贝操作，这些数据拷贝操作所带来的CPU以及内存开销是非常大的。</p>
+<h1 id="同步、异步、阻塞、非阻塞的概念"><a href="#同步、异步、阻塞、非阻塞的概念" class="headerlink" title="同步、异步、阻塞、非阻塞的概念"></a>同步、异步、阻塞、非阻塞的概念</h1><p>同步和异步最大的区别就是被调用方的执行方式和返回时机。 同步指的是被调用方做完事情之后再返回，异步指的是被调用方先返回，然后再做事情，做完之后再想办法通知调用方。<br>阻塞和非阻塞最大的区别就是在被调用方返回结果之前的这段时间内，调用方是否一直等待。 阻塞指的是调用方一直等待别的事情什么都不做。非阻塞指的是调用方先去忙别的事情。<br><strong>阻塞、非阻塞说的是调用者。同步、异步说的是被调用者。</strong></p>
+<h1 id="常见的IO模型"><a href="#常见的IO模型" class="headerlink" title="常见的IO模型"></a>常见的IO模型</h1><p>一个Socket请求服务器，会经过哪些步骤？<br>1、一个Socket会被分成多个包，经过多个路由到达服务器，进入操作系统的缓存区，也就是说要等待所有的Socket包都到达服务器<br>2、操作系统将数据拷贝给应用程序缓存<br>文件的IO也跟网络的IO类似，第一步需要等待操作系统从硬盘中读取数据到缓冲区</p>
+<h2 id="同步阻塞IO"><a href="#同步阻塞IO" class="headerlink" title="同步阻塞IO"></a>同步阻塞IO</h2><p>同步阻塞说明上面两步操作都会被阻塞，既要等待数据的准备，又要等待数据的拷贝<br><img src="/2019/03/28/Java的线程IO模型/20190328094528216.png" alt=""></p>
+<h2 id="同步非阻塞IO"><a href="#同步非阻塞IO" class="headerlink" title="同步非阻塞IO"></a>同步非阻塞IO</h2><p>同步阻塞相当在第一步的时候你可以去做别的事情，只是做的过程回来询问数据是否准备好了。当应用程序调用recvform后并不会阻塞，也就是说非阻塞的recvform系统调用调用之后，进程并没有被阻塞，内核马上返回给进程，如果数据还没准备好， 此时会返回一个error。进程在返回之后，可以干点别的事情，然后再发起recvform系统调用。<br><img src="/2019/03/28/Java的线程IO模型/20190328100712368.png" alt=""></p>
+<h2 id="IO多路复用"><a href="#IO多路复用" class="headerlink" title="IO多路复用"></a>IO多路复用</h2><p>这个是重点中的重点，现在的IO模型大多都是这个，Nginx，Redis，Java的NIO都是这个实现的<br>IO多路复用是指操作系统会有一个线程监听所有的IO请求，如果有一个请求的数据已经准备好了，那么就将该请求发送给预定的程序<br>目前的Unix系统的IO多路复用的函数有select、poll、epoll，select是最早出现的多路复用api，但是有一些缺点，比如最大只能有1024个线程，线程不安全；接着poll就修复了select的一些问题，解决了1024的问题，但还是线程不安全；最后epoll出现了，他解决了select的所有问题，现在的Linux都是使用它完成多路复用模型，但epoll只能在Linux上实现。还有一种叫kqueue的IO多路复用函数，但它是macos系统的东西。<br>想比较于同步非阻塞IO，它的改进之处在于原来用户进程轮询这事<strong>交给操作系统内核线程实现</strong> ，如果数据准备好，操作系统就会通知用户进程，将数据拷贝，而且这个内核进程可以等待多个Socket，能实现对多个IO端口进行监听<br><img src="/2019/03/28/Java的线程IO模型/20190329041513978.png" alt=""><br>如果连接数不高的话，使用IO多路复用并不一定比使用多线程+阻塞IO的Web Server性能好，因为<strong>IO多路复用的优势并不是对于单个连接处理得快，而是在于能处理更多的连接</strong> 。<br><strong>IO多路复用归为同步阻塞</strong> ，为什么？因为调用select、poll、epoll这些复用函数其实也是阻塞的，但是这种阻塞丢给操作系统后台去执行，用户进程不需要阻塞而已。</p>
+<h2 id="异步非阻塞IO"><a href="#异步非阻塞IO" class="headerlink" title="异步非阻塞IO"></a>异步非阻塞IO</h2><p>用户进程如果想进行异步非阻塞IO，调用aio_read系统后，等到Socket数据准备好，内核直接复制数据给进程（不是进程去内核拷贝数据了），然后内核向进程发送通知，IO这两个阶段都是非阻塞的</p>
+<p>Linux下的AIO库函数实现异步，但用得很少，目前很多开源异步IO库有：libevent、libev、libuv。<br><img src="/2019/03/28/Java的线程IO模型/20190329042912467.png" alt=""></p>
+<h1 id="Java中的四种IO模型"><a href="#Java中的四种IO模型" class="headerlink" title="Java中的四种IO模型"></a>Java中的四种IO模型</h1><ul>
+<li>1、Java传统IO模型，即阻塞IO</li>
+<li>2、NIO是同步非阻塞</li>
+<li>3、同步NIO实现的Reactor模式，即IO多路复用模型的实现</li>
+<li>4、同步AIO实现的Proactor模式，即是异步IO模型的实现</li>
+<li>本篇博客是读完该公众号后写的<a href="https://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&amp;mid=2247488064&amp;idx=2&amp;sn=56b6f87cb4e99107737c73f7ed1e5e8e&amp;chksm=eb539776dc241e60f88f7185da4b7fb46bf41f10a66a53898ca672e8942e8b6a8d47ec7d3d3d&amp;mpshare=1&amp;scene=1&amp;srcid=03282f5UGrOPqla3FRHsnIBf&amp;key=07b41b11cd2ea3cf8754e412ce5b2e1dda0131c9a5fa746e0eb74dbecee757f47a4be1b7ab19876a05437cfac54fc5fa19f2c7f64870a4920d18b6ca45c1ac83a0841ecd111138fb03b3d3e54daf5119&amp;ascene=1&amp;uin=MTEyMjk5MTQyMw%3D%3D&amp;devicetype=Windows+10&amp;version=62060739&amp;lang=zh_CN&amp;pass_ticket=L34Qc03cLwYw%2FDmghOHdw%2Fwmxf4sCxrhU%2FUHEHTt68cCHJY3jbH53l0ddsu2QPAy" target="_blank" rel="noopener">Java技术栈</a></li>
 </ul>
-<h2 id="事务的传播性"><a href="#事务的传播性" class="headerlink" title="事务的传播性"></a>事务的传播性</h2><p>总共七种，但Spring官方文档只给出了三种，就是下面的三种：PROPAGATION_REQUIRED、PROPAGATION_REQUIRES_NEW、PROPAGATION_NESTED<br>PROPAGATION_REQUIRED<br><img src="/2019/03/23/Spring的事务/20190324103943218.png" alt=""><br>PROPAGATION_REQUIRES_NEW<br><img src="/2019/03/23/Spring的事务/20190324103953698.png" alt=""><br>PROPAGATION_NESTED<br>虽然跟REQUIRES_NEW差不多，也是再起一个事务，但是两个事务之间是有关联的，外部事务发生回滚时，内部事务也要回滚，但是内部事务发生回滚时，外部事务不用回滚（简单理解就是：外部最大）</p>
-<p>七种：<br><img src="/2019/03/23/Spring的事务/20190324110720493.png" alt=""></p>
-<h2 id="事务的隔离性："><a href="#事务的隔离性：" class="headerlink" title="事务的隔离性："></a>事务的隔离性：</h2><p><img src="/2019/03/23/Spring的事务/20190324110934634.png" alt=""></p>
-<h1 id="关于REQUIRES-NEW与NESTED事务传播特性的说明"><a href="#关于REQUIRES-NEW与NESTED事务传播特性的说明" class="headerlink" title="关于REQUIRES_NEW与NESTED事务传播特性的说明"></a>关于REQUIRES_NEW与NESTED事务传播特性的说明</h1><p><img src="/2019/03/23/Spring的事务/20190324041955623.png" alt=""></p>
-<p>比如有一段代码<br><img src="/2019/03/23/Spring的事务/20190324042441436.png" alt=""><br>一个事务方法里面调用另一个事务的方法，如果内部事务为NESTED，外部事务发生异常回滚时，内部事务也要回滚，但是内部事务发生回滚时，外部事务不需要回滚<br>如果内部事务为REQUIRES_NEW，不管事务的回滚只看当前方法是否发生异常</p>
 
           
         
@@ -412,7 +407,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/9/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/32/">32</a><a class="extend next" rel="next" href="/page/11/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/9/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><a class="extend next" rel="next" href="/page/11/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -458,7 +453,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">32</span>
+                  <span class="site-state-item-count">33</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -469,7 +464,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -480,7 +475,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
