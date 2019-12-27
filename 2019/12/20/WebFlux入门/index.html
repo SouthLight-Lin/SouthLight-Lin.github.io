@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://image.yy.com/yjmf/ZDc2ZjY4ZDEtOWFmOS00NGJjLWE5MjUtODBjYzAxNTdkMjUw.png">
 <meta property="og:image" content="http://1.file.leanote.top/5a929813ab644121e3000f8c?e=1576831993&token=ym9ZIrtxjozPN4G9he3-FHPOPxAe-OQmxzol5EOk:QDJ4JLff0YcLUMG-j8VEweuYcGs">
-<meta property="og:updated_time" content="2019-12-20T14:51:32.182Z">
+<meta property="og:updated_time" content="2019-12-20T14:56:02.377Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="WebFlux入门">
 <meta name="twitter:description" content="WebFluxWebFlux跟Spring MVC齐名，是在Spring5时引入的。Spring MVC是基于Servlet API和Servlet容器设计的，而WebFlux是基于Reactive Stream API和Servlet 3.1+ 容器设计 Reactive StreamReactive Stream是一种响应式流编程规范，目前流行的实现该规范的有RxJava和Reactor，We">
@@ -358,7 +358,7 @@
         <h1 id="WebFlux"><a href="#WebFlux" class="headerlink" title="WebFlux"></a>WebFlux</h1><p>WebFlux跟Spring MVC齐名，是在Spring5时引入的。Spring MVC是基于Servlet API和Servlet容器设计的，而WebFlux是基于Reactive Stream API和Servlet 3.1+ 容器设计</p>
 <h2 id="Reactive-Stream"><a href="#Reactive-Stream" class="headerlink" title="Reactive Stream"></a>Reactive Stream</h2><p>Reactive Stream是一种响应式流编程规范，目前流行的实现该规范的有RxJava和Reactor，WebFlux使用的是Reactor。响应式编程是利用发布订阅模式，生产者生产，消费者消费元素。常见的是pull/push模式。</p>
 <h2 id="WebFlux和SpringMVC对比"><a href="#WebFlux和SpringMVC对比" class="headerlink" title="WebFlux和SpringMVC对比"></a>WebFlux和SpringMVC对比</h2><p>WebFlux 有什么优势呢？Spring官网是这么说的：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Servlet 3.1 did provide an API for non-blocking I/O. However, using it leads away from the rest of the Servlet API, where contracts are synchronous (Filter, Servlet) or blocking (getParameter, getPart). This was the motivation for a new common API to serve as a foundation across any non-blocking runtime. That is important because of servers (such as Netty) that are well-established in the async, non-blocking space.The other part of the answer is functional programming.</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Servlet 3.1 did provide an API for non-blocking I/O. However, using it leads away from </span><br><span class="line">the rest of the Servlet API, where contracts are synchronous (Filter, Servlet) or blocking </span><br><span class="line">(getParameter, getPart). This was the motivation for a new common API to serve as a foundation </span><br><span class="line">across any non-blocking runtime. That is important because of servers (such as Netty) that </span><br><span class="line">are well-established in the async, non-blocking space.The other part of the answer is functional programming.</span><br></pre></td></tr></table></figure>
 <p>简单地说WebFlux实现了非阻塞IO，传统的Servlet容器会为每个请求创建一个IO线程，但是线程的数量有限，当并发量大而且每个请求都很耗时的时候，服务器能处理的请求就很少</p>
 <p>如果Servlet容器能快速的接受每个请求，将耗时的操作丢给其他线程，这样服务器就能接受更多的请求，所以Non-Blocking IO是指不阻塞接受请求的Servlet线程</p>
 <p>一张图说明</p>
@@ -423,6 +423,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/27/响应式编程/" rel="prev" title="响应式编程">
+                响应式编程 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -499,7 +503,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">34</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -510,7 +514,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -521,7 +525,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
