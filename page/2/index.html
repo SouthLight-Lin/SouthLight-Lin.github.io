@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/27/响应式编程/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/21/Kafka实现吞吐量大的原因/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/12/27/响应式编程/" itemprop="url">响应式编程</a></h1>
+                <a class="post-title-link" href="/2020/01/21/Kafka实现吞吐量大的原因/" itemprop="url">Kafka实现吞吐量大的原因</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-27T12:09:56+08:00">
-                2019-12-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-21T23:44:09+08:00">
+                2020-01-21
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/响应式/" itemprop="url" rel="index">
-                    <span itemprop="name">响应式</span>
+                  <a href="/categories/Kafka/" itemprop="url" rel="index">
+                    <span itemprop="name">Kafka</span>
                   </a>
                 </span>
 
@@ -352,38 +352,18 @@
       
         
           
-            <h1 id="Reactive-Programming"><a href="#Reactive-Programming" class="headerlink" title="Reactive Programming"></a>Reactive Programming</h1><p>所谓响应式编程，通过实时监视计算流式数据，可以操作过程中的数据流，也可以经过一系列对数据流的操作展示最终结果<br>如下图所示<br><img src="/2019/12/27/响应式编程/20191227015644020.png" alt=""><br>数据流一传入1,2,3,4四个数，我们可以对这条数据流进行求和，最后得到这条数据的总和10<br>也可以操作这条数据流，将数据流中的每个数乘以10，形成数据流二后再相加，得到100.</p>
-<p>响应式编程是一种基于数据流（data stream）和变化传递（propagation of change）的声明式的变成规范<br>使用这种规范的编程方式大多数是偏向函数式编程</p>
-<h1 id="Reactive-Stream"><a href="#Reactive-Stream" class="headerlink" title="Reactive Stream"></a>Reactive Stream</h1><p>Java中也有操作流的支持，在JDK1.8之后引入了Java Stream，但是Java Stream无法解决两个问题：</p>
-<ol>
-<li>Java Stream是一种同步阻塞的API，在Web应用中，大量的请求都是同步阻塞的，IO阻塞会带来比较大的性能损耗，我们需要一种<strong>异步非阻塞</strong>响应式库</li>
-<li>Java Stream无法提供<strong>流量控制</strong>能力，如果流数据量非常大，来不及处理流中的数据，会造成数据积压</li>
-</ol>
-<p><strong>具备“异步非阻塞”和“流量控制”能力的数据流，我们称之为响应式流</strong><br>目前，Java界实现了该响应式流规范的库主要有两个：<strong>RxJava</strong>和<strong>Reactor</strong></p>
-<h2 id="生产者、消费者概念"><a href="#生产者、消费者概念" class="headerlink" title="生产者、消费者概念"></a>生产者、消费者概念</h2><p>响应式流中，使用一种观察者模式，数据的发出者叫<strong>Publisher</strong>， 监听者<strong>Subscriber</strong>，也可以分别较发布者和订阅者<br><img src="/2019/12/27/响应式编程/20191227022142866.png" alt=""></p>
-<h1 id="关于背压"><a href="#关于背压" class="headerlink" title="关于背压"></a>关于背压</h1><p>响应式流使用<strong>背压（backpress</strong>来实现流量控制，前面说过，如果生产者的速度大大超过消费者的速度，那么消费者来不及处理流中的数据，数据积压或者丢失，如果有一种机制能向上游反馈流量请求的机制，但来不及处理时，就要求生产者生产速度不要过快，这种机制就叫做背压</p>
-<h1 id="Reactor入门"><a href="#Reactor入门" class="headerlink" title="Reactor入门"></a>Reactor入门</h1><p>想使用好Reactor框架，首先先会使用它的两个生产者类<strong>Flux</strong>和<strong>Mono</strong><br>Flux对象代表一个包含0..N个元素的响应式流，Mono对象代表0或1个元素</p>
-<p>生成流的形式有很多，可以通过数组、集合、just等<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 1、 通过数组</span><br><span class="line">Integer[] array = new Integer[]&#123;1,2,3,4,5,6&#125;;</span><br><span class="line">Flux.fromArray(array);</span><br><span class="line">// 2、 通过集合</span><br><span class="line">List&lt;Integer&gt; list = Arrays.asList(array);</span><br><span class="line">Flux.fromIterable(list);</span><br><span class="line">// 3、 通过just函数</span><br><span class="line">Flux.just(1,2,3);</span><br></pre></td></tr></table></figure></p>
-<p>声明流元素后，需要订阅（监听）里面的数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Flux.just(1,2,3,4,5,6)</span><br><span class="line">    // 订阅流中的元素，组个输出</span><br><span class="line">    .subscribe(System.out::println);</span><br></pre></td></tr></table></figure></p>
-<p>Flux和Mono提供了多个subscribe方法，分别是流处理时的逻辑，流处理发生异常时的逻辑，流处理完成时的逻辑<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 订阅并触发数据流</span><br><span class="line">subscribe(); </span><br><span class="line">// 订阅并指定对正常数据元素如何处理</span><br><span class="line">subscribe(Consumer&lt;? super T&gt; consumer); </span><br><span class="line">// 订阅并定义对正常数据元素和错误信号的处理</span><br><span class="line">subscribe(Consumer&lt;? super T&gt; consumer,</span><br><span class="line">          Consumer&lt;? super Throwable&gt; errorConsumer); </span><br><span class="line">// 订阅并定义对正常数据元素、错误信号和完成信号的处理</span><br><span class="line">subscribe(Consumer&lt;? super T&gt; consumer,</span><br><span class="line">          Consumer&lt;? super Throwable&gt; errorConsumer,</span><br><span class="line">          Runnable completeConsumer); </span><br><span class="line">// 订阅并定义对正常数据元素、错误信号和完成信号的处理，以及订阅发生时的处理逻辑</span><br><span class="line">subscribe(Consumer&lt;? super T&gt; consumer,</span><br><span class="line">          Consumer&lt;? super Throwable&gt; errorConsumer,</span><br><span class="line">          Runnable completeConsumer,</span><br><span class="line">          Consumer&lt;? super Subscription&gt; subscriptionConsumer);</span><br></pre></td></tr></table></figure></p>
-<p>Kotlin实现如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// subscribe 方法才会触发数据流，才会开始消费数据</span><br><span class="line">Flux.just(1,2,3,4,5,6).subscribe(&#123; println(&quot;I am processing $it&quot;) &#125;,</span><br><span class="line">        &#123; println(&quot;I am execute error when process $it&quot;) &#125;,</span><br><span class="line">        &#123; println(&quot;Complete!&quot;) &#125;</span><br></pre></td></tr></table></figure></p>
-<h1 id="基础的流操作符"><a href="#基础的流操作符" class="headerlink" title="基础的流操作符"></a>基础的流操作符</h1><h2 id="map"><a href="#map" class="headerlink" title="map"></a>map</h2><p>map操作可以将数据元素进行转换/映射，得到一个新的元素，新的流<br><img src="/2019/12/27/响应式编程/20191227025048614.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public final &lt;V&gt; Flux&lt;V&gt; map(Function&lt;? super T,? extends V&gt; mapper)</span><br><span class="line">public final &lt;R&gt; Mono&lt;R&gt; map(Function&lt;? super T, ? extends R&gt; mapper) </span><br><span class="line"></span><br><span class="line">// map</span><br><span class="line">fun operatorMap() &#123;</span><br><span class="line">    Flux.range(1,6)</span><br><span class="line">            .map &#123; it * it &#125;       // 加工返回</span><br><span class="line">            .subscribe &#123; println(it) &#125; // 得到1,4,9,16,25,36</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap"></a>flatMap</h2><p>flatMap操作可以将每个元素映射成一个流，然后将这些流合并成为一个更大的数据流<br><img src="/2019/12/27/响应式编程/20191227025240609.png" alt=""></p>
+            <h1 id="Kafka的性能"><a href="#Kafka的性能" class="headerlink" title="Kafka的性能"></a>Kafka的性能</h1><p>Kafka单个节点的极限处理能力达到每秒钟2000万条消息，吞吐量达到每秒钟600MB</p>
+<h1 id="揭秘一：使用批处理消息提升服务端处理能力"><a href="#揭秘一：使用批处理消息提升服务端处理能力" class="headerlink" title="揭秘一：使用批处理消息提升服务端处理能力"></a>揭秘一：使用批处理消息提升服务端处理能力</h1><p>Kafka处理消息是一批一批处理的，因为客户端发送消息到服务端之间是有传输时延的，如果能够将消息批量发送，并且消息的大小不会太大，这样极大的较少了发送时延<br>在Producer生产者，Kafka的客户端SDK中，Producer只提供了单条消息发送的Send()方法，但是，实际上Kafka的SDK客户端在实现消息发送逻辑的时候，采用了异步批量发送的机制<br>在调用send()方法后，无论你是同步发送还是异步发送，Kafka会把这条消息缓存在内存中，，然后选择<strong>合适的时机</strong>把缓存中的所有消息组成一批，一次性发送给Broker，你也可以理解成就是先“蓄力”再发送<br>这合适的时机主要有两种：一种是批量消息大小达到限定的程度（默认是1M），另一种是“蓄力”的时间达到一定的上限（默认是0ms，也就是有消息就立即发送）</p>
 <ul>
-<li>注意，流的合并是异步的，先来先到，并非严格按照原始序列的顺序，如上图粉红色的新元素可以穿插在蓝色前面</li>
+<li>批量消息发送有个很重要的一点：批量的消息都是属于同一分区的，批量的消息都是属于同一分区的，批量的消息都是属于同一分区的</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public final &lt;R&gt; Flux&lt;R&gt; flatMap(Function&lt;? super T, ? extends Publisher&lt;? extends R&gt;&gt; mapper)</span><br><span class="line">public final &lt;R&gt; Mono&lt;R&gt; flatMap(Function&lt;? super T, ? extends Mono&lt;? extends R&gt;&gt; transformer) </span><br><span class="line"></span><br><span class="line">// Java</span><br><span class="line">Flux.just(&quot;flux&quot;, &quot;mono&quot;)</span><br><span class="line">                .flatMap(s -&gt; Flux.fromArray(s.split(&quot;\\s*&quot;))</span><br><span class="line">                .delayElements(Duration.ofMillis(100)))</span><br><span class="line">                .subscribe(System.out::println);</span><br><span class="line">        Thread.sleep(1000);</span><br></pre></td></tr></table></figure>
+<p>在Broker服务端，Kafka不会把收到的这批消息拆解出一条一条再处理，无论是写入磁盘、复制、从磁盘中读取，<strong>批消息都不会解开，一直是作为“批消息”来处理</strong><br>在Consumer端，消息也是批量拉取的，因为同一批消息都是属于同一个分区，拉到消息后再一条一条解开交给用户处理</p>
+<p><img src="/2020/01/21/Kafka实现吞吐量大的原因/20200123122122606.png" alt=""></p>
+<h1 id="揭秘二：使用顺序读写提升磁盘IO性能"><a href="#揭秘二：使用顺序读写提升磁盘IO性能" class="headerlink" title="揭秘二：使用顺序读写提升磁盘IO性能"></a>揭秘二：使用顺序读写提升磁盘IO性能</h1><p>磁盘的顺序读写性能远远好于随机读写，Kafka充分利用了磁盘的这个特性，对于每个分区，从Producer收到的消息，顺序地写入对应的log文件，一个文件写满了，就开启一个新的文件这样顺序写下去；消费的时候，也是从某个全局的位置开始，是某个log文件中的某个位置开始，<strong>顺序</strong>地把消息读出来</p>
+<h1 id="揭秘三：利用PageCache加速消息读写"><a href="#揭秘三：利用PageCache加速消息读写" class="headerlink" title="揭秘三：利用PageCache加速消息读写"></a>揭秘三：利用PageCache加速消息读写</h1><p>Kafka利用操作系统的PageCache加速消息读写。PageCache就是操作系统在内存中给磁盘上的文件建立的缓存。无论我们使用什么语言编写的程序，在调用系统的API读写文件的时候，并不会直接去读写磁盘上的文件，应用程序实际操作的都是PageChace，也就是文件在内存中的缓存副本<br>应用程序写入文件的时候都是写入到内存的PageCache，然后再由操作系统一批一批地写入到磁盘上。读取文件时，如果PageCache有数据则直接从中读取，如果没有就产生一个缺页中断，将数据从磁盘文件中复制到PageCache中，注意这个过程是阻塞而且很慢</p>
+<h1 id="揭秘四：ZeroCopy零拷贝"><a href="#揭秘四：ZeroCopy零拷贝" class="headerlink" title="揭秘四：ZeroCopy零拷贝"></a>揭秘四：ZeroCopy零拷贝</h1><p>传统发送数据的方式是这样的，调用操作系统接口将数据从<strong>磁盘</strong>中读取出来，将在<strong>操作系统内核空间</strong>的数据拷贝到<strong>用户应用程序内存空间</strong>，然后应用程序处理后，将应用空间的数据发送到<strong>Socket通道</strong>，最后Socket发送到<strong>网卡</strong>，再通过网卡发送到外面<br><img src="/2020/01/21/Kafka实现吞吐量大的原因/20200123012028285.png" alt=""><br>所以这种传统的数据读取方式需要经过多次数据拷贝，如果能将减少那么多的数据拷贝，将对数据读取的性能有极大的提升，在Linux 2.4版本中，引入了零拷贝，磁盘文件<strong>先拷贝到操作系统内核缓冲区，再从内核缓冲区拷贝到网卡</strong>，这样相对于传统的读取发送消息的方式， 减少了两次拷贝操作</p>
 <ul>
-<li>注意，上面有休眠1s，flatMap转换操作里面加入了异步操作，delayElement可以开启异步，所以需要让主线程休眠<br>结果：<br><img src="/2019/12/27/响应式编程/20191227035951575.png" alt=""><br>注意流顺序被打乱了</li>
-</ul>
-<h2 id="filter"><a href="#filter" class="headerlink" title="filter"></a>filter</h2><p>filter操作可以过滤数据元素<br><img src="/2019/12/27/响应式编程/20191227040249032.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public final Flux&lt;T&gt; filter(Predicate&lt;? super T&gt; tester)</span><br><span class="line">public final Mono&lt;T&gt; filter(Predicate&lt;? super T&gt; tester) </span><br><span class="line"></span><br><span class="line">fun operatorFilter() =</span><br><span class="line">    Flux.range(1, 6)</span><br><span class="line">            .filter &#123; it % 2 == 1 &#125;</span><br><span class="line">            .subscribe &#123; println(it) &#125;</span><br></pre></td></tr></table></figure>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><ul>
-<li>“无副作用的peek”：doOnNext，doOnError，doOnComplete，doOnSubscribe，doOnCancel</li>
-<li>过滤/挑选：take、first、last、sample、skip</li>
-<li>用于线程调度：publishOn和subscribeOn方法</li>
-<li>自定义生成数据流：create和generate</li>
+<li>其他：使用零拷贝，不仅能减少复制拷贝次数，还能减少上下文切换，缓存行污染<br>资料： <a href="https://www.jianshu.com/p/275602182f39" target="_blank" rel="noopener">https://www.jianshu.com/p/275602182f39</a></li>
 </ul>
 
           
@@ -424,7 +404,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/35/">35</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/36/">36</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -470,7 +450,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-count">36</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
