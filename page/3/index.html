@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/21/Kafka实现吞吐量大的原因/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/27/Kafka依赖的ZooKeeper/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2020/01/21/Kafka实现吞吐量大的原因/" itemprop="url">Kafka实现吞吐量大的原因</a></h1>
+                <a class="post-title-link" href="/2020/01/27/Kafka依赖的ZooKeeper/" itemprop="url">Kafka依赖的ZooKeeper</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-21T23:44:09+08:00">
-                2020-01-21
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-27T09:50:42+08:00">
+                2020-01-27
               </time>
             
 
@@ -352,19 +352,37 @@
       
         
           
-            <h1 id="Kafka的性能"><a href="#Kafka的性能" class="headerlink" title="Kafka的性能"></a>Kafka的性能</h1><p>Kafka单个节点的极限处理能力达到每秒钟2000万条消息，吞吐量达到每秒钟600MB</p>
-<h1 id="揭秘一：使用批处理消息提升服务端处理能力"><a href="#揭秘一：使用批处理消息提升服务端处理能力" class="headerlink" title="揭秘一：使用批处理消息提升服务端处理能力"></a>揭秘一：使用批处理消息提升服务端处理能力</h1><p>Kafka处理消息是一批一批处理的，因为客户端发送消息到服务端之间是有传输时延的，如果能够将消息批量发送，并且消息的大小不会太大，这样极大的较少了发送时延<br>在Producer生产者，Kafka的客户端SDK中，Producer只提供了单条消息发送的Send()方法，但是，实际上Kafka的SDK客户端在实现消息发送逻辑的时候，采用了异步批量发送的机制<br>在调用send()方法后，无论你是同步发送还是异步发送，Kafka会把这条消息缓存在内存中，，然后选择<strong>合适的时机</strong>把缓存中的所有消息组成一批，一次性发送给Broker，你也可以理解成就是先“蓄力”再发送<br>这合适的时机主要有两种：一种是批量消息大小达到限定的程度（默认是1M），另一种是“蓄力”的时间达到一定的上限（默认是0ms，也就是有消息就立即发送）</p>
-<ul>
-<li>批量消息发送有个很重要的一点：批量的消息都是属于同一分区的，批量的消息都是属于同一分区的，批量的消息都是属于同一分区的</li>
+            <h1 id="Kafka的协调服务ZooKeeper"><a href="#Kafka的协调服务ZooKeeper" class="headerlink" title="Kafka的协调服务ZooKeeper"></a>Kafka的协调服务ZooKeeper</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>ZooKeeper是一个分布式协调服务框架，主要是为了解决分布式集群中，应用系统面对的各种通用一致性问题。ZooKeeper本身就可以部署为一个集群，集群的各个节点之间可以通过选举产生一个Leader，选举遵循半数以上的原则，一般集群需要部署奇数个节点，简单的说ZooKeeper是一个<strong>高可用、高可靠的一致性存储系统</strong></p>
+<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><ul>
+<li>提供分布式的存储系统</li>
+<li>数组的组织方式类似于UNIX文件系统的属性结构</li>
+<li>提供永久节点和临时节点，如果创建临时节点的客户端与ZooKeeper集群失去连接，临时节点就会消失</li>
+<li>ZooKeeper负责检测所有客户端的心跳</li>
+<li>Watcher机制，通过订阅ZNode状态的变化获取通知机制，一旦订阅ZNode或者它的子节点状态发生了变化，订阅的客户端立马可以收到通知</li>
+<li>实现业务集群的快速选举、节点间的简单通信、分布式锁..</li>
 </ul>
-<p>在Broker服务端，Kafka不会把收到的这批消息拆解出一条一条再处理，无论是写入磁盘、复制、从磁盘中读取，<strong>批消息都不会解开，一直是作为“批消息”来处理</strong><br>在Consumer端，消息也是批量拉取的，因为同一批消息都是属于同一个分区，拉到消息后再一条一条解开交给用户处理</p>
-<p><img src="/2020/01/21/Kafka实现吞吐量大的原因/20200123122122606.png" alt=""></p>
-<h1 id="揭秘二：使用顺序读写提升磁盘IO性能"><a href="#揭秘二：使用顺序读写提升磁盘IO性能" class="headerlink" title="揭秘二：使用顺序读写提升磁盘IO性能"></a>揭秘二：使用顺序读写提升磁盘IO性能</h1><p>磁盘的顺序读写性能远远好于随机读写，Kafka充分利用了磁盘的这个特性，对于每个分区，从Producer收到的消息，顺序地写入对应的log文件，一个文件写满了，就开启一个新的文件这样顺序写下去；消费的时候，也是从某个全局的位置开始，是某个log文件中的某个位置开始，<strong>顺序</strong>地把消息读出来</p>
-<h1 id="揭秘三：利用PageCache加速消息读写"><a href="#揭秘三：利用PageCache加速消息读写" class="headerlink" title="揭秘三：利用PageCache加速消息读写"></a>揭秘三：利用PageCache加速消息读写</h1><p>Kafka利用操作系统的PageCache加速消息读写。PageCache就是操作系统在内存中给磁盘上的文件建立的缓存。无论我们使用什么语言编写的程序，在调用系统的API读写文件的时候，并不会直接去读写磁盘上的文件，应用程序实际操作的都是PageChace，也就是文件在内存中的缓存副本<br>应用程序写入文件的时候都是写入到内存的PageCache，然后再由操作系统一批一批地写入到磁盘上。读取文件时，如果PageCache有数据则直接从中读取，如果没有就产生一个缺页中断，将数据从磁盘文件中复制到PageCache中，注意这个过程是阻塞而且很慢</p>
-<h1 id="揭秘四：ZeroCopy零拷贝"><a href="#揭秘四：ZeroCopy零拷贝" class="headerlink" title="揭秘四：ZeroCopy零拷贝"></a>揭秘四：ZeroCopy零拷贝</h1><p>传统发送数据的方式是这样的，调用操作系统接口将数据从<strong>磁盘</strong>中读取出来，将在<strong>操作系统内核空间</strong>的数据拷贝到<strong>用户应用程序内存空间</strong>，然后应用程序处理后，将应用空间的数据发送到<strong>Socket通道</strong>，最后Socket发送到<strong>网卡</strong>，再通过网卡发送到外面<br><img src="/2020/01/21/Kafka实现吞吐量大的原因/20200123012028285.png" alt=""><br>所以这种传统的数据读取方式需要经过多次数据拷贝，如果能将减少那么多的数据拷贝，将对数据读取的性能有极大的提升，在Linux 2.4版本中，引入了零拷贝，磁盘文件<strong>先拷贝到操作系统内核缓冲区，再从内核缓冲区拷贝到网卡</strong>，这样相对于传统的读取发送消息的方式， 减少了两次拷贝操作</p>
+<h2 id="Kafka中使用ZooKeeper"><a href="#Kafka中使用ZooKeeper" class="headerlink" title="Kafka中使用ZooKeeper"></a>Kafka中使用ZooKeeper</h2><p><img src="/2020/01/27/Kafka依赖的ZooKeeper/20200127100349587.png" alt=""></p>
 <ul>
-<li>其他：使用零拷贝，不仅能减少复制拷贝次数，还能减少上下文切换，缓存行污染<br>资料： <a href="https://www.jianshu.com/p/275602182f39" target="_blank" rel="noopener">https://www.jianshu.com/p/275602182f39</a></li>
+<li>注：老版本的Kafka会将消息的消费位置管理也一起存放在ZooKeeper中，当Consumer重启后，能自动从ZooKeeper读取位移数据，从而继续消费。这种设计使得Kafka Broker不要保存位移数据。但是因为ZooKeeper的读写新能问题，不适合高频写操作，后面的版本就改为存放在Broker中，将Consumer的位移数据作为一条条普通的Kafka消息，提交到_consumer_offsets中</li>
 </ul>
+<p>保存Kafka的元数据，主要是<strong>Broker的列表</strong>和<strong>主题分区信息</strong>两棵树，里面比较重要的数据有：</p>
+<ol>
+<li>所有主题消息。包括分区信息，比如领导者副本，ISR 集合有哪些副本</li>
+<li>所有Broker信息。包括当前运行的Broker，哪些正在关闭的Broker</li>
+<li>所有涉及运维任务的分区。包括当前正在进行Preferred领导者选举以及分区重分配的分区列表</li>
+</ol>
+<h2 id="ZooKeeper的一些局限"><a href="#ZooKeeper的一些局限" class="headerlink" title="ZooKeeper的一些局限"></a>ZooKeeper的一些局限</h2><ol>
+<li>不能让ZooKeeper写入大量数据，在写入几百MB数据后，性能和稳定性都会严重下降</li>
+<li>不要让业务集群的可用性严重依赖ZooKeeper，防止ZooKeeper集群宕机，业务系统都不可用</li>
+</ol>
+<h1 id="控制器组件（Controller）"><a href="#控制器组件（Controller）" class="headerlink" title="控制器组件（Controller）"></a>控制器组件（Controller）</h1><p>控制器组件在Kafka中，作用主要是在ZooKeeper的帮助下管理和协调整个Kafka集群，任意一台Broker都能充当控制器角色，但是只有一个Broker能成为控制器，<strong>第一个成功创建 /controller 节点的Broker会被指定为控制器</strong></p>
+<h2 id="控制器的职责"><a href="#控制器的职责" class="headerlink" title="控制器的职责"></a>控制器的职责</h2><ol>
+<li>主题管理（创建、删除、增加分区）</li>
+<li>分区重分配</li>
+<li>集群成员管理（新增Broker、Broker主动关闭、Broker宕机）</li>
+<li>数据服务，Controller向其他Broker提供数据服务，控制器上保存了最全的集群元数据，其他所有Broker会定期接收控制器发来的元数据更新请求</li>
+</ol>
+<h2 id="控制器故障转移（Failover）"><a href="#控制器故障转移（Failover）" class="headerlink" title="控制器故障转移（Failover）"></a>控制器故障转移（Failover）</h2><p>只能有一台Broker充当控制器角色，就存在<strong>单点失效</strong>（Single  Point of Failure）的风险，Kafka为控制器提供了故障转移功能，当运行中的控制器突然宕机或者意外终止，Kafka能够快速地感知到，并立即启用备用控制器来替代之前失败的控制器，该过程自动完成</p>
 
           
         
@@ -404,7 +422,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/37/">37</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/38/">38</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -450,7 +468,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">37</span>
+                  <span class="site-state-item-count">38</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

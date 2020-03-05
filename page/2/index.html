@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/27/Kafka依赖的ZooKeeper/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/28/JVM垃圾回收机制（一）/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="SouthLight Lin">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2020/01/27/Kafka依赖的ZooKeeper/" itemprop="url">Kafka依赖的ZooKeeper</a></h1>
+                <a class="post-title-link" href="/2020/01/28/JVM垃圾回收机制（一）/" itemprop="url">JVM垃圾回收机制（一）GC基础知识</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-27T09:50:42+08:00">
-                2020-01-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-28T10:31:34+08:00">
+                2020-01-28
               </time>
             
 
@@ -313,8 +313,19 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/Kafka/" itemprop="url" rel="index">
-                    <span itemprop="name">Kafka</span>
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/jvm/" itemprop="url" rel="index">
+                    <span itemprop="name">jvm</span>
                   </a>
                 </span>
 
@@ -352,37 +363,48 @@
       
         
           
-            <h1 id="Kafka的协调服务ZooKeeper"><a href="#Kafka的协调服务ZooKeeper" class="headerlink" title="Kafka的协调服务ZooKeeper"></a>Kafka的协调服务ZooKeeper</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>ZooKeeper是一个分布式协调服务框架，主要是为了解决分布式集群中，应用系统面对的各种通用一致性问题。ZooKeeper本身就可以部署为一个集群，集群的各个节点之间可以通过选举产生一个Leader，选举遵循半数以上的原则，一般集群需要部署奇数个节点，简单的说ZooKeeper是一个<strong>高可用、高可靠的一致性存储系统</strong></p>
-<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><ul>
-<li>提供分布式的存储系统</li>
-<li>数组的组织方式类似于UNIX文件系统的属性结构</li>
-<li>提供永久节点和临时节点，如果创建临时节点的客户端与ZooKeeper集群失去连接，临时节点就会消失</li>
-<li>ZooKeeper负责检测所有客户端的心跳</li>
-<li>Watcher机制，通过订阅ZNode状态的变化获取通知机制，一旦订阅ZNode或者它的子节点状态发生了变化，订阅的客户端立马可以收到通知</li>
-<li>实现业务集群的快速选举、节点间的简单通信、分布式锁..</li>
-</ul>
-<h2 id="Kafka中使用ZooKeeper"><a href="#Kafka中使用ZooKeeper" class="headerlink" title="Kafka中使用ZooKeeper"></a>Kafka中使用ZooKeeper</h2><p><img src="/2020/01/27/Kafka依赖的ZooKeeper/20200127100349587.png" alt=""></p>
+            <p>学些了解GC和内存分配，容易在线上排查各种内存溢出、内存泄漏问题</p>
+<p>学习之前先考虑三个问题：</p>
 <ul>
-<li>注：老版本的Kafka会将消息的消费位置管理也一起存放在ZooKeeper中，当Consumer重启后，能自动从ZooKeeper读取位移数据，从而继续消费。这种设计使得Kafka Broker不要保存位移数据。但是因为ZooKeeper的读写新能问题，不适合高频写操作，后面的版本就改为存放在Broker中，将Consumer的位移数据作为一条条普通的Kafka消息，提交到_consumer_offsets中</li>
+<li>GC什么时候触发</li>
+<li>哪些内存需要回收</li>
+<li>GC运行时，如何回收</li>
 </ul>
-<p>保存Kafka的元数据，主要是<strong>Broker的列表</strong>和<strong>主题分区信息</strong>两棵树，里面比较重要的数据有：</p>
+<h1 id="分析对象是否可被回收的算法"><a href="#分析对象是否可被回收的算法" class="headerlink" title="分析对象是否可被回收的算法"></a>分析对象是否可被回收的算法</h1><p>当jvm发生GC时，需要对对象进行回收清除以腾出更多的空间，但是一个对象满足什么条件才可以被回收呢？</p>
+<p>目前有两种算法可检测一个对象是否可被回收，<strong>引用计数法</strong> 和 <strong>可达性分析算法</strong></p>
+<h2 id="引用计数法（Reference-Counting）"><a href="#引用计数法（Reference-Counting）" class="headerlink" title="引用计数法（Reference Counting）"></a>引用计数法（Reference Counting）</h2><p>给对象添加一个引用计数器，每当有一个地方引用时，该对象的计数器加1， 当引用失效时，计数器减1； 任何时刻计数器为0的对象就是不可能再被使用，可被回收</p>
+<p>缺陷：jvm没有使用该算法来管理内存，因为该算法无法解决对象之间的循环引用，比如A对象和B对象之间相互引用，尽管以后再也用不到这两个对象，但是这两个对象的计数器都不为0，都不可被回收</p>
+<h2 id="可达性分析算法（Reachability-Analysis）"><a href="#可达性分析算法（Reachability-Analysis）" class="headerlink" title="可达性分析算法（Reachability Analysis）"></a>可达性分析算法（Reachability Analysis）</h2><p>规定一个<strong>GC Roots</strong> 的对象作为起始点，从这些节点开始向下搜索，搜索所走过的路径称为<strong>引用链（Reference Chain)</strong>，当一个对象到GC Roots没有任何引用链相连，证明这个对象不可用，GC可以回收</p>
+<p>JVM可作为GC Roots关联的对象：</p>
+<p>1、 虚拟机栈（栈帧中的本地变量表）中引用的对象</p>
+<p>2、 方法区中类静态属性引用的对象</p>
+<p>3、 方法区中常量引用的对象</p>
+<p>4、 本地方法栈中JNI（Nactive方法）引用的对象</p>
+<h3 id="不可达对象被回收之前需要两次标记验证"><a href="#不可达对象被回收之前需要两次标记验证" class="headerlink" title="不可达对象被回收之前需要两次标记验证"></a>不可达对象被回收之前需要两次标记验证</h3><p>上面说过，如果一个对象没有通过可达性算法，则会被垃圾收集器回收，但是不可达对象被回收之前需要进行两次标记</p>
 <ol>
-<li>所有主题消息。包括分区信息，比如领导者副本，ISR 集合有哪些副本</li>
-<li>所有Broker信息。包括当前运行的Broker，哪些正在关闭的Broker</li>
-<li>所有涉及运维任务的分区。包括当前正在进行Preferred领导者选举以及分区重分配的分区列表</li>
+<li>是否与GCRoots关联，判断是否有执行<code>finalize()</code>方法的必要，判断条件：是否重写了finalize()方法并且未被虚拟机调用过</li>
+<li>执行finalize()方法之后判断有没有与GCRoots关联，如果没有，对象回收</li>
 </ol>
-<h2 id="ZooKeeper的一些局限"><a href="#ZooKeeper的一些局限" class="headerlink" title="ZooKeeper的一些局限"></a>ZooKeeper的一些局限</h2><ol>
-<li>不能让ZooKeeper写入大量数据，在写入几百MB数据后，性能和稳定性都会严重下降</li>
-<li>不要让业务集群的可用性严重依赖ZooKeeper，防止ZooKeeper集群宕机，业务系统都不可用</li>
+<p>比如说，A对象没有被任何地方引用，但是在回收时执行finalize()方法后重新被引用，这样A对象就可不必被回收</p>
+<p>对于finalize()方法，虚拟机会自动建立低优先级的Finalizer线程执行F-Queue队列中需要执行此方法的对象，但是finalize()方法应该尽量少使用</p>
+<h2 id="何为引用"><a href="#何为引用" class="headerlink" title="何为引用"></a>何为引用</h2><p>JDK1.2之前，引用只有一种定义：如果reference类型的数据中存储的数值代表的是另一块内存的其实地址，就称这块内存代表着一个引用</p>
+<p>在JDK1.2后，引用有四种不同的定义：</p>
+<ol>
+<li><strong>强引用</strong>：类型 <code>Object obj = new Object()</code> 只要强引用还存在，垃圾收集器永远不会回收掉被引用的对象</li>
+<li><strong>软引用</strong>：描述一些还有用但并非必须的对象。对于软引用关联的对象，在系统将要发生内存溢出异常之前，将会把这些对象列进回收范围之内进行第二次回收。如果回收后还诶有足够的内存，才会抛出内存溢出异常。JDK1.2提供了<strong>SoftReference</strong>类来实现弱引用</li>
+<li><strong>弱引用</strong>：用来描述非必须的对象，但是它的强度比软引用更弱一些，被弱引用关联的对象只能生存到下一次垃圾收集发生之前（软引用只是将对象列进可回收范围）。当垃圾收集器工作时，无论当前内存是否足够，都会回收被弱引用关联的对象（软引用只是发生在内存溢出时）。JDK1.2提供了<strong>WeakReference</strong>类来实现弱 引用</li>
+<li><strong>虚引用</strong>：也可称为幽灵引用或者幻影引用。该引用的唯一作用是在这个对象被收集器回收时收到一个系统通知，无法通过虚引用来取得一个对象实例，也完全不会对对象生存时间造成影响。JDK1.2提供了<strong>PhantomReference</strong>类实现引用</li>
 </ol>
-<h1 id="控制器组件（Controller）"><a href="#控制器组件（Controller）" class="headerlink" title="控制器组件（Controller）"></a>控制器组件（Controller）</h1><p>控制器组件在Kafka中，作用主要是在ZooKeeper的帮助下管理和协调整个Kafka集群，任意一台Broker都能充当控制器角色，但是只有一个Broker能成为控制器，<strong>第一个成功创建 /controller 节点的Broker会被指定为控制器</strong></p>
-<h2 id="控制器的职责"><a href="#控制器的职责" class="headerlink" title="控制器的职责"></a>控制器的职责</h2><ol>
-<li>主题管理（创建、删除、增加分区）</li>
-<li>分区重分配</li>
-<li>集群成员管理（新增Broker、Broker主动关闭、Broker宕机）</li>
-<li>数据服务，Controller向其他Broker提供数据服务，控制器上保存了最全的集群元数据，其他所有Broker会定期接收控制器发来的元数据更新请求</li>
+<h1 id="在方法区（永久代）回收的主要内容"><a href="#在方法区（永久代）回收的主要内容" class="headerlink" title="在方法区（永久代）回收的主要内容"></a>在方法区（永久代）回收的主要内容</h1><p>jvm在堆（heap）主要是回收无用的对象，而在方法区，主要回收<strong>废弃常量</strong>和<strong>无用的类</strong>，但是收集器在方法区进行垃圾收集的性价比较低</p>
+<h2 id="判断一个常量是否被回收"><a href="#判断一个常量是否被回收" class="headerlink" title="判断一个常量是否被回收"></a>判断一个常量是否被回收</h2><p>跟判断对象是否被回收一样，都是没有对象引用常量池中的常量，那么这个常量将会被回收</p>
+<h2 id="判断一个类是否被回收"><a href="#判断一个类是否被回收" class="headerlink" title="判断一个类是否被回收"></a>判断一个类是否被回收</h2><ol>
+<li>该类所有的实例都已经被回收，也就是Java堆中不存在该类的实例对象</li>
+<li>加载该类的ClassLoader已经被回收</li>
+<li>该类对应的java.lang.Class对象已经没有在任何地方被引用，无法在任何地方通过反射访问该类的方法</li>
 </ol>
-<h2 id="控制器故障转移（Failover）"><a href="#控制器故障转移（Failover）" class="headerlink" title="控制器故障转移（Failover）"></a>控制器故障转移（Failover）</h2><p>只能有一台Broker充当控制器角色，就存在<strong>单点失效</strong>（Single  Point of Failure）的风险，Kafka为控制器提供了故障转移功能，当运行中的控制器突然宕机或者意外终止，Kafka能够快速地感知到，并立即启用备用控制器来替代之前失败的控制器，该过程自动完成</p>
+<ul>
+<li>注：JVM参数可设置是否打开对类进行回收， -Xnoclassgc， 查看类加载和卸载参数：-verbose:class和-XX:+TraceClassLoading、-XX:+TraceClassUnLoading</li>
+</ul>
 
           
         
@@ -422,7 +444,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/37/">37</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/38/">38</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -468,7 +490,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">37</span>
+                  <span class="site-state-item-count">38</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

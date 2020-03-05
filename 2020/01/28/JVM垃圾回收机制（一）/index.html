@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="SouthLight&#39;s Blog">
 <meta property="og:description" content="学些了解GC和内存分配，容易在线上排查各种内存溢出、内存泄漏问题 学习之前先考虑三个问题：  GC什么时候触发 哪些内存需要回收 GC运行时，如何回收  分析对象是否可被回收的算法当jvm发生GC时，需要对对象进行回收清除以腾出更多的空间，但是一个对象满足什么条件才可以被回收呢？ 目前有两种算法可检测一个对象是否可被回收，引用计数法 和 可达性分析算法 引用计数法（Reference Counti">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-02-11T07:25:55.561Z">
+<meta property="og:updated_time" content="2020-02-11T07:32:17.482Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM垃圾回收机制（一）GC基础知识">
 <meta name="twitter:description" content="学些了解GC和内存分配，容易在线上排查各种内存溢出、内存泄漏问题 学习之前先考虑三个问题：  GC什么时候触发 哪些内存需要回收 GC运行时，如何回收  分析对象是否可被回收的算法当jvm发生GC时，需要对对象进行回收清除以腾出更多的空间，但是一个对象满足什么条件才可以被回收呢？ 目前有两种算法可检测一个对象是否可被回收，引用计数法 和 可达性分析算法 引用计数法（Reference Counti">
@@ -403,10 +403,7 @@
 <li>该类对应的java.lang.Class对象已经没有在任何地方被引用，无法在任何地方通过反射访问该类的方法</li>
 </ol>
 <ul>
-<li><p>注：JVM参数可设置是否打开对类进行回收， -Xnoclassgc， 查看类加载和卸载参数：-verbose:class和-XX:+TraceClassLoading、-XX:+TraceClassUnLoading</p>
-</li>
-<li><p>什么时候</p>
-</li>
+<li>注：JVM参数可设置是否打开对类进行回收， -Xnoclassgc， 查看类加载和卸载参数：-verbose:class和-XX:+TraceClassLoading、-XX:+TraceClassUnLoading</li>
 </ul>
 
       
@@ -449,6 +446,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/03/05/JVM垃圾回收机制（二）/" rel="prev" title="JVM垃圾回收机制（二）垃圾收集器">
+                JVM垃圾回收机制（二）垃圾收集器 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -525,7 +526,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">37</span>
+                  <span class="site-state-item-count">38</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
